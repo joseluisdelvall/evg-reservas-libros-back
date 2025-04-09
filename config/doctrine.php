@@ -16,7 +16,7 @@ $dbParams = [
 
 // Configuración para las entidades (dónde Doctrine buscará tus clases)
 $config = ORMSetup::createAnnotationMetadataConfiguration(
-    [__DIR__ . '/../src/entidades'], // Directorio donde estarán tus clases de modelo (entidades)
+    [__DIR__ . '/../src/entities'], // Directorio donde estarán tus clases de modelo (entidades)
     true // Modo desarrollador (pon false cuando tu proyecto esté terminado)
 );
 
