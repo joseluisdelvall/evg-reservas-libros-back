@@ -9,6 +9,10 @@ Este es el backend para la aplicación de reservas de libros.
     git clone [https://github.com/joseluisdelvall/evg-reservas-libros-back.git](https://github.com/joseluisdelvall/evg-reservas-libros-back.git)
     ```
 
+2. **Instalar composer:**
+    Instala composer en el siguiente enlace y sigue los pasos
+    [https://getcomposer.org/download/](https://getcomposer.org/download/)
+
 2.  **Instalar las dependencias de PHP (con Composer):**
     Asegúrate de tener Composer instalado en tu sistema. Si no lo tienes, puedes descargarlo desde [https://getcomposer.org/](https://getcomposer.org/). Luego, ejecuta el siguiente comando en la raíz del proyecto:
     ```bash
