@@ -1,0 +1,17 @@
+{
+    "name": "proyecto-final/reservas-libros",
+    "description": "Proyecto para la gestión de reservas de libros",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "ProyectoFinal\\ReservasLibros\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Merroji",
+            "email": "156344132+merroji@users.noreply.github.com"
+        }
+    ],
+    "require": {}
+}
