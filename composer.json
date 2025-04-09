@@ -13,5 +13,8 @@
             "email": "156344132+merroji@users.noreply.github.com"
         }
     ],
-    "require": {}
+    "require": {
+        "doctrine/orm": "^3.3",
+        "doctrine/dbal": "^4.2"
+    }
 }
