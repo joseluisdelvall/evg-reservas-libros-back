@@ -6,7 +6,7 @@ Este es el backend para la aplicación de reservas de libros.
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/joseluisdelvall/evg-reservas-libros-back.git](https://github.com/joseluisdelvall/evg-reservas-libros-back.git)
+    git clone https://github.com/joseluisdelvall/evg-reservas-libros-back.git
     ```
 
 2. **Instalar composer:**
