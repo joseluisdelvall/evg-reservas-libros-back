@@ -25,7 +25,7 @@ $config = new \Doctrine\ORM\Configuration();
 // Configurar el driver de metadatos para anotaciones
 $driverImpl = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver(
     new \Doctrine\Common\Annotations\AnnotationReader(),
-    [__DIR__ . '/../src/Entities']
+    [__DIR__ . '/../src/entities']
 );
 $config->setMetadataDriverImpl($driverImpl);
 
