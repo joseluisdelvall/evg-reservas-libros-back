@@ -21,18 +21,18 @@
 
     $routeKey = $method . ' ' . $requestUri;
 
-    $route = $routes[$routeKey];
-
-    if(isset($route)) {
-        list($controller, $method) = explode('@', $route);
+    if (!isset($routes[$routeKey])) {
+        http_response_code(404);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Ruta no encontrada: ' . $routeKey
+        ]);
+        exit;
     }
 
-    // Función para convertir el nombre del controlador
-    $fileNameController = convertControllerName($controller);
+    $route = $routes[$routeKey];
 
-    require_once __DIR__ . '/../src/controller/' . $fileNameController . '.php';
-
-    echo $fileNameController;
+    list($controller, $method) = explode('@', $route);
 
     function convertControllerName($controllerName) {
         
@@ -49,4 +49,24 @@
         return $result;
     }
 
+    // Función para convertir el nombre del controlador
+    $fileNameController = convertControllerName($controller);
+    $filePath = __DIR__ . '/../src/controller/' . $fileNameController . '.php';
+
+    if (!file_exists($filePath)) {
+        http_response_code(404);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Controlador no encontrado: ' . $controllerFileName
+        ]);
+        exit;
+    }
+
+    require_once $filePath;
+
+    $controller = new $controller();
+    $response = $controller->$method();
+
+    echo json_encode($response);
+    
 ?>

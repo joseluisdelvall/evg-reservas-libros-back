@@ -1,5 +1,0 @@
-<?php
-    
-    // Servicios aqui
-    
-?>
