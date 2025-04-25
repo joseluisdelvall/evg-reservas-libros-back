@@ -1,7 +1,10 @@
 <?php
+    // Enable error reporting for debugging
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
 
-    include '../src/service/periodo-reservas-service.php';
-    include '../src/dto/periodo-reservas-dto.php';
+    require_once '../src/service/periodo-reservas-service.php';
+    require_once '../src/dto/periodo-reservas-dto.php';
 
     class PeriodoReservasController {
 
