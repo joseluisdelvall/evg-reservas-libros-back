@@ -29,6 +29,7 @@
                     'status' => 'error',
                     'message' => 'No se ha encontrado ningún período de reservas'
                 ];
+                exit;
             }
 
             $periodoDto = new PeriodoReservasDto($periodo->getFechaInicio(), $periodo->getFechaFin());
