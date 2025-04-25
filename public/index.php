@@ -19,6 +19,34 @@
     $requestUri = explode('?', $path)[0];
     $requestUri = str_replace($config['base_name'], '', $requestUri);
 
-    echo $requestUri;
+    $routeKey = $method . ' ' . $requestUri;
+
+    $route = $routes[$routeKey];
+
+    if(isset($route)) {
+        list($controller, $method) = explode('@', $route);
+    }
+
+    // Función para convertir el nombre del controlador
+    $fileNameController = convertControllerName($controller);
+
+    require_once __DIR__ . '/../src/controller/' . $fileNameController . '.php';
+
+    echo $fileNameController;
+
+    function convertControllerName($controllerName) {
+        
+        // Convertir mayúsculas a minúsculas con guión
+        $result = '';
+        for ($i = 0; $i < strlen($controllerName); $i++) {
+            $char = $controllerName[$i];
+            if (ctype_upper($char) && $i > 0) {
+                $result .= '-' . strtolower($char);
+            } else {
+                $result .= strtolower($char);
+            }
+        }
+        return $result;
+    }
 
 ?>

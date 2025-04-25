@@ -1,8 +1,8 @@
 <?php
 
     return [
-        // Cambiar en caso de traslado, sin / al final ni al principio
-        'base_name' => 'evg-reservas-libros-back'
+        // Cambiar en caso de traslado, con / al final
+        'base_name' => 'evg-reservas-libros-back/'
     ];
 
 ?>
