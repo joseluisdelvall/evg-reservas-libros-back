@@ -1,6 +1,7 @@
 <?php
 
     include '../src/service/periodo-reservas-service.php';
+    include '../src/dto/periodo-reservas-dto.php';
 
     class PeriodoReservasController {
 
@@ -27,11 +28,11 @@
                 ];
             }
 
-            //$periodoDto = new PeriodoReservasDto($periodo);
+            $periodoDto = new PeriodoReservasDto($periodo->getFechaInicio(), $periodo->getFechaFin());
 
             return [
                 'status' => 'success',
-                'data' => $periodo
+                'data' => $periodoDto->toArray()
             ];
         }
 
