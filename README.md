@@ -27,4 +27,5 @@ Este es el backend para la aplicación de reservas de libros.
 4.  **Posible problema con la extensión ZIP:**
     Si tienes problemas al instalar las dependencias con Composer, es posible que necesites activar la extensión `zip` en tu archivo `php.ini`. Busca la línea `;extension=zip` y quita el punto y coma al principio. Después de modificar el archivo, reinicia tu servidor web (por ejemplo, Apache si estás usando XAMPP).
 
-¡Con estos pasos, cualquier persona debería poder configurar tu proyecto fácilmente! ¿Qué te parece?
+5. **Configuración apache**
+   en proceso :)
