@@ -5,6 +5,9 @@
     // Cargar el autoload de composer
     //require_once __DIR__ . '/../vendor/autoload.php';
 
+    // Cargar la configuración
+    $config = require_once __DIR__ . '/../config/config.php';
+
     // Cargar las rutas de la API
     $routes = require_once __DIR__ . '/../config/routes.php';
 
@@ -14,8 +17,8 @@
 
     // Limpiamos la ruta de headers
     $requestUri = explode('?', $path)[0];
+    $requestUri = str_replace($config['base_name'], '', $requestUri);
 
     echo $requestUri;
-    
 
 ?>
