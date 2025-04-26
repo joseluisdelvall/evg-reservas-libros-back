@@ -74,12 +74,14 @@ try {
         
         // Conectar a la base de datos directamente para verificar si el usuario existe
         try {
-            $pdo = new PDO(
-                'mysql:host=localhost;dbname=reservalibros;charset=utf8mb4',
-                'root',
-                '',
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-            );
+            // Cargar la clase de conexión externalizada
+            require_once __DIR__ . '/../config/conexion.php';
+            
+            // Obtener la instancia de conexión
+            //$conexionDB = Conexion::getInstancia();
+            //$pdo = $conexionDB->getConexion();
+            // Igual a las líneas anteriores
+            $pdo = Conexion::getInstancia()->getConexion();
             
             logAuthActivity('Conexión a base de datos establecida');
             

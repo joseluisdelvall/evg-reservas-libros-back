@@ -2,6 +2,7 @@ vendor/
 .vscode/
 *.log
 config/config.php
+config/configDB.php
 config/configBD1login_User12.php
 config/configBD2app_User12.php
 composer.lock
