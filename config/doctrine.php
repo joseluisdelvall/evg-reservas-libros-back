@@ -9,14 +9,18 @@ ini_set('display_errors', 1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Cargar constantes de configuración de la base de datos
+require_once __DIR__ . '/configDB.php';
+
 // Configuración de la base de datos
 $dbParams = [
     'driver'   => 'pdo_mysql',
-    'user'     => 'root',
-    'password' => '',
-    'dbname'   => 'reservalibros',
-    'host'     => 'localhost',
-    'charset'  => 'utf8mb4',
+    'user'     => DB_USER,
+    'password' => DB_PASS,
+    'dbname'   => DB_NAME,
+    'host'     => DB_HOST,
+    'port'     => DB_PORT,
+    'charset'  => DB_CHARSET,
 ];
 
 // Configuración de Doctrine usando el enfoque más básico y compatible
