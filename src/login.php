@@ -86,7 +86,7 @@ try {
             logAuthActivity('Conexión a base de datos establecida');
             
             // Verificar si el correo está en la tabla de usuarios autorizados
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt = $pdo->prepare("SELECT * FROM USER WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
