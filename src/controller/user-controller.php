@@ -22,7 +22,7 @@
          */
         public function getUserByEmail() {
             
-            //EMAIL DE PRUEBA: '
+            //EMAIL DE PRUEBA
             $user = $this->UserService->getUserByEmail('celiamorunoherrojo.guadalupe@alumnado.fundacionloyola.net');
 
             if(!$user) {
@@ -33,7 +33,7 @@
                 exit;
             }
 
-            $userDto = new UserDto($user->getId(),$user->getGoogleId(), $user->getNombre(), $user->getCorreo());
+            $userDto = new UserDto($user->getId(),$user->getGoogleId(), $user->getNombre(), $user->getEmail());
 
             return [
                 'status' => 'success',

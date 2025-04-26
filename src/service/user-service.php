@@ -10,8 +10,8 @@
             $this->UserRepository = new UserRepository();
         }
 
-        public function getUsuarioByCorreo(string $correo): ?UserEntity {
-            return $this->UserRepository->getUsuarioByCorreo($correo);
+        public function getUserByEmail(string $email): ?UserEntity {
+            return $this->UserRepository->getUserByEmail($email);
         }
         
     }
