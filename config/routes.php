@@ -6,6 +6,9 @@
         // Periodo de reservas
         'GET /api/periodo-reservas' => 'PeriodoReservasController@getPeriodoReservas',
         'PUT /api/periodo-reservas' => 'PeriodoReservasController@updatePeriodoReservas',
+
+        // User
+        'GET /api/user' => 'UserController@getUserByEmail',
     ];
     
 ?>

@@ -14,7 +14,9 @@
         public function getPeriodoActual() {
             // Solo tiene 1 registro que lo podemos obtener o modificar
             $sql = "SELECT * FROM PERIODO_RESERVAS";
-            $resultado = $this->conexion->query($sql);
+            $resultado = $this->conexion->prepare($sql);
+            $resultado->execute();
+            $resultado = $resultado->get_result();
 
             if($resultado->num_rows > 0) {
                 $periodo = $resultado->fetch_assoc();

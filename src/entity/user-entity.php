@@ -30,6 +30,13 @@
          */
         private $nombre;
 
+        public function __construct(?int $id = null, ?string $googleId = null, string $email = '', string $nombre = '') {
+            $this->id = $id;
+            $this->googleId = $googleId;
+            $this->email = $email;
+            $this->nombre = $nombre;
+        }
+
         public function getId(): ?int {
             return $this->id;
         }
@@ -40,7 +47,6 @@
 
         public function setGoogleId(?string $googleId): self {
             $this->googleId = $googleId;
-
             return $this;
         }
 
@@ -50,7 +56,6 @@
 
         public function setEmail(string $email): self {
             $this->email = $email;
-
             return $this;
         }
 
@@ -60,7 +65,6 @@
 
         public function setNombre(string $nombre): self {
             $this->nombre = $nombre;
-
             return $this;
         }
 
