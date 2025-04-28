@@ -15,7 +15,7 @@
         }
 
         public function updatePeriodoReservas($periodo) {
-            return $this->periodoReservasRepository->updatePeriodoReservas($periodo);
+            //return $this->periodoReservasRepository->updatePeriodoReservas($periodo);
         }
     }
 ?>
