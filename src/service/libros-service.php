@@ -20,6 +20,10 @@
             return $this->librosRepository->getLibros();
 
         }
+
+        public function addLibro($libro) {
+            return $this->librosRepository->addLibro($libro);
+        }
     }
 
 ?>
