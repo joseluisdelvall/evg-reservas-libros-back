@@ -29,7 +29,13 @@
             }
 
             $editorialesDto = array_map(function($editorial) {
-                return new EditorialDto();
+                return new EditorialDto(
+                    $editorial->getId(),
+                    $editorial->getNombre(),
+                    $editorial->getTelefono(),
+                    $editorial->getCorreo(),
+                    $editorial->getEstado()
+                );
             }, $editoriales);
 
             return [
