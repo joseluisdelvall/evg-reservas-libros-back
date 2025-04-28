@@ -1,5 +1,7 @@
 <?php
     
+    require_once '../src/repository/editoriales-repository.php';
+    
     class EditorialesService {
 
         private $editorialesRepository;
