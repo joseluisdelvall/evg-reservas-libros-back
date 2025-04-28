@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS LIBRO (
     CONSTRAINT libro_editorial_fk FOREIGN KEY (idEditorial) REFERENCES EDITORIAL (idEditorial)
 );
 
+ALTER TABLE LIBRO ADD COLUMN activo BOOLEAN
+
 -- Tabla TM_ESTADO
 CREATE TABLE IF NOT EXISTS TM_ESTADO (
     idEstado TINYINT AUTO_INCREMENT NOT NULL,
@@ -113,3 +115,4 @@ INSERT INTO TM_ESTADO (nombre, descripcion) VALUES
 ('Recibido', 'El libro está en stock y disponible para recoger'),
 ('Recogido', 'El libro ha sido entregado al solicitante'),
 ('Anulado', 'La reserva o pedido ha sido cancelado');
+
