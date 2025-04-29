@@ -9,6 +9,7 @@
 
         // User
         'GET /api/user' => 'UserController@getUserByEmail',
+        'POST /api/login' => 'UserController@getUserByEmail',
     ];
     
 ?>
