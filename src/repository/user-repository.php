@@ -12,7 +12,7 @@
         }
 
         public function getUserByEmail(string $email): ?UserEntity {
-            $sql = "SELECT * FROM USER WHERE email = ?";
+            $sql = "SELECT * FROM USUARIO WHERE email = ?";
             $stmt = $this->conexion->prepare($sql);
             $stmt->bind_param("s", $email);
             $stmt->execute();
@@ -20,7 +20,7 @@
             
             if($resultado->num_rows > 0) {
                 $usuario = $resultado->fetch_assoc();
-                return new UserEntity($usuario['id'], $usuario['google_id'], $usuario['nombre'], $usuario['email']);
+                return new UserEntity($usuario['idUsuario'], $usuario['nombre'], $usuario['email']);
             } else {
                 return null;
             }
