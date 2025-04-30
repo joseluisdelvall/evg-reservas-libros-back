@@ -9,16 +9,11 @@
      */
     class UserEntity {
         /**
-         * @ORM\Id
+         * @ORM\IdUsuario
          * @ORM\GeneratedValue
          * @ORM\Column(type="integer")
          */
-        private $id;
-
-        /**
-         * @ORM\Column(name="google_id", type="string", length=255, unique=true, nullable=true)
-         */
-        private $googleId;
+        private $idUsuario;
 
         /**
          * @ORM\Column(type="string", length=255, unique=true)
@@ -30,24 +25,14 @@
          */
         private $nombre;
 
-        public function __construct(?int $id = null, ?string $googleId = null, string $email = '', string $nombre = '') {
-            $this->id = $id;
-            $this->googleId = $googleId;
+        public function __construct(?int $idUsuario = null, string $email = '', string $nombre = '') {
+            $this->idUsuario = $idUsuario;
             $this->email = $email;
             $this->nombre = $nombre;
         }
 
-        public function getId(): ?int {
-            return $this->id;
-        }
-
-        public function getGoogleId(): ?string {
-            return $this->googleId;
-        }
-
-        public function setGoogleId(?string $googleId): self {
-            $this->googleId = $googleId;
-            return $this;
+        public function getIdUsuario(): ?int {
+            return $this->idUsuario;
         }
 
         public function getEmail(): ?string {

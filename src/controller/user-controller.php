@@ -47,6 +47,14 @@
                 ];
             }
 
+            // Comprobar si el correo es válido
+            if ($decodedToken['hd'] !== 'alumnado.fundacionloyola.net') {
+                return [
+                    'status' => 'error',
+                    'message' => 'El correo electrónico no es válido'
+                ];
+            }
+
             // Obtener el correo electrónico del token decodificado
             $email = $decodedToken['email'] ?? null;
 
@@ -61,7 +69,7 @@
                 exit;
             }
 
-            $userDto = new UserDto($user->getId(),$user->getGoogleId(), $user->getNombre(), $user->getEmail());
+            $userDto = new UserDto($user->getIdUsuario(), $user->getNombre(), $user->getEmail());
 
             return [
                 'success' => true,
