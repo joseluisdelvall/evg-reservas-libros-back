@@ -44,6 +44,21 @@
             ];
         }
 
+        /**
+         * Agrega una nueva editorial
+         * 
+         * @return array Respuesta con el estado y el mensaje de la operación
+         */
+        public function addEditorial() {
+            // Obtener los datos de la solicitud
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $result = $this->editorialesService->addEditorial($data);
+                return response('success', 'Editorial agregada correctamente.', $result);
+            } catch (Exception $e) {
+                return response('error', $e->getMessage());
+            }
+        }
     }
 
 ?>
