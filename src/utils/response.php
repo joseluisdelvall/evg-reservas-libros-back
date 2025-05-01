@@ -3,7 +3,7 @@
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $data->toArray() ?? null
+            'data' => $data ? $data->toArray() : null
         ];
     }
 ?>

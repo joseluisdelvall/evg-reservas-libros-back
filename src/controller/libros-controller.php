@@ -44,6 +44,23 @@
             
         }
 
+        /**
+         * Crea un nuevo libro
+         * 
+         * @return array Respuesta con el estado y el mensaje de la operación
+         */
+        public function addLibro() {
+            // Obtener los datos de la solicitud
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $result = $this->librosService->addLibro($data);
+                return response('success', 'Libro agregado correctamente.', $result);
+            } catch (Exception $e) {
+                return response('error', $e->getMessage());
+            }
+
+        }
+
     }
 
 ?>

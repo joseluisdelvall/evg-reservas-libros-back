@@ -10,7 +10,7 @@
         private $stock;
         private $estado;
 
-        public function __construct($id, $nombre, $isbn, $editorial, $precio, $stock, $estado) {
+        public function __construct($id = null, $nombre = null, $isbn = null, $editorial = null, $precio = null, $stock = null, $estado = null) {
             $this->id = $id;
             $this->nombre = $nombre;
             $this->isbn = $isbn;
