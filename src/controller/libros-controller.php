@@ -44,37 +44,6 @@
             
         }
 
-        public function addLibro() {
-
-            // Obtener los datos del libro desde la solicitud
-            $data = json_decode(file_get_contents("php://input"), true);
-
-            // Validar los datos recibidos
-            if (!isset($data['nombre']) || !isset($data['isbn']) || !isset($data['idEditorial']) || !isset($data['precio'])) {
-                return [
-                    'status' => 'error',
-                    'message' => 'Faltan datos requeridos'
-                ];
-            }
-
-            // Crear el libro usando el servicio
-            $libro = $this->librosService->addLibro($data['nombre'], $data['isbn'], $data['idEditorial'], $data['precio']);
-
-            if ($libro) {
-                return [
-                    'status' => 'success',
-                    'message' => 'Libro creado exitosamente',
-                    'data' => $libro->toArray()
-                ];
-            } else {
-                return [
-                    'status' => 'error',
-                    'message' => 'Error al crear el libro'
-                ];
-            }
-
-        }
-
     }
 
 ?>
