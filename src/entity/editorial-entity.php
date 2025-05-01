@@ -7,7 +7,7 @@
         private $correo;
         private $estado;
         
-        public function __construct($idEditorial, $nombre, $telefono = null, $correo = null, $estado = null) {
+        public function __construct($idEditorial = null, $nombre = null, $telefono = null, $correo = null, $estado = null) {
             $this->idEditorial = $idEditorial;
             $this->nombre = $nombre;
             $this->telefono = $telefono;
