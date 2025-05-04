@@ -16,11 +16,12 @@
         }
 
         /**
-         * Obtiene el usuario por correo electrónico
+         * Comprueba si el token es válido y si el usuario tiene acceso al sistema.
          * 
-         * @return array Respuesta con el usuario encontrado
-         */
-        public function getUserByEmail() {
+         * @return array Respuesta con el estado de la operación y los datos del usuario.
+         *               Si el token es válido y el usuario tiene acceso, se devuelve un array con los datos del usuario.
+        */
+        public function userLogin() {
 
             // Obtener el cuerpo de la solicitud como JSON
             $jsonData = file_get_contents('php://input');
@@ -47,11 +48,33 @@
                 ];
             }
 
-            // Obtener el correo electrónico del token decodificado
-            $email = $decodedToken['email'] ?? null;
+            // Comprobar si el correo tiene el dominio correcto
+            if ( !isset($decodedToken['hd']) || $decodedToken['hd'] !== DOMINIO_CORREO) {
+                return [
+                    'status' => 'error',
+                    'message' => 'El correo electrónico no es válido'
+                ];
+                exit;
+            }
 
-            //EMAIL DE PRUEBA
-            $user = $this->UserService->getUserByEmail($email);
+            // Comprobar si el token ha expirado
+            if (isset($decodedToken['exp']) && $decodedToken['exp'] < time()) {
+                return [
+                    'status' => 'error',
+                    'message' => 'El token ha expirado'
+                ];
+            }
+
+            // Comprobar rol de usuario en base de datos
+            if (!$this->UserService->isUserAuthorized($decodedToken['email'])) {
+                return [
+                    'status' => 'error',
+                    'message' => 'El usuario no está autorizado para acceder al sistema ROL'
+                ];
+            }
+
+            // Verificar si el correo está registrado en la base de datos
+            $user = $this->UserService->isUserRegister($decodedToken['email']);
 
             if(!$user) {
                 return [
@@ -61,13 +84,16 @@
                 exit;
             }
 
-            $userDto = new UserDto($user->getId(),$user->getGoogleId(), $user->getNombre(), $user->getEmail());
+            // Crear un nuevo objeto UserDto con los datos del usuario
+            $userDto = new UserDto($user->getIdUsuario(), $user->getNombre(), $user->getEmail());
 
+            // Devolver la respuesta con los datos del usuario y el token
             return [
                 'success' => true,
                 'user' => $userDto->toArray(),
                 'token' => $token
             ];
+
         }
 
     }
