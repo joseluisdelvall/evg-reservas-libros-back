@@ -55,6 +55,23 @@
                 ];
             }
 
+            // Comprobar si el token ha expirado
+            if (isset($decodedToken['exp']) && $decodedToken['exp'] < time()) {
+                return [
+                    'status' => 'error',
+                    'message' => 'El token ha expirado'
+                ];
+            }
+
+            // Comprobar rol de usuario en base de datos
+            if (!$this->UserService->isUserAuthorized($decodedToken['email'])) {
+                return [
+                    'status' => 'error',
+                    'message' => 'El usuario no está autorizado para acceder al sistema ROL'
+                ];
+            }
+
+
             // Obtener el correo electrónico del token decodificado
             $email = $decodedToken['email'] ?? null;
 
