@@ -2,24 +2,18 @@
 
     class UserDto {
         
-        private $id;
-        private $googleId;
+        private $idUsuario;
         private $email;
         private $nombre;
 
-        public function __construct($id, $googleId, $email, $nombre) {
-            $this->id = $id;
-            $this->googleId = $googleId;
+        public function __construct($idUsuario, $email, $nombre) {
+            $this->idUsuario = $idUsuario;
             $this->email = $email;
             $this->nombre = $nombre;
         }
 
-        public function getId() {
-            return $this->id;
-        }
-
-        public function getGoogleId() {
-            return $this->googleId;
+        public function getIdUsuario() {
+            return $this->idUsuario;
         }
 
         public function getEmail() {
@@ -30,12 +24,8 @@
             return $this->nombre;
         }
 
-        public function setId($id) {
-            $this->id = $id;
-        }
-
-        public function setGoogleId($googleId) {
-            $this->googleId = $googleId;
+        public function setIdUsuario($idUsuario) {
+            $this->idUsuario = $idUsuario;
         }
 
         public function setEmail($email) {
@@ -49,8 +39,7 @@
         // EN TODOS LOS DTOs se debe hacer un toArray(), para que se pueda enviar al cliente
         public function toArray() {
             return [
-                'id' => $this->id,
-                'googleId' => $this->googleId,
+                'idUsuario' => $this->idUsuario,
                 'email' => $this->email,
                 'nombre' => $this->nombre
             ];
