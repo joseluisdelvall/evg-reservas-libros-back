@@ -49,11 +49,12 @@
             }
 
             // Comprobar si el correo tiene el dominio correcto
-            if ($decodedToken['hd'] !== DOMINIO_CORREO) {
+            if ( !isset($decodedToken['hd']) || $decodedToken['hd'] !== DOMINIO_CORREO) {
                 return [
                     'status' => 'error',
                     'message' => 'El correo electrónico no es válido'
                 ];
+                exit;
             }
 
             // Comprobar si el token ha expirado
@@ -92,6 +93,7 @@
                 'user' => $userDto->toArray(),
                 'token' => $token
             ];
+
         }
 
     }
