@@ -13,7 +13,7 @@
         'GET /api/crud/editoriales' => 'EditorialesController@getEditoriales',
 
         // Login
-        'POST /api/login' => 'UserController@getUserByEmail',
+        'POST /api/login' => 'UserController@userLogin',
     ];
     
 ?>

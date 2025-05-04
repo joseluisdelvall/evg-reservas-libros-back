@@ -16,11 +16,12 @@
         }
 
         /**
-         * Obtiene el usuario por correo electrónico
+         * Comprueba si el token es válido y si el usuario tiene acceso al sistema.
          * 
-         * @return array Respuesta con el usuario encontrado
-         */
-        public function getUserByEmail() {
+         * @return array Respuesta con el estado de la operación y los datos del usuario.
+         *               Si el token es válido y el usuario tiene acceso, se devuelve un array con los datos del usuario.
+        */
+        public function userLogin() {
 
             // Obtener el cuerpo de la solicitud como JSON
             $jsonData = file_get_contents('php://input');
@@ -47,8 +48,8 @@
                 ];
             }
 
-            // Comprobar si el correo es válido
-            if ($decodedToken['hd'] !== 'alumnado.fundacionloyola.net') {
+            // Comprobar si el correo tiene el dominio correcto
+            if ($decodedToken['hd'] !== DOMINIO_CORREO) {
                 return [
                     'status' => 'error',
                     'message' => 'El correo electrónico no es válido'
@@ -71,12 +72,8 @@
                 ];
             }
 
-
-            // Obtener el correo electrónico del token decodificado
-            $email = $decodedToken['email'] ?? null;
-
-            //EMAIL DE PRUEBA
-            $user = $this->UserService->getUserByEmail($email);
+            // Verificar si el correo está registrado en la base de datos
+            $user = $this->UserService->isUserRegister($decodedToken['email']);
 
             if(!$user) {
                 return [
@@ -86,8 +83,10 @@
                 exit;
             }
 
+            // Crear un nuevo objeto UserDto con los datos del usuario
             $userDto = new UserDto($user->getIdUsuario(), $user->getNombre(), $user->getEmail());
 
+            // Devolver la respuesta con los datos del usuario y el token
             return [
                 'success' => true,
                 'user' => $userDto->toArray(),

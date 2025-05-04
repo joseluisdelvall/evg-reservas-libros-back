@@ -10,8 +10,8 @@
             $this->UserRepository = new UserRepository();
         }
 
-        public function getUserByEmail(string $email): ?UserEntity {
-            return $this->UserRepository->getUserByEmail($email);
+        public function isUserRegister(string $email): ?UserEntity {
+            return $this->UserRepository->isUserRegister($email);
         }
 
         public function isUserAuthorized(string $email): bool {

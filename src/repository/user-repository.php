@@ -11,7 +11,7 @@
             require_once '../conexionTmpBD/conexion.php';
         }
 
-        public function getUserByEmail(string $email): ?UserEntity {
+        public function isUserRegister(string $email): ?UserEntity {
             $sql = "SELECT * FROM USUARIO WHERE email = ?";
             $stmt = $this->conexion->prepare($sql);
             $stmt->bind_param("s", $email);
