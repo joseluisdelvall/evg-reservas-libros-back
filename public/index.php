@@ -22,23 +22,49 @@
     $requestUri = explode('?', $path)[0];
     $requestUri = str_replace($config['base_name'], '', $requestUri);
 
-    $routeKey = $method . ' ' . $requestUri;
+    // Variable para almacenar parámetros de la ruta
+    $routeParams = [];
+    $matchedRoute = null;
 
-    if (!isset($routes[$routeKey])) {
+    // Buscar la ruta en las rutas definidas
+    foreach ($routes as $routePattern => $handler) {
+        list($routeMethod, $routePath) = explode(' ', $routePattern, 2);
+        
+        // Verificar si el método coincide
+        if ($routeMethod !== $method) {
+            continue;
+        }
+        
+        // Convertir patrones de ruta como '/api/libros/curso/:id' a expresiones regulares
+        $pattern = preg_replace('/:([^\/]+)/', '(?P<$1>[^/]+)', $routePath);
+        $pattern = '@^' . $pattern . '$@';
+        
+        if (preg_match($pattern, $requestUri, $matches)) {
+            $matchedRoute = $routePattern;
+            
+            // Extraer los parámetros de la ruta
+            foreach ($matches as $key => $value) {
+                if (is_string($key)) {
+                    $routeParams[$key] = $value;
+                }
+            }
+            break;
+        }
+    }
+
+    if (!$matchedRoute) {
         http_response_code(404);
         echo json_encode([
             'status' => 'error',
-            'message' => 'Ruta no encontrada: ' . $routeKey
+            'message' => 'Ruta no encontrada: ' . $method . ' ' . $requestUri
         ]);
         exit;
     }
 
-    $route = $routes[$routeKey];
-
+    $route = $routes[$matchedRoute];
     list($controller, $method) = explode('@', $route);
 
     function convertControllerName($controllerName) {
-        
         // Convertir mayúsculas a minúsculas con guión
         $result = '';
         for ($i = 0; $i < strlen($controllerName); $i++) {
@@ -60,7 +86,7 @@
         http_response_code(404);
         echo json_encode([
             'status' => 'error',
-            'message' => 'Controlador no encontrado: ' . $controllerFileName
+            'message' => 'Controlador no encontrado: ' . $fileNameController
         ]);
         exit;
     }
@@ -68,7 +94,18 @@
     require_once $filePath;
 
     $controller = new $controller();
-    $response = $controller->$method();
+    
+    // Si hay parámetros de ruta, pasarlos al método del controlador
+    if (!empty($routeParams)) {
+        // Pasar los parámetros al método del controlador
+        if (isset($routeParams['id'])) {
+            $response = $controller->$method($routeParams['id']);
+        } else {
+            $response = $controller->$method($routeParams);
+        }
+    } else {
+        $response = $controller->$method();
+    }
 
     echo json_encode($response);
     
