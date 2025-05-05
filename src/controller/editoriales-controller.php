@@ -28,6 +28,7 @@
                 ];
             }
 
+            // Crear los DTOs para cada editorial
             $editorialesDto = array_map(function($editorial) {
                 return new EditorialDto(
                     $editorial->getId(),
@@ -38,10 +39,12 @@
                 );
             }, $editoriales);
 
-            return [
-                'status' => 'success',
-                'data' => array_map(function($dto) { return $dto->toArray(); }, $editorialesDto)
-            ];
+            // Convertir cada DTO a array antes de enviar la respuesta
+            $editorialesArray = array_map(function($dto) {
+                return $dto->toArray();
+            }, $editorialesDto);
+
+            return response('success', 'Editoriales obtenidas correctamente.', $editorialesArray);
         }
 
         /**
