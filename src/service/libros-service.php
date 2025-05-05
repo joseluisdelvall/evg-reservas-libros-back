@@ -22,6 +22,20 @@
         }
 
         /**
+         * Obtiene los libros de un curso específico
+         * 
+         * @param int $idCurso ID del curso
+         * @return array Lista de libros del curso
+         */
+        public function getLibrosByCurso($idCurso) {
+            if (!is_numeric($idCurso)) {
+                throw new Exception("El ID del curso debe ser un valor numérico");
+            }
+            
+            return $this->librosRepository->getLibrosByCurso($idCurso);
+        }
+
+        /**
          * Crea un nuevo libro
          * 
          * @param array $data Datos del libro
