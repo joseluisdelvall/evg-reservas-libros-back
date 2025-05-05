@@ -3,15 +3,33 @@
     class EditorialEntity {
         private $idEditorial;
         private $nombre;
-        private $telefono;
-        private $correo;
+        private $telefono1;
+        private $telefono2;
+        private $telefono3;
+        private $correo1;
+        private $correo2;
+        private $correo3;
         private $estado;
         
-        public function __construct($idEditorial = null, $nombre = null, $telefono = null, $correo = null, $estado = null) {
+        public function __construct(
+            $idEditorial = null, 
+            $nombre = null, 
+            $telefono1 = null, 
+            $telefono2 = null, 
+            $telefono3 = null, 
+            $correo1 = null, 
+            $correo2 = null, 
+            $correo3 = null, 
+            $estado = null
+        ) {
             $this->idEditorial = $idEditorial;
             $this->nombre = $nombre;
-            $this->telefono = $telefono;
-            $this->correo = $correo;
+            $this->telefono1 = $telefono1;
+            $this->telefono2 = $telefono2;
+            $this->telefono3 = $telefono3;
+            $this->correo1 = $correo1;
+            $this->correo2 = $correo2;
+            $this->correo3 = $correo3;
             $this->estado = $estado;
         }
         
@@ -23,24 +41,58 @@
             return $this->nombre;
         }
 
-        public function getTelefono() {
-            return $this->telefono;
+        public function getTelefono1() {
+            return $this->telefono1;
         }
 
-        public function getCorreo() {
-            return $this->correo;
+        public function getTelefono2() {
+            return $this->telefono2;
+        }
+
+        public function getTelefono3() {
+            return $this->telefono3;
+        }
+
+        public function getCorreo1() {
+            return $this->correo1;
+        }
+
+        public function getCorreo2() {
+            return $this->correo2;
+        }
+
+        public function getCorreo3() {
+            return $this->correo3;
         }
 
         public function getEstado() {
             return $this->estado;
+        }
+        
+        // Métodos helper para obtener arrays de teléfonos y correos
+        // para mantener compatibilidad con el código existente
+        public function getTelefonos() {
+            $telefonos = [];
+            if (!empty($this->telefono1)) $telefonos[] = $this->telefono1;
+            if (!empty($this->telefono2)) $telefonos[] = $this->telefono2;
+            if (!empty($this->telefono3)) $telefonos[] = $this->telefono3;
+            return $telefonos;
+        }
+        
+        public function getCorreos() {
+            $correos = [];
+            if (!empty($this->correo1)) $correos[] = $this->correo1;
+            if (!empty($this->correo2)) $correos[] = $this->correo2;
+            if (!empty($this->correo3)) $correos[] = $this->correo3;
+            return $correos;
         }
 
         public function toArray() {
             return [
                 'idEditorial' => $this->getId(),
                 'nombre' => $this->getNombre(),
-                'telefono' => $this->getTelefono(),
-                'correo' => $this->getCorreo(),
+                'telefonos' => $this->getTelefonos(),
+                'correos' => $this->getCorreos(),
                 'estado' => $this->getEstado()
             ];
         }

@@ -24,7 +24,7 @@
             if(!$editoriales) {
                 return [
                     'status' => 'error',
-                    'message' => 'No se han encontrado libros'
+                    'message' => 'No se han encontrado editoriales'
                 ];
             }
 
@@ -32,8 +32,12 @@
                 return new EditorialDto(
                     $editorial->getId(),
                     $editorial->getNombre(),
-                    $editorial->getTelefono(),
-                    $editorial->getCorreo(),
+                    $editorial->getTelefono1(),
+                    $editorial->getTelefono2(),
+                    $editorial->getTelefono3(),
+                    $editorial->getCorreo1(),
+                    $editorial->getCorreo2(),
+                    $editorial->getCorreo3(),
                     $editorial->getEstado()
                 );
             }, $editoriales);
@@ -53,8 +57,36 @@
             // Obtener los datos de la solicitud
             try {
                 $data = json_decode(file_get_contents('php://input'), true);
+                
+                // Verificar que los datos estén completos
+                if (empty($data['nombre'])) {
+                    return response('error', 'El nombre de la editorial es obligatorio.');
+                }
+                
+                // Verificar teléfonos
+                if (!isset($data['telefonos']) || !is_array($data['telefonos'])) {
+                    return response('error', 'El campo telefonos debe ser un array.');
+                }
+                if (count($data['telefonos']) > 3) {
+                    return response('error', 'Una editorial no puede tener más de 3 teléfonos.');
+                }
+                if (count($data['telefonos']) < 1) {
+                    return response('error', 'La editorial debe tener al menos un teléfono.');
+                }
+                
+                // Verificar correos
+                if (!isset($data['correos'])) {
+                    $data['correos'] = [];
+                }
+                if (!is_array($data['correos'])) {
+                    return response('error', 'El campo correos debe ser un array.');
+                }
+                if (count($data['correos']) > 3) {
+                    return response('error', 'Una editorial no puede tener más de 3 correos.');
+                }
+                
                 $result = $this->editorialesService->addEditorial($data);
-                return response('success', 'Editorial agregada correctamente.', $result);
+                return response('success', 'Editorial agregada correctamente.', $result->toArray());
             } catch (Exception $e) {
                 return response('error', $e->getMessage());
             }
