@@ -14,7 +14,7 @@
         'POST /api/crud/editoriales/add' => 'EditorialesController@addEditorial',
 
         // Login
-        'POST /api/login' => 'UserController@getUserByEmail',
+        'POST /api/login' => 'UserController@userLogin',
     ];
     
 ?>
