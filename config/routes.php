@@ -10,6 +10,7 @@
         'POST /api/crud/libros/add' => 'LibrosController@addLibro',
         
         'GET /api/crud/editoriales' => 'EditorialesController@getEditoriales',
+        'GET /api/crud/editoriales/{id}' => 'EditorialesController@getEditorial',
         'POST /api/crud/editoriales/add' => 'EditorialesController@addEditorial',
     ];
     
