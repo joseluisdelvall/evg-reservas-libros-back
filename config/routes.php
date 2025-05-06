@@ -11,6 +11,7 @@
         'GET /api/crud/libros/:id' => 'LibrosController@getLibro',
         'POST /api/crud/libros/add' => 'LibrosController@addLibro',
         'PUT /api/crud/libros/:id' => 'LibrosController@updateLibro',
+        'PUT /api/crud/libros/:id/estado' => 'LibrosController@cambiarEstadoLibro',
         
         'GET /api/crud/editoriales' => 'EditorialesController@getEditoriales',
         'GET /api/crud/editoriales/:id' => 'EditorialesController@getEditorial',
