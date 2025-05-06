@@ -13,6 +13,7 @@
         'GET /api/crud/editoriales' => 'EditorialesController@getEditoriales',
         'GET /api/crud/editoriales/:id' => 'EditorialesController@getEditorial',
         'POST /api/crud/editoriales/add' => 'EditorialesController@addEditorial',
+        'PUT /api/crud/editoriales/:id' => 'EditorialesController@updateEditorial',
 
         // Login
         'POST /api/login' => 'UserController@userLogin',
