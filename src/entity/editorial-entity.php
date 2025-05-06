@@ -69,6 +69,51 @@
             return $this->estado;
         }
         
+        public function setId($idEditorial) {
+            $this->idEditorial = $idEditorial;
+            return $this;
+        }
+        
+        public function setNombre($nombre) {
+            $this->nombre = $nombre;
+            return $this;
+        }
+        
+        public function setTelefono1($telefono1) {
+            $this->telefono1 = $telefono1;
+            return $this;
+        }
+        
+        public function setTelefono2($telefono2) {
+            $this->telefono2 = $telefono2;
+            return $this;
+        }
+        
+        public function setTelefono3($telefono3) {
+            $this->telefono3 = $telefono3;
+            return $this;
+        }
+        
+        public function setCorreo1($correo1) {
+            $this->correo1 = $correo1;
+            return $this;
+        }
+        
+        public function setCorreo2($correo2) {
+            $this->correo2 = $correo2;
+            return $this;
+        }
+        
+        public function setCorreo3($correo3) {
+            $this->correo3 = $correo3;
+            return $this;
+        }
+        
+        public function setEstado($estado) {
+            $this->estado = $estado;
+            return $this;
+        }
+        
         // Métodos helper para obtener arrays de teléfonos y correos
         // para mantener compatibilidad con el código existente
         public function getTelefonos() {

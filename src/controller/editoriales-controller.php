@@ -129,6 +129,46 @@
                 return response('error', $e->getMessage());
             }
         }
+
+        /**
+         * Actualiza una editorial existente
+         * 
+         * @param int $id ID de la editorial a actualizar
+         * @return array Respuesta con el estado y el mensaje de la operación
+         */
+        public function updateEditorial($id) {
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                // Verificar que los datos estén completos
+                if (empty($data['nombre'])) {
+                    return response('error', 'El nombre de la editorial es obligatorio.');
+                }
+                
+                // Verificar teléfonos
+                if (!isset($data['telefonos']) || !is_array($data['telefonos'])) {
+                    return response('error', 'El campo telefonos debe ser un array.');
+                }
+                if (count($data['telefonos']) > 3) {
+                    return response('error', 'Una editorial no puede tener más de 3 teléfonos.');
+                }
+                
+                // Verificar correos
+                if (!isset($data['correos']) || !is_array($data['correos'])) {
+                    return response('error', 'El campo correos debe ser un array.');
+                }
+
+                if (count($data['correos']) > 3) {
+                    return response('error', 'Una editorial no puede tener más de 3 correos.');
+                }
+
+                $result = $this->editorialesService->updateEditorial($id, $data);
+                return response('success', 'Editorial actualizada correctamente.', $result->toArray());
+            } catch (Exception $e) {
+                return response('error', $e->getMessage());
+            }
+        }
+        
     }
 
 ?>

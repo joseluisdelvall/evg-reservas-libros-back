@@ -132,6 +132,64 @@
                 throw $e;
             }
         }
+
+        /**
+         * Actualiza una editorial existente
+         * 
+         * @param int $id ID de la editorial a actualizar
+         * @param array $data Datos de la editorial a actualizar
+         * @return EditorialDto Datos de la editorial actualizada
+         * @throws Exception Si hay errores en los datos
+         */
+        public function updateEditorial($id, $data) {
+            try {
+                // Validar que el ID sea un número entero
+                if (!is_numeric($id) || $id <= 0) {
+                    throw new Exception("El ID de la editorial debe ser un número entero positivo.");
+                }
+
+                $editorial = $this->getEditorial($id);
+                if (!$editorial) {
+                    throw new Exception("No se encontró la editorial con ID $id.");
+                }
+
+                // Actualizar los datos de la editorial
+                $editorial->setNombre($data['nombre']);
+                
+                // Manejar teléfonos - comprobar si existen antes de asignar
+                $telefonos = isset($data['telefonos']) ? $data['telefonos'] : [];
+                $editorial->setTelefono1(isset($telefonos[0]) ? $telefonos[0] : null);
+                $editorial->setTelefono2(isset($telefonos[1]) ? $telefonos[1] : null);
+                $editorial->setTelefono3(isset($telefonos[2]) ? $telefonos[2] : null);
+                
+                // Manejar correos - comprobar si existen antes de asignar
+                $correos = isset($data['correos']) ? $data['correos'] : [];
+                $editorial->setCorreo1(isset($correos[0]) ? $correos[0] : null);
+                $editorial->setCorreo2(isset($correos[1]) ? $correos[1] : null);
+                $editorial->setCorreo3(isset($correos[2]) ? $correos[2] : null);
+                
+                // Llamar al repositorio para actualizar la editorial
+                $editorial = $this->editorialesRepository->updateEditorial($editorial);
+
+                // Convertir la entidad a DTO
+                return new EditorialDto(
+                    $editorial->getId(),
+                    $editorial->getNombre(),
+                    $editorial->getTelefono1(),
+                    $editorial->getTelefono2(),
+                    $editorial->getTelefono3(),
+                    $editorial->getCorreo1(),
+                    $editorial->getCorreo2(),
+                    $editorial->getCorreo3(),
+                    $editorial->getEstado()
+                );
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log($e->getMessage());
+                // Propagar el error al controlador
+                throw $e;
+            }
+        }
     }
     
 ?>

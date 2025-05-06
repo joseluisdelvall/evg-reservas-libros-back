@@ -86,6 +86,36 @@
         }
 
         /**
+         * Obtiene una editorial por su ID
+         * 
+         * @param int $idEditorial ID de la editorial a buscar
+         * @return EditorialEntity Datos de la editorial
+         * @throws Exception Si no se encuentra la editorial
+         */
+        public function getEditorialById($idEditorial) {
+            $sql = "SELECT * FROM EDITORIAL WHERE idEditorial = $idEditorial";
+            $resultado = $this->conexion->query($sql);
+            
+            if ($resultado && $resultado->num_rows > 0) {
+                $editorial = $resultado->fetch_assoc();
+                
+                return new EditorialEntity(
+                    $editorial['idEditorial'],
+                    $editorial['nombre'],
+                    $editorial['telefono1'],
+                    $editorial['telefono2'],
+                    $editorial['telefono3'],
+                    $editorial['correo1'],
+                    $editorial['correo2'],
+                    $editorial['correo3'],
+                    $editorial['activo']
+                );
+            } else {
+                throw new Exception("Editorial no encontrada con ID: $idEditorial");
+            }
+        }
+
+        /**
          * Convierte un valor vacío a NULL para uso en consultas SQL
          * 
          * @param string $value Valor a procesar
@@ -159,34 +189,55 @@
         }
         
         /**
-         * Obtiene una editorial por su ID
+         * Actualiza una editorial existente
          * 
-         * @param int $idEditorial ID de la editorial a buscar
-         * @return EditorialEntity Datos de la editorial
-         * @throws Exception Si no se encuentra la editorial
+         * @param EditorialEntity $editorial Entidad con los datos de la editorial
+         * @return EditorialEntity Editorial actualizada
+         * @throws Exception Si hay errores en la actualización
          */
-        public function getEditorialById($idEditorial) {
-            $sql = "SELECT * FROM EDITORIAL WHERE idEditorial = $idEditorial";
-            $resultado = $this->conexion->query($sql);
-            
-            if ($resultado && $resultado->num_rows > 0) {
-                $editorial = $resultado->fetch_assoc();
-                
-                return new EditorialEntity(
-                    $editorial['idEditorial'],
-                    $editorial['nombre'],
-                    $editorial['telefono1'],
-                    $editorial['telefono2'],
-                    $editorial['telefono3'],
-                    $editorial['correo1'],
-                    $editorial['correo2'],
-                    $editorial['correo3'],
-                    $editorial['activo']
-                );
-            } else {
-                throw new Exception("Editorial no encontrada con ID: $idEditorial");
+        public function updateEditorial($editorial) {
+            try {
+                // Escapar y formatear los valores
+                $id = $editorial->getId();
+                $nombre = "'" . $this->conexion->real_escape_string($editorial->getNombre()) . "'";
+                $telefono1 = $this->emptyToNull($editorial->getTelefono1());
+                $telefono2 = $this->emptyToNull($editorial->getTelefono2());
+                $telefono3 = $this->emptyToNull($editorial->getTelefono3());
+                $correo1 = $this->emptyToNull($editorial->getCorreo1());
+                $correo2 = $this->emptyToNull($editorial->getCorreo2());
+                $correo3 = $this->emptyToNull($editorial->getCorreo3());
+                $activo = $editorial->getEstado() ? "1" : "0";
+
+                // Construir la consulta SQL
+                $sql = "UPDATE EDITORIAL SET 
+                    nombre = $nombre,
+                    telefono1 = $telefono1,
+                    telefono2 = $telefono2,
+                    telefono3 = $telefono3,
+                    correo1 = $correo1,
+                    correo2 = $correo2,
+                    correo3 = $correo3,
+                    activo = $activo
+                WHERE idEditorial = $id";
+
+                $resultado = $this->conexion->query($sql);
+
+                if (!$resultado) {
+                    throw new Exception("Error al actualizar editorial: " . $this->conexion->error . " SQL: " . $sql);
+                }
+
+                if ($this->conexion->affected_rows >= 0) {
+                    // Recuperar la editorial actualizada
+                    return $this->getEditorialById($id);
+                } else {
+                    throw new Exception("No se pudo actualizar la editorial.");
+                }
+            } catch (Exception $e) {
+                error_log($e->getMessage());
+                throw $e;
             }
         }
+        
     }
     
 ?>
