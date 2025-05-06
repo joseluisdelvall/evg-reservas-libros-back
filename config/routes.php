@@ -14,6 +14,8 @@
         'GET /api/crud/editoriales/:id' => 'EditorialesController@getEditorial',
         'POST /api/crud/editoriales/add' => 'EditorialesController@addEditorial',
         'PUT /api/crud/editoriales/:id' => 'EditorialesController@updateEditorial',
+        'PUT /api/crud/editoriales/:id/estado' => 'EditorialesController@cambiarEstadoEditorial',
+
 
         // Login
         'POST /api/login' => 'UserController@userLogin',

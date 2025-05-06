@@ -190,6 +190,52 @@
                 throw $e;
             }
         }
+
+        /**
+         * Desactiva una editorial existente
+         * 
+         * @param int $id ID de la editorial a desactivar
+         * @return EditorialDto Datos de la editorial actualizada
+         * @throws Exception Si hay errores en los datos
+         */
+        public function cambiarEstadoEditorial($id) {
+            try {
+                // Validar que el ID sea un número entero
+                if (!is_numeric($id) || $id <= 0) {
+                    throw new Exception("El ID de la editorial debe ser un número entero positivo.");
+                }
+
+                // Obtener la editorial actual
+                $editorial = $this->getEditorial($id);
+                if (!$editorial) {
+                    throw new Exception("No se encontró la editorial con ID $id.");
+                }   
+
+                // Actualizar el estado a inactivo
+                $editorial->setEstado(!$editorial->getEstado());
+                
+                // Guardar los cambios
+                $editorial = $this->editorialesRepository->updateEditorial($editorial); 
+
+                // Convertir la entidad a DTO
+                return new EditorialDto(
+                    $editorial->getId(),
+                    $editorial->getNombre(),
+                    $editorial->getTelefono1(),
+                    $editorial->getTelefono2(),
+                    $editorial->getTelefono3(),
+                    $editorial->getCorreo1(),
+                    $editorial->getCorreo2(),
+                    $editorial->getCorreo3(),
+                    $editorial->getEstado()
+                );
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log($e->getMessage());
+                // Propagar el error al controlador
+                throw $e;
+            }
+        }
     }
     
 ?>
