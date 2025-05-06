@@ -1,6 +1,8 @@
 <?php
 
     require_once '../src/repository/libros-repository.php';
+    require_once '../src/entity/libro-entity.php';
+    require_once '../src/entity/editorial-entity.php';
 
     class LibrosService {
 
@@ -19,6 +21,31 @@
             
             return $this->librosRepository->getLibros();
 
+        }
+
+        /**
+         * Obtiene un libro por su ID
+         * 
+         * @param int $id ID del libro a obtener
+         * @return LibroEntity|null Libro encontrado o null si no existe
+         * @throws Exception Si hay errores en la operación
+         */
+        public function getLibro($id) {
+            try {
+                // Validar que el ID sea un número entero positivo
+                if (!is_numeric($id) || $id <= 0) {
+                    throw new Exception("El ID del libro debe ser un número entero positivo.");
+                }
+                
+                // Llamar al repositorio para obtener el libro
+                return $this->librosRepository->getLibro($id);
+                
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log("Error en LibrosService::getLibro: " . $e->getMessage());
+                // Propagar la excepción al controlador
+                throw $e;
+            }
         }
 
         /**
@@ -65,6 +92,46 @@
                 throw $e;
             }
         }
+
+        public function updateLibro($id, $data) {
+            try {
+                // Validar que el ID sea un número entero positivo
+                if (!is_numeric($id) || $id <= 0) {
+                    throw new Exception("El ID del libro debe ser un número entero positivo.");
+                }
+
+                $editorial = new EditorialEntity(
+                    $data['editorial']['idEditorial']
+                );
+
+                // Convertir el DTO a una entidad
+                $libroEntity = new LibroEntity(
+                    $id,
+                    $data['nombre'],
+                    $data['isbn'],
+                    $editorial,
+                    $data['precio']
+                );
+                
+                // Llamar al repositorio para actualizar el libro
+                $libroEntity = $this->librosRepository->updateLibro($id, $libroEntity);
+
+                return new LibroDto(
+                    $libroEntity->getId(),
+                    $libroEntity->getNombre(),
+                    $libroEntity->getIsbn(),
+                    $libroEntity->getEditorial(),
+                    $libroEntity->getPrecio()
+                );
+
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log($e->getMessage());
+                // Propagar el error al controlador
+                throw $e;
+            }
+        }
+
     }
 
 ?>

@@ -8,7 +8,9 @@
         'PUT /api/periodo-reservas' => 'PeriodoReservasController@updatePeriodoReservas',
 
         'GET /api/crud/libros' => 'LibrosController@getLibros',
+        'GET /api/crud/libros/:id' => 'LibrosController@getLibro',
         'POST /api/crud/libros/add' => 'LibrosController@addLibro',
+        'PUT /api/crud/libros/:id' => 'LibrosController@updateLibro',
         
         'GET /api/crud/editoriales' => 'EditorialesController@getEditoriales',
         'GET /api/crud/editoriales/:id' => 'EditorialesController@getEditorial',
