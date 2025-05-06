@@ -49,6 +49,37 @@
         }
 
         /**
+         * Obtiene una editorial por su ID
+         * 
+         * @param int $id ID de la editorial
+         * @return array Respuesta con el estado y los datos de la editorial
+         */
+        public function getEditorial($id) {
+            $editorial = $this->editorialesService->getEditorial($id);
+
+            if(!$editorial) {
+                return [
+                    'status' => 'error',
+                    'message' => 'No se ha encontrado la editorial'
+                ];
+            }
+
+            $editorialDto = new EditorialDto(
+                $editorial->getId(),
+                $editorial->getNombre(),
+                $editorial->getTelefono1(),
+                $editorial->getTelefono2(),
+                $editorial->getTelefono3(),
+                $editorial->getCorreo1(),
+                $editorial->getCorreo2(),
+                $editorial->getCorreo3(),
+                $editorial->getEstado()
+            );
+
+            return new response('success', 'Editorial obtenida correctamente.', $editorialDto->toArray());
+        }
+
+        /**
          * Agrega una nueva editorial
          * 
          * @return array Respuesta con el estado y el mensaje de la operación
