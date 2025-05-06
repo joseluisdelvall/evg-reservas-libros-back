@@ -120,7 +120,7 @@
                 }
                 
                 return response('success', 'Libro actualizado correctamente', $result);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Registrar el error
                 error_log("Error en updateLibro: " . $e->getMessage());
                 
@@ -129,6 +129,27 @@
             }
         }
 
+        /**
+         * Cambia el estado de un libro
+         * 
+         * @param int $id ID del libro a cambiar el estado
+         * @return array Respuesta con el estado y el mensaje de la operación
+         */
+        public function cambiarEstadoLibro($id) {
+            try {
+                
+                // Cambiar el estado del libro
+                $result = $this->librosService->cambiarEstadoLibro($id);
+
+                return response('success', 'Estado del libro cambiado correctamente', $result);
+            } catch (Exception $e) {
+                // Registrar el error
+                error_log("Error en cambiarEstadoLibro: " . $e->getMessage());
+                
+                // Devolver mensaje de error
+                return response('error', 'Error al cambiar el estado del libro: ' . $e->getMessage());
+            }
+        }
     }
 
 ?>

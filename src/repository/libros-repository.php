@@ -192,7 +192,8 @@
                         nombre = ?, 
                         ISBN = ?, 
                         idEditorial = ?, 
-                        precio = ? 
+                        precio = ?,
+                        activo = ? 
                         WHERE idLibro = ?";
                 
                 $stmt = $this->conexion->prepare($sql);
@@ -205,14 +206,16 @@
                 $isbn = $libro->getIsbn();
                 $idEditorial = $libro->getEditorial()->getId();
                 $precio = $libro->getPrecio();
+                $estado = $libro->getEstado();
                 
                 // Enlazamos los parámetros
                 $stmt->bind_param(
-                    "ssidd", 
+                    "ssidii", 
                     $nombre, 
                     $isbn, 
                     $idEditorial, 
-                    $precio, 
+                    $precio,
+                    $estado,
                     $id
                 );
                 

@@ -132,6 +132,40 @@
             }
         }
 
+        public function cambiarEstadoLibro($id) {
+            try {
+                // Validar que el ID sea un número entero positivo
+                if (!is_numeric($id) || $id <= 0) {
+                    throw new Exception("El ID del libro debe ser un número entero positivo.");
+                }
+
+                $libroEntity = $this->librosRepository->getLibro($id);
+
+                if (!$libroEntity) {
+                    throw new Exception("No se ha encontrado el libro con ID: " . $id);
+                }
+
+                $libroEntity->setEstado(!$libroEntity->getEstado());
+
+                $libroEntity = $this->librosRepository->updateLibro($id, $libroEntity);
+
+                return new LibroDto(
+                    $libroEntity->getId(),
+                    $libroEntity->getNombre(),
+                    $libroEntity->getIsbn(),
+                    $libroEntity->getEditorial(),
+                    $libroEntity->getPrecio(),
+                    $libroEntity->getEstado()
+                );
+
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log($e->getMessage());
+                // Propagar el error al controlador
+                throw $e;
+            }
+        }
+
     }
 
 ?>
