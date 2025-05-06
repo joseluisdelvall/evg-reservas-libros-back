@@ -22,6 +22,30 @@
             return $this->editorialesRepository->getEditoriales();
         }
 
+        /** 
+         * Obtiene una editorial por su ID
+         * 
+         * @param int $id ID de la editorial
+         * @return EditorialEntity|null Entidad de la editorial o null si no existe
+         */
+        public function getEditorial($id) {
+            try {
+                // Validar que el ID sea un número entero
+                if (!is_numeric($id) || $id <= 0) {
+                    throw new Exception("El ID de la editorial debe ser un número entero positivo.");
+                }
+
+                // Llamar al repositorio para obtener la editorial
+                $editorial = $this->editorialesRepository->getEditorial($id);
+
+                // Devolver la entidad o null si no existe
+                return $editorial;
+            } catch (Exception $e) {
+                // Propagar el error al controlador
+                throw $e;
+            }
+        }   
+
         /**
          * Agrega una nueva editorial
          * 

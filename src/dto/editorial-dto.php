@@ -12,15 +12,15 @@
         private $estado;
 
         public function __construct(
-            $idEditorial,
-            $nombre,
+            $idEditorial = null,
+            $nombre = null,
             $telefono1 = null,
             $telefono2 = null,
             $telefono3 = null,
             $correo1 = null,
             $correo2 = null,
             $correo3 = null,
-            $estado
+            $estado = null
         ) {
             $this->idEditorial = $idEditorial;
             $this->nombre = $nombre;

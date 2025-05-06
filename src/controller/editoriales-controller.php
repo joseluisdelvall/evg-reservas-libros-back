@@ -58,28 +58,32 @@
          * @return array Respuesta con el estado y los datos de la editorial
          */
         public function getEditorial($id) {
-            $editorial = $this->editorialesService->getEditorial($id);
+            try {
+                $editorial = $this->editorialesService->getEditorial($id);
 
-            if(!$editorial) {
-                return [
-                    'status' => 'error',
-                    'message' => 'No se ha encontrado la editorial'
-                ];
+                if(!$editorial) {
+                    return [
+                        'status' => 'error',
+                        'message' => 'No se ha encontrado la editorial'
+                    ];
+                }
+
+                $editorialDto = new EditorialDto(
+                    $editorial->getId(),
+                    $editorial->getNombre(),
+                    $editorial->getTelefono1(),
+                    $editorial->getTelefono2(),
+                    $editorial->getTelefono3(),
+                    $editorial->getCorreo1(),
+                    $editorial->getCorreo2(),
+                    $editorial->getCorreo3(),
+                    $editorial->getEstado()
+                );
+
+                return response('success', 'Editorial obtenida correctamente.', $editorialDto->toArray());
+            } catch (Exception $e) {
+                return response('error', $e->getMessage());
             }
-
-            $editorialDto = new EditorialDto(
-                $editorial->getId(),
-                $editorial->getNombre(),
-                $editorial->getTelefono1(),
-                $editorial->getTelefono2(),
-                $editorial->getTelefono3(),
-                $editorial->getCorreo1(),
-                $editorial->getCorreo2(),
-                $editorial->getCorreo3(),
-                $editorial->getEstado()
-            );
-
-            return new response('success', 'Editorial obtenida correctamente.', $editorialDto->toArray());
         }
 
         /**
