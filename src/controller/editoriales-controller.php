@@ -168,6 +168,21 @@
                 return response('error', $e->getMessage());
             }
         }
+
+    /**
+     * Desactiva una editorial existente
+     * 
+     * @param int $id ID de la editorial a desactivar
+     * @return array Respuesta con el estado y el mensaje de la operación
+     */
+    public function cambiarEstadoEditorial($id) {
+        try {
+            $result = $this->editorialesService->cambiarEstadoEditorial($id);
+            return response('success', 'Estado de la editorial actualizado correctamente.', $result->toArray());
+        } catch (Exception $e) {
+            return response('error', $e->getMessage());
+        }
+    }
         
     }
 
