@@ -47,6 +47,44 @@
             return $editoriales;
         }
 
+        /** 
+         * Obtiene una editorial por su ID
+         * 
+         * @param int $id ID de la editorial
+         * @return EditorialEntity|null Entidad de la editorial o null si no existe
+         * @throws Exception Si hay un error en la consulta
+         */
+        public function getEditorial($id) {
+            try {
+                $sql = "SELECT * FROM EDITORIAL WHERE idEditorial = $id";
+                $resultado = $this->conexion->query($sql);
+                
+                if (!$resultado) {
+                    throw new Exception("Error al ejecutar la consulta: " . $this->conexion->error);
+                }
+
+                if ($resultado->num_rows > 0) {
+                    $editorial = $resultado->fetch_assoc();
+                    return new EditorialEntity(
+                        $editorial['idEditorial'],
+                        $editorial['nombre'],
+                        $editorial['telefono1'],
+                        $editorial['telefono2'],
+                        $editorial['telefono3'],
+                        $editorial['correo1'],
+                        $editorial['correo2'],
+                        $editorial['correo3'],
+                        $editorial['activo']
+                    );
+                }
+
+                return null;
+            } catch (Exception $e) {
+                error_log("Error en getEditorial: " . $e->getMessage());
+                throw $e;
+            }
+        }
+
         /**
          * Convierte un valor vacío a NULL para uso en consultas SQL
          * 
