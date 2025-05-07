@@ -22,10 +22,7 @@
             $editoriales = $this->editorialesService->getEditoriales();
 
             if(!$editoriales) {
-                return [
-                    'status' => 'error',
-                    'message' => 'No se han encontrado editoriales'
-                ];
+                return response('error', 'No se han encontrado editoriales', null, 404);            
             }
 
             // Crear los DTOs para cada editorial
@@ -62,10 +59,7 @@
                 $editorial = $this->editorialesService->getEditorial($id);
 
                 if(!$editorial) {
-                    return [
-                        'status' => 'error',
-                        'message' => 'No se ha encontrado la editorial'
-                    ];
+                    return response('error', 'No se ha encontrado la editorial', null, 404);
                 }
 
                 $editorialDto = new EditorialDto(
@@ -82,7 +76,7 @@
 
                 return response('success', 'Editorial obtenida correctamente.', $editorialDto->toArray());
             } catch (Exception $e) {
-                return response('error', $e->getMessage());
+                return response('error', $e->getMessage(), null, 500);
             }
         }
 
@@ -98,18 +92,18 @@
                 
                 // Verificar que los datos estén completos
                 if (empty($data['nombre'])) {
-                    return response('error', 'El nombre de la editorial es obligatorio.');
+                    return response('error', 'El nombre de la editorial es obligatorio.', null, 400);
                 }
                 
                 // Verificar teléfonos
                 if (!isset($data['telefonos']) || !is_array($data['telefonos'])) {
-                    return response('error', 'El campo telefonos debe ser un array.');
+                    return response('error', 'El campo telefonos debe ser un array.', null, 400);
                 }
                 if (count($data['telefonos']) > 3) {
-                    return response('error', 'Una editorial no puede tener más de 3 teléfonos.');
+                    return response('error', 'Una editorial no puede tener más de 3 teléfonos.', null, 400);
                 }
                 if (count($data['telefonos']) < 1) {
-                    return response('error', 'La editorial debe tener al menos un teléfono.');
+                    return response('error', 'La editorial debe tener al menos un teléfono.', null, 400);
                 }
                 
                 // Verificar correos
@@ -117,16 +111,16 @@
                     $data['correos'] = [];
                 }
                 if (!is_array($data['correos'])) {
-                    return response('error', 'El campo correos debe ser un array.');
+                    return response('error', 'El campo correos debe ser un array.', null, 400);
                 }
                 if (count($data['correos']) > 3) {
-                    return response('error', 'Una editorial no puede tener más de 3 correos.');
+                    return response('error', 'Una editorial no puede tener más de 3 correos.', null, 400);
                 }
                 
                 $result = $this->editorialesService->addEditorial($data);
                 return response('success', 'Editorial agregada correctamente.', $result->toArray());
             } catch (Exception $e) {
-                return response('error', $e->getMessage());
+                return response('error', $e->getMessage(), null, 500);
             }
         }
 
@@ -142,30 +136,30 @@
                 
                 // Verificar que los datos estén completos
                 if (empty($data['nombre'])) {
-                    return response('error', 'El nombre de la editorial es obligatorio.');
+                    return response('error', 'El nombre de la editorial es obligatorio.', null, 400);
                 }
                 
                 // Verificar teléfonos
                 if (!isset($data['telefonos']) || !is_array($data['telefonos'])) {
-                    return response('error', 'El campo telefonos debe ser un array.');
+                    return response('error', 'El campo telefonos debe ser un array.', null, 400);
                 }
                 if (count($data['telefonos']) > 3) {
-                    return response('error', 'Una editorial no puede tener más de 3 teléfonos.');
+                    return response('error', 'Una editorial no puede tener más de 3 teléfonos.', null, 400);
                 }
                 
                 // Verificar correos
                 if (!isset($data['correos']) || !is_array($data['correos'])) {
-                    return response('error', 'El campo correos debe ser un array.');
+                    return response('error', 'El campo correos debe ser un array.', null, 400);
                 }
 
                 if (count($data['correos']) > 3) {
-                    return response('error', 'Una editorial no puede tener más de 3 correos.');
+                    return response('error', 'Una editorial no puede tener más de 3 correos.', null, 400);
                 }
 
                 $result = $this->editorialesService->updateEditorial($id, $data);
                 return response('success', 'Editorial actualizada correctamente.', $result->toArray());
             } catch (Exception $e) {
-                return response('error', $e->getMessage());
+                return response('error', $e->getMessage(), null, 500);
             }
         }
 
@@ -180,7 +174,7 @@
             $result = $this->editorialesService->cambiarEstadoEditorial($id);
             return response('success', 'Estado de la editorial actualizado correctamente.', $result->toArray());
         } catch (Exception $e) {
-            return response('error', $e->getMessage());
+            return response('error', $e->getMessage(), null, 500);
         }
     }
         

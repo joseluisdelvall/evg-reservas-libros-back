@@ -23,7 +23,7 @@
             $libros = $this->librosService->getLibros();
 
             if(!$libros) {
-                return response('error', 'No se han encontrado libros');
+                return response('error', 'No se han encontrado libros', null, 404);
             }
 
             $librosDto = array_map(function($libro) {
@@ -49,7 +49,7 @@
                 
                 // Verificar si se encontró el libro
                 if(!$libro) {
-                    return response('error', 'No se ha encontrado el libro con ID: ' . $id);
+                    return response('error', 'No se ha encontrado el libro con ID: ' . $id, null, 404);
                 }
                 
                 // Crear el DTO de la editorial
@@ -75,7 +75,7 @@
                 error_log("Error en getLibro: " . $e->getMessage());
                 
                 // Devolver mensaje de error
-                return response('error', 'Error al obtener el libro: ' . $e->getMessage());
+                return response('error', 'Error al obtener el libro: ' . $e->getMessage(), null, 500);
             }
         }
 
@@ -91,7 +91,7 @@
                 $result = $this->librosService->addLibro($data);
                 return response('success', 'Libro agregado correctamente', $result);
             } catch (Exception $e) {
-                return response('error', $e->getMessage());
+                return response('error', $e->getMessage(), null, 500);
             }
         }
 
@@ -108,7 +108,7 @@
                 
                 // Validar que se recibieron datos
                 if (!$data) {
-                    return response('error', 'No se recibieron datos para actualizar el libro');
+                    return response('error', 'No se recibieron datos para actualizar el libro', null, 400);
                 }
                 
                 // Actualizar el libro
@@ -116,7 +116,7 @@
                 
                 // Verificar si se encontró y actualizó el libro
                 if (!$result) {
-                    return response('error', 'No se ha encontrado el libro con ID: ' . $id);
+                    return response('error', 'No se ha encontrado el libro con ID: ' . $id, null, 404);
                 }
                 
                 return response('success', 'Libro actualizado correctamente', $result);
@@ -125,7 +125,7 @@
                 error_log("Error en updateLibro: " . $e->getMessage());
                 
                 // Devolver mensaje de error
-                return response('error', 'Error al actualizar el libro: ' . $e->getMessage());
+                return response('error', 'Error al actualizar el libro: ' . $e->getMessage(), null, 500);
             }
         }
 
@@ -147,7 +147,7 @@
                 error_log("Error en cambiarEstadoLibro: " . $e->getMessage());
                 
                 // Devolver mensaje de error
-                return response('error', 'Error al cambiar el estado del libro: ' . $e->getMessage());
+                return response('error', 'Error al cambiar el estado del libro: ' . $e->getMessage(), null, 500);
             }
         }
     }

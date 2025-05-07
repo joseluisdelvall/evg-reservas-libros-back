@@ -62,7 +62,7 @@
                 }
 
                 $editorial = new EditorialEntity($data['editorial']['idEditorial']);
-        
+
                 // Convertir el DTO a una entidad
                 $libroEntity = new LibroEntity(
                     null, // ID se generará automáticamente
@@ -104,14 +104,16 @@
                     $data['editorial']['idEditorial']
                 );
 
-                // Convertir el DTO a una entidad
-                $libroEntity = new LibroEntity(
-                    $id,
-                    $data['nombre'],
-                    $data['isbn'],
-                    $editorial,
-                    $data['precio']
-                );
+                $libroEntity = $this->getLibro($id);
+
+                if (!$libroEntity) {
+                    throw new Exception("No se ha encontrado el libro con ID: " . $id);
+                }
+
+                $libroEntity->setNombre($data['nombre']);
+                $libroEntity->setIsbn($data['isbn']);
+                $libroEntity->setEditorial($editorial);
+                $libroEntity->setPrecio($data['precio']);
                 
                 // Llamar al repositorio para actualizar el libro
                 $libroEntity = $this->librosRepository->updateLibro($id, $libroEntity);
@@ -121,7 +123,8 @@
                     $libroEntity->getNombre(),
                     $libroEntity->getIsbn(),
                     $libroEntity->getEditorial(),
-                    $libroEntity->getPrecio()
+                    $libroEntity->getPrecio(),
+                    $libroEntity->getEstado()
                 );
 
             } catch (Exception $e) {
