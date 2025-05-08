@@ -2,3 +2,4 @@ vendor/
 .vscode/
 *.log
 config/configdb.php
+justificantes/
