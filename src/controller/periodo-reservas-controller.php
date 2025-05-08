@@ -37,7 +37,20 @@
         }
 
         public function updatePeriodoReservas() {
-            return 'updatePeriodoReservas';
-        }
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                if (!$data) {
+                    return response('error', 'No se recibieron datos para actualizar el período', null, 400);
+                }
+                
+                $result = $this->periodoReservasService->updatePeriodoReservas($data);
+                
+                return response('success', 'Período actualizado correctamente', $result);
+            } catch (Exception $e) {
+                error_log("Error en updatePeriodoReservas: " . $e->getMessage());
+                return response('error', 'Error al actualizar el período: ' . $e->getMessage(), null, 500);
+            }
+        }   
     }
 ?>

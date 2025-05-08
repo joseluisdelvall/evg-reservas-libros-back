@@ -9,7 +9,7 @@
             private $precio;
             private $estado;
 
-            public function __construct($id, $nombre, $isbn, $editorial, $precio, $estado) {
+            public function __construct($id = null, $nombre = null, $isbn = null, $editorial = null, $precio = null, $estado = null) {
                 $this->id = $id;
                 $this->nombre = $nombre;
                 $this->isbn = $isbn;

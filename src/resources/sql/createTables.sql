@@ -1,4 +1,3 @@
-
 -- Tabla ETAPA
 CREATE TABLE IF NOT EXISTS ETAPA (
     idEtapa TINYINT AUTO_INCREMENT NOT NULL,
@@ -41,6 +40,16 @@ CREATE TABLE IF NOT EXISTS LIBRO (
 );
 
 ALTER TABLE LIBRO ADD COLUMN activo BOOLEAN
+
+-- Tabla LIBRO_CURSO
+CREATE TABLE IF NOT EXISTS CURSO_LIBRO (
+    idCurso TINYINT NOT NULL,
+    idLibro INT NOT NULL,
+    CONSTRAINT curso_libro_pk PRIMARY KEY (idCurso, idLibro),
+    CONSTRAINT curso_fk FOREIGN KEY (idCurso) REFERENCES CURSO (idCurso),
+    CONSTRAINT libro_fk FOREIGN KEY (idLibro) REFERENCES LIBRO (idLibro)
+);
+
 
 -- Tabla TM_ESTADO
 CREATE TABLE IF NOT EXISTS TM_ESTADO (
@@ -116,3 +125,23 @@ INSERT INTO TM_ESTADO (nombre, descripcion) VALUES
 ('Recogido', 'El libro ha sido entregado al solicitante'),
 ('Anulado', 'La reserva o pedido ha sido cancelado');
 
+-- ============================================================
+-- MODIFICACIONES A LA TABLA EDITORIAL PARA TENER MÚLTIPLES TELÉFONOS Y CORREOS
+-- ============================================================
+
+-- 1. Eliminar las restricciones de unicidad existentes
+ALTER TABLE EDITORIAL DROP CONSTRAINT IF EXISTS editorial_telefono_uq;
+ALTER TABLE EDITORIAL DROP CONSTRAINT IF EXISTS editorial_correo_uq;
+
+-- 2. Renombrar las columnas existentes y asegurar que aceptan NULL adecuadamente
+ALTER TABLE EDITORIAL CHANGE COLUMN telefono telefono1 VARCHAR(20) NULL DEFAULT NULL;
+ALTER TABLE EDITORIAL CHANGE COLUMN correo correo1 VARCHAR(100) NULL DEFAULT NULL;
+
+-- 3. Añadir los nuevos campos para teléfonos y correos adicionales
+ALTER TABLE EDITORIAL ADD COLUMN telefono2 VARCHAR(20) NULL DEFAULT NULL;
+ALTER TABLE EDITORIAL ADD COLUMN telefono3 VARCHAR(20) NULL DEFAULT NULL;
+ALTER TABLE EDITORIAL ADD COLUMN correo2 VARCHAR(100) NULL DEFAULT NULL;
+ALTER TABLE EDITORIAL ADD COLUMN correo3 VARCHAR(100) NULL DEFAULT NULL;
+
+-- 4. Añadir campo de activo si no existe
+ALTER TABLE EDITORIAL ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE;

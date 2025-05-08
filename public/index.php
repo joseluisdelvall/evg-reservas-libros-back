@@ -2,7 +2,9 @@
     
     // Unico archivo publico desde la web
 
-    include '../config/cors.php';
+    include __DIR__ . '/../config/cors.php';
+
+    include __DIR__ . '/../config/wanings.php';
 
     include __DIR__ . '/../src/utils/response.php';
     // Cargar el autoload de composer
