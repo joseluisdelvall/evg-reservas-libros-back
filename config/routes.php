@@ -10,6 +10,10 @@
         'GET /api/crud/libros' => 'LibrosController@getLibros',
         'GET /api/crud/libros/:id' => 'LibrosController@getLibro',
         'POST /api/crud/libros/add' => 'LibrosController@addLibro',
+
+        // Libros por curso
+        'GET /api/libros/curso/:id' => 'LibrosController@getLibrosByCurso',
+        
         'PUT /api/crud/libros/:id' => 'LibrosController@updateLibro',
         'PUT /api/crud/libros/:id/estado' => 'LibrosController@cambiarEstadoLibro',
         
@@ -22,6 +26,12 @@
 
         // Login
         'POST /api/login' => 'UserController@userLogin',
+
+        // Cursos
+        'GET /api/cursos' => 'CursosController@getCursos',
+        
+        // Reservas
+        'POST /api/reservas' => 'ReservasController@createReserva',
     ];
     
 ?>

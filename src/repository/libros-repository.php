@@ -111,6 +111,54 @@
         }
 
         /**
+         * Obtiene los libros de un curso específico
+         * 
+         * @param int $idCurso ID del curso
+         * @return array Lista de libros del curso
+         */
+        public function getLibrosByCurso($idCurso) {
+            $sql = "SELECT l.idLibro, l.nombre AS libroNombre, l.ISBN, l.precio, l.stock, 
+                        l.idEditorial, e.nombre AS editorialNombre, l.activo 
+                    FROM LIBRO l
+                    INNER JOIN EDITORIAL e ON l.idEditorial = e.idEditorial
+                    INNER JOIN CURSO_LIBRO cl ON l.idLibro = cl.idLibro
+                    WHERE cl.idCurso = ?";
+            
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param("i", $idCurso);
+            $stmt->execute();
+            
+            $resultado = $stmt->get_result();
+            
+            if (!$resultado) {
+                error_log("SQL Error: " . $this->conexion->error);
+                return [];
+            }
+            
+            $libros = [];
+            if ($resultado->num_rows > 0) {
+                while ($libro = $resultado->fetch_assoc()) {
+                    $editorial = new EditorialEntity(
+                        $libro['idEditorial'],
+                        $libro['editorialNombre']
+                    );
+                    
+                    $libros[] = new LibroEntity(
+                        $libro['idLibro'],
+                        $libro['libroNombre'],
+                        $libro['ISBN'],
+                        $editorial,
+                        $libro['precio'],
+                        $libro['stock'],
+                        $libro['activo']
+                    );
+                }
+            }
+            
+            return $libros;
+        }
+
+        /**
          * Agrega un nuevo libro
          * 
          * @param LibroEntity $libro Entidad del libro a agregar
