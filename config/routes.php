@@ -21,6 +21,9 @@
 
         // Cursos
         'GET /api/cursos' => 'CursosController@getCursos',
+        
+        // Reservas
+        'POST /api/reservas' => 'ReservasController@createReserva',
     ];
     
 ?>
