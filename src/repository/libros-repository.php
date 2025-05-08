@@ -51,6 +51,114 @@
         }
 
         /**
+         * Obtiene un libro por su ID
+         * 
+         * @param int $id ID del libro a obtener
+         * @return LibroEntity|null Libro encontrado o null si no existe
+         * @throws Exception Si hay errores en la operación
+         */
+        public function getLibro($id) {
+            try {
+                // Proteger contra SQL injection con prepared statement
+                $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo 
+                        FROM LIBRO AS lb 
+                        INNER JOIN EDITORIAL AS ed ON lb.idEditorial = ed.idEditorial 
+                        WHERE idLibro = ?";
+                
+                $stmt = $this->conexion->prepare($sql);
+                if (!$stmt) {
+                    throw new Exception("Error al preparar la consulta: " . $this->conexion->error);
+                }
+                
+                $stmt->bind_param("i", $id);
+                $stmt->execute();
+                $resultado = $stmt->get_result();
+                
+                if (!$resultado) {
+                    throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+                }
+                
+                if ($resultado->num_rows > 0) {
+                    // Solo necesitamos un registro, ya que buscamos por ID único
+                    $libroData = $resultado->fetch_assoc();
+                    
+                    // Crear entidad Editorial de la misma forma que en getLibros()
+                    $editorial = new EditorialEntity(
+                        $libroData['idEditorial'],
+                        $libroData['editorialNombre']
+                    );
+                    
+                    // Crear la entidad Libro igual que en getLibros()
+                    return new LibroEntity(
+                        $libroData['idLibro'],
+                        $libroData['libroNombre'],
+                        $libroData['ISBN'],
+                        $editorial,
+                        $libroData['precio'],
+                        $libroData['stock'],
+                        $libroData['activo']
+                    );
+                } else {
+                    // No se encontró el libro con ese ID
+                    return null;
+                }
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log("Error en LibrosRepository::getLibro: " . $e->getMessage());
+                // Propagar la excepción
+                throw $e;
+            }
+        }
+
+        /**
+         * Obtiene los libros de un curso específico
+         * 
+         * @param int $idCurso ID del curso
+         * @return array Lista de libros del curso
+         */
+        public function getLibrosByCurso($idCurso) {
+            $sql = "SELECT l.idLibro, l.nombre AS libroNombre, l.ISBN, l.precio, l.stock, 
+                        l.idEditorial, e.nombre AS editorialNombre, l.activo 
+                    FROM LIBRO l
+                    INNER JOIN EDITORIAL e ON l.idEditorial = e.idEditorial
+                    INNER JOIN CURSO_LIBRO cl ON l.idLibro = cl.idLibro
+                    WHERE cl.idCurso = ?";
+            
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param("i", $idCurso);
+            $stmt->execute();
+            
+            $resultado = $stmt->get_result();
+            
+            if (!$resultado) {
+                error_log("SQL Error: " . $this->conexion->error);
+                return [];
+            }
+            
+            $libros = [];
+            if ($resultado->num_rows > 0) {
+                while ($libro = $resultado->fetch_assoc()) {
+                    $editorial = new EditorialEntity(
+                        $libro['idEditorial'],
+                        $libro['editorialNombre']
+                    );
+                    
+                    $libros[] = new LibroEntity(
+                        $libro['idLibro'],
+                        $libro['libroNombre'],
+                        $libro['ISBN'],
+                        $editorial,
+                        $libro['precio'],
+                        $libro['stock'],
+                        $libro['activo']
+                    );
+                }
+            }
+            
+            return $libros;
+        }
+
+        /**
          * Agrega un nuevo libro
          * 
          * @param LibroEntity $libro Entidad del libro a agregar
@@ -107,6 +215,72 @@
                 // Registrar el error en el log
                 error_log($e->getMessage());
                 // Propagar la excepción para que el servicio la maneje
+                throw $e;
+            }
+        }
+
+        /**
+         * Actualiza un libro existente
+         * 
+         * @param int $id ID del libro a actualizar
+         * @param LibroEntity $libro Entidad del libro con los datos actualizados
+         * @return LibroEntity|null Libro actualizado o null si no existe
+         * @throws Exception Si hay errores en la operación
+         */
+        public function updateLibro($id, $libro) {
+            try {
+                // Primero verificamos que el libro existe
+                $libroExistente = $this->getLibro($id);
+                if (!$libroExistente) {
+                    return null;
+                }
+                
+                // Actualizamos los datos del libro con una consulta SQL directa
+                $sql = "UPDATE LIBRO SET 
+                        nombre = ?, 
+                        ISBN = ?, 
+                        idEditorial = ?, 
+                        precio = ?,
+                        activo = ? 
+                        WHERE idLibro = ?";
+                
+                $stmt = $this->conexion->prepare($sql);
+                if (!$stmt) {
+                    throw new Exception("Error al preparar la consulta: " . $this->conexion->error);
+                }
+                
+                // Obtenemos los datos del objeto LibroEntity
+                $nombre = $libro->getNombre();
+                $isbn = $libro->getIsbn();
+                $idEditorial = $libro->getEditorial()->getId();
+                $precio = $libro->getPrecio();
+                $estado = $libro->getEstado();
+                
+                // Enlazamos los parámetros
+                $stmt->bind_param(
+                    "ssidii", 
+                    $nombre, 
+                    $isbn, 
+                    $idEditorial, 
+                    $precio,
+                    $estado,
+                    $id
+                );
+                
+                // Ejecutamos la consulta
+                $stmt->execute();
+                
+                if ($stmt->error) {
+                    throw new Exception("Error al actualizar el libro: " . $stmt->error);
+                }
+                
+                // Recuperamos el libro actualizado
+                return $this->getLibro($id);
+                
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log("Error en LibrosRepository::updateLibro: " . $e->getMessage());
+                // Propagar la excepción
                 throw $e;
             }
         }

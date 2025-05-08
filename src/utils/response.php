@@ -5,9 +5,13 @@
      * @param string|int $status Código o estado de la respuesta
      * @param string $message Mensaje descriptivo de la respuesta
      * @param mixed $data Datos adicionales de la respuesta (opcional)
+     * @param int $httpCode Código HTTP de la respuesta (opcional, por defecto 200)
      * @return array Respuesta formateada
      */
-    function response($status, $message, $data = null) {
+    function response($status, $message, $data = null, $httpCode = 200) {
+        // Establecer el código de estado HTTP
+        http_response_code($httpCode);
+        
         if (is_array($data)) {
             return [
                 'status' => $status,
