@@ -29,7 +29,8 @@
         
         public function isUserAuthorized(string $email): bool {
             // Valor del ID de la aplicación en la BD. Definido en config/configDB.php
-            $idAplicacion = ID_APLICACION;
+            global $config;
+            $idAplicacion = $config['id_aplicacion'];
 
             $sql = "SELECT true FROM USUARIO usu " .
             "INNER JOIN USUARIO_ROL usu_rol ON usu.idUsuario = usu_rol.idUsuario " .
