@@ -1,17 +1,16 @@
 <?php
     
     // Unico archivo publico desde la web
+    // Cargar la configuración
+    $config = require_once __DIR__ . '/../config/config.php';
 
     include __DIR__ . '/../config/cors.php';
 
-    include __DIR__ . '/../config/wanings.php';
+    //include __DIR__ . '/../config/wanings.php';
 
     include __DIR__ . '/../src/utils/response.php';
     // Cargar el autoload de composer
     //require_once __DIR__ . '/../vendor/autoload.php';
-
-    // Cargar la configuración
-    $config = require_once __DIR__ . '/../config/config.php';
 
     // Cargar las rutas de la API
     $routes = require_once __DIR__ . '/../config/routes.php';
