@@ -1,13 +1,12 @@
-Alias /evg-reservas-libros-back "/home/user2daw/public_html/12/evg-reservas-libros-backA/public"
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /evg-reservas-libros-back/
 
-<Directory "/home/user2daw/public_html/12/evg-reservas-libros-backA/public">
-    Options Indexes FollowSymLinks Includes ExecCGI
-    AllowOverride All
-    Require all granted
-</Directory>
-
-<Directory "/home/user2daw/public_html/12/evg-reservas-libros-backA">
+    # Evitar listado de directorios
     Options -Indexes
-    AllowOverride None
-    Require all denied
-</Directory>
+
+    # Redirigir todas las solicitudes a public/index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/index.php [L,QSA]
+</IfModule>
