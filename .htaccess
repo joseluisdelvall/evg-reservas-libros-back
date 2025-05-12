@@ -1,0 +1,13 @@
+Alias /evg-reservas-libros-back "/home/user2daw/public_html/12/evg-reservas-libros-backA/public"
+
+<Directory "/home/user2daw/public_html/12/evg-reservas-libros-backA/public">
+    Options Indexes FollowSymLinks Includes ExecCGI
+    AllowOverride All
+    Require all granted
+</Directory>
+
+<Directory "/home/user2daw/public_html/12/evg-reservas-libros-backA">
+    Options -Indexes
+    AllowOverride None
+    Require all denied
+</Directory>
