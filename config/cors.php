@@ -1,6 +1,16 @@
 <?php
     // Set the specific origin for development
-    header("Access-Control-Allow-Origin: " . $config['base_url_front']);
+    // Limpiar la URL del frontend de caracteres escapados
+    $origin = $config['base_url_front'];
+    
+    // Eliminar barras invertidas escapadas
+    $cleanOrigin = str_replace("\/", "/", $origin);
+    $cleanOrigin = str_replace('\/', '/', $cleanOrigin);
+    $cleanOrigin = str_replace("\\", "", $cleanOrigin);
+    $cleanOrigin = rtrim(trim($cleanOrigin), '/');
+    
+    // Configurar encabezado CORS
+    header("Access-Control-Allow-Origin: " . $cleanOrigin);
     header("Access-Control-Allow-Credentials: true");
     header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept");
