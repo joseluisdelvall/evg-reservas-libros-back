@@ -3,3 +3,4 @@ vendor/
 *.log
 config/configdb.php
 justificantes/
+src/resources/sql/
