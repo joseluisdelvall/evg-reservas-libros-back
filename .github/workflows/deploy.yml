@@ -1,0 +1,34 @@
+name: Deploy via FTP (main & demo)
+
+on:
+  push:
+    branches:
+      - main
+      - demo
+
+jobs:
+  ftp-deploy:
+    name: Upload to FTP server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set config.php for correct environment
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "Configurando entorno para PRODUCCIÓN"
+            sed -i "s/\$prod = false;/\$prod = true;/" config/config.php
+          else
+            echo "Configurando entorno para DEMO (desarrollo)"
+            sed -i "s/\$prod = true;/\$prod = false;/" config/config.php
+          fi
+
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ github.ref == 'refs/heads/main' && '/evg-reservas-libros-back' || '/evg-reservas-libros-back-demo' }}
