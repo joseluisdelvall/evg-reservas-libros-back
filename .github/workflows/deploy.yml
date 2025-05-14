@@ -19,16 +19,14 @@ jobs:
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "Configurando entorno para PRODUCCIÓN"
-            # Cambiar $prod = false a $prod = true en el código PHP
-            sed -i -E "s/\$prod\s*=\s*false;/\$prod = true;/" config/config.php
-            # Cambiar 'prod' => false a 'prod' => true en la configuración
-            sed -i -E "s/'prod' => false/'prod' => true/" config/config.php
+            sed -i "s/\$prod = false;/\$prod = true;/" config/config.php
+            sed -i "s/'prod' => false,/'prod' => true,/" config/config.php
+            sed -i "s/:NOMBRECARPETA/evg-reservas-libros-back/g" config/config.php
           else
-            echo "Configurando entorno para DEMO (desarrollo)"
-            # Cambiar $prod = true a $prod = false en el código PHP
-            sed -i -E "s/\$prod\s*=\s*true;/\$prod = false;/" config/config.php
-            # Cambiar 'prod' => true a 'prod' => false en la configuración
-            sed -i -E "s/'prod' => true/'prod' => false/" config/config.php
+            echo "Configurando entorno para DEMO"
+            sed -i "s/\$prod = true;/\$prod = false;/" config/config.php
+            sed -i "s/'prod' => true,/'prod' => false,/" config/config.php
+            sed -i "s/:NOMBRECARPETA/evg-reservas-libros-back-demo/g" config/config.php
           fi
 
       - name: FTP Deploy
