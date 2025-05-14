@@ -5,3 +5,4 @@ config/configdb.php
 justificantes/
 src/resources/sql/
 .htaccess
+public/.htaccess
