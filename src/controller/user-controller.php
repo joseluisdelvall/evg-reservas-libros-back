@@ -48,8 +48,11 @@
                 ];
             }
 
+            global $config;
+            $DOMINIO_CORREO = $config['dominio_correo'];
+
             // Comprobar si el correo tiene el dominio correcto
-            if ( !isset($decodedToken['hd']) || $decodedToken['hd'] !== DOMINIO_CORREO) {
+            if ( !isset($decodedToken['hd']) || $decodedToken['hd'] !== $DOMINIO_CORREO) {
                 return [
                     'status' => 'error',
                     'message' => 'El correo electrónico no es válido'
