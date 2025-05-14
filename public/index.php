@@ -2,6 +2,7 @@
     
     // Unico archivo publico desde la web
     // Cargar la configuración
+    // TEST
     $config = require_once __DIR__ . '/../config/config.php';
 
     include __DIR__ . '/../config/cors.php';
