@@ -24,8 +24,8 @@ jobs:
             sed -i "s/:NOMBRECARPETA/evg-reservas-libros-back/g" config/config.php
           else
             echo "Configurando entorno para DEMO"
-            sed -i "s/\$prod = true;/\$prod = false;/" config/config.php
-            sed -i "s/'prod' => true,/'prod' => false,/" config/config.php
+            sed -i "s/\$prod = false;/\$prod = true;/" config/config.php
+            sed -i "s/'prod' => false,/'prod' => true,/" config/config.php
             sed -i "s/:NOMBRECARPETA/evg-reservas-libros-back-demo/g" config/config.php
           fi
 
