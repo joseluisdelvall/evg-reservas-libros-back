@@ -195,5 +195,45 @@ class ReservasRepository {
         
         return null;
     }
+
+    /**
+     * Obtiene todas las reservas
+     * 
+     * @return array Respuesta con el estado de la operación
+     */
+    public function getAllReservas() {
+        $sql = "SELECT * FROM RESERVA";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+
+        if (!$resultado) {
+            return [];
+        }
+
+        $reservas = [];
+        if ($resultado->num_rows > 0) {
+            while ($reservaData = $resultado->fetch_assoc()) {
+                $reservas[] = new ReservaEntity(
+                    $reservaData['idReserva'],
+                    $reservaData['nombreAlumno'],
+                    $reservaData['apellidosAlumno'],
+                    $reservaData['nombreTutorLegal'],
+                    $reservaData['apellidosTutorLegal'],
+                    $reservaData['correo'],
+                    $reservaData['dni'],
+                    $reservaData['telefono'],
+                    $reservaData['justificante'],
+                    $reservaData['fecha'],
+                    $reservaData['verificado'],
+                    $reservaData['totalPagado'],
+                    $reservaData['idCurso'],
+                    //$reservaData['libros']
+                );
+            }
+            return $reservas;
+        }
+        return [];
+    }
 }
 ?> 

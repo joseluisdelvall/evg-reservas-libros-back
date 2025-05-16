@@ -173,5 +173,14 @@ class ReservasService {
             throw new Exception("Error al procesar el justificante: " . $e->getMessage());
         }
     }
+
+    /**
+     * Obtiene todas las reservas
+     * 
+     * @return array Respuesta con el estado de la operación
+     */
+    public function getAllReservas() {
+        return $this->reservasRepository->getAllReservas();
+    }
 }
 ?> 

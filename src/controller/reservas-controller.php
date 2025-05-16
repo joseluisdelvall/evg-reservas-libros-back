@@ -76,5 +76,26 @@ class ReservasController {
             return false;
         }
     }
+
+    /**
+     * Obtiene todas las reservas
+     * 
+     * @return array Respuesta con el estado de la operación
+     */
+    public function getReservas() {
+        $reservas = $this->reservasService->getAllReservas();
+
+        if(!$reservas) {
+            return response('error', 'No se han encontrado reservas', null, 404);
+        }
+        
+        $reservasDto = array_map(function($reserva) {
+            return new ReservaDto($reserva->getId(), $reserva->getNombreAlumno(), $reserva->getApellidosAlumno(), $reserva->getCorreo(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getIdCurso()); //, $reserva->getJustificante(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getTotalPagado(), $reserva->getIdCurso(), $reserva->getLibros()
+        }, $reservas);
+
+        return response('success', 'Reservas obtenidas correctamente', array_map(function($dto) { 
+            return $dto->toArray(); 
+        }, $reservasDto));
+    }
 }
 ?> 
