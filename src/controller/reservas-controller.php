@@ -90,7 +90,7 @@ class ReservasController {
         }
         
         $reservasDto = array_map(function($reserva) {
-            return new ReservaDto($reserva->getId(), $reserva->getNombreAlumno(), $reserva->getApellidosAlumno(), $reserva->getCorreo(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getIdCurso()); //, $reserva->getJustificante(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getTotalPagado(), $reserva->getIdCurso(), $reserva->getLibros()
+            return new ReservaDto($reserva->getId(), $reserva->getNombreAlumno(), $reserva->getApellidosAlumno(), $reserva->getNombreTutorLegal(), $reserva->getApellidosTutorLegal(), $reserva->getCorreo(), $reserva->getDni(), $reserva->getTelefono(), $reserva->getJustificante(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getTotalPagado(), $reserva->getIdCurso()); //, $reserva->getJustificante(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getTotalPagado(), $reserva->getIdCurso(), $reserva->getLibros()
         }, $reservas);
 
         return response('success', 'Reservas obtenidas correctamente', array_map(function($dto) { 

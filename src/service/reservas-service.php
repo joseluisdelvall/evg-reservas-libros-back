@@ -2,6 +2,7 @@
 
 require_once '../src/repository/reservas-repository.php';
 require_once '../src/entity/reserva-entity.php';
+require_once '../src/dto/reserva-min-dto.php';
 require_once '../src/dto/reserva-dto.php';
 
 class ReservasService {
@@ -15,7 +16,7 @@ class ReservasService {
      * Crea una nueva reserva a partir de los datos del formulario
      * 
      * @param array $formData Datos del formulario
-     * @return ReservaDto|null DTO con los datos de la reserva creada
+     * @return ReservaMinDto|null DTO con los datos de la reserva creada
      */
     public function createReserva($formData) {
         try {
@@ -71,7 +72,7 @@ class ReservasService {
             }
             
             // Convertir a DTO para la respuesta con el formato esperado
-            return new ReservaDto(
+            return new ReservaMinDto(
                 $reservaCreada->getId(),
                 $reservaCreada->getNombreAlumno(),
                 $reservaCreada->getApellidosAlumno(),

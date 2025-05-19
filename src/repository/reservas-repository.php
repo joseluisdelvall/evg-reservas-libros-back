@@ -227,8 +227,7 @@ class ReservasRepository {
                     $reservaData['fecha'],
                     $reservaData['verificado'],
                     $reservaData['totalPagado'],
-                    $reservaData['idCurso'],
-                    //$reservaData['libros']
+                    $reservaData['idCurso']
                 );
             }
             return $reservas;

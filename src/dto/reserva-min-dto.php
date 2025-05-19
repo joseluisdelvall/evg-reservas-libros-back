@@ -1,18 +1,12 @@
 <?php
 
-class ReservaDto {
+class ReservaMinDto {
     private $id;
     private $nombreAlumno;
     private $apellidosAlumno;
-    private $nombreTutorLegal;
-    private $apellidosTutorLegal;
     private $correo;
-    private $dni;
-    private $telefono;
-    private $justificante;
     private $fecha;
     private $verificado;
-    private $totalPagado;
     private $curso;
     private $libros;
 
@@ -20,30 +14,18 @@ class ReservaDto {
         $id = null,
         $nombreAlumno = null, 
         $apellidosAlumno = null,
-        $nombreTutorLegal = null,
-        $apellidosTutorLegal = null,
         $correo = null,
-        $dni = null,
-        $telefono = null,
-        $justificante = null,
         $fecha = null,
         $verificado = false,
-        $totalPagado = 0,
         $curso = null,
         $libros = []
     ) {
         $this->id = $id;
         $this->nombreAlumno = $nombreAlumno;
         $this->apellidosAlumno = $apellidosAlumno;
-        $this->nombreTutorLegal = $nombreTutorLegal;
-        $this->apellidosTutorLegal = $apellidosTutorLegal;
         $this->correo = $correo;
-        $this->dni = $dni;
-        $this->telefono = $telefono;
-        $this->justificante = $justificante;
         $this->fecha = $fecha;
         $this->verificado = $verificado;
-        $this->totalPagado = $totalPagado;
         $this->curso = $curso;
         $this->libros = $libros;
     }
@@ -53,15 +35,9 @@ class ReservaDto {
             'id' => $this->id,
             'nombreAlumno' => $this->nombreAlumno,
             'apellidosAlumno' => $this->apellidosAlumno,
-            'nombreTutorLegal' => $this->nombreTutorLegal,
-            'apellidosTutorLegal' => $this->apellidosTutorLegal,
             'correo' => $this->correo,
-            'dni' => $this->dni,
-            'telefono' => $this->telefono,
-            'justificante' => $this->justificante,
             'fecha' => $this->fecha,
             'verificado' => $this->verificado,
-            'totalPagado' => $this->totalPagado,
             'curso' => $this->curso,
             'libros' => $this->libros
         ];
