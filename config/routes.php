@@ -32,7 +32,7 @@
         
         // Reservas
         'POST /api/reservas' => 'ReservasController@createReserva',
-        'GET /api/reservas' => 'ReservasController@getReservas',
+        'GET /api/crud/reservas' => 'ReservasController@getReservas',
     ];
     
 ?>
