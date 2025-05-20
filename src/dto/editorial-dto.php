@@ -1,7 +1,7 @@
 <?php
     
     class EditorialDto {
-        private $idEditorial;
+        private $id;
         private $nombre;
         private $telefono1;
         private $telefono2;
@@ -12,17 +12,17 @@
         private $estado;
 
         public function __construct(
-            $idEditorial = null,
-            $nombre = null,
+            $id,
+            $nombre,
             $telefono1 = null,
             $telefono2 = null,
             $telefono3 = null,
             $correo1 = null,
             $correo2 = null,
             $correo3 = null,
-            $estado = null
+            $estado = true
         ) {
-            $this->idEditorial = $idEditorial;
+            $this->id = $id;
             $this->nombre = $nombre;
             $this->telefono1 = $telefono1;
             $this->telefono2 = $telefono2;
@@ -34,7 +34,7 @@
         }
         
         public function getId() {
-            return $this->idEditorial;
+            return $this->id;
         }
         
         public function getNombre() {
@@ -119,11 +119,8 @@
         
         public function toArray() {
             return [
-                'idEditorial' => $this->getId(),
-                'nombre' => $this->getNombre(),
-                'telefonos' => $this->getTelefonos(),
-                'correos' => $this->getCorreos(),
-                'estado' => $this->getEstado()
+                'idEditorial' => $this->id,
+                'nombre' => $this->nombre
             ];
         }
         

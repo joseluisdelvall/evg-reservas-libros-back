@@ -8,16 +8,16 @@
         private $editorial;
         private $precio;
         private $stock;
-        private $estado;
+        private $activo;
 
-        public function __construct($id = null, $nombre = null, $isbn = null, $editorial = null, $precio = null, $stock = null, $estado = null) {
+        public function __construct($id = null, $nombre = null, $isbn = null, $editorial = null, $precio = null, $stock = null, $activo = null) {
             $this->id = $id;
             $this->nombre = $nombre;
             $this->isbn = $isbn;
             $this->editorial = $editorial;
             $this->precio = $precio;
             $this->stock = $stock;
-            $this->estado = $estado;
+            $this->activo = $activo;
         }
         public function getId() {
             return $this->id;
@@ -37,8 +37,8 @@
         public function getStock() {
             return $this->stock;
         }
-        public function getEstado() {
-            return $this->estado;
+        public function getActivo() {
+            return $this->activo;
         }
         public function setId($id) {
             $this->id = $id;
@@ -58,18 +58,18 @@
         public function setStock($stock) {
             $this->stock = $stock;
         }
-        public function setEstado($estado) {
-            $this->estado = $estado;
+        public function setActivo($activo) {
+            $this->activo = $activo;
         }
         public function toArray() {
             return [
                 'id' => $this->id,
                 'nombre' => $this->nombre,
                 'isbn' => $this->isbn,
-                'editorial' => $this->editorial,
+                'editorial' => $this->editorial ? $this->editorial->toArray() : null,
                 'precio' => $this->precio,
                 'stock' => $this->stock,
-                'estado' => $this->estado
+                'activo' => $this->activo
             ];
         }
     }
