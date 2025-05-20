@@ -19,7 +19,8 @@ class LibrosCursosRepository {
         $sql = "SELECT cl.idLibro, cl.idCurso, l.nombre AS libroNombre, c.nombre AS cursoNombre
                 FROM CURSO_LIBRO cl
                 INNER JOIN LIBRO l ON cl.idLibro = l.idLibro
-                INNER JOIN CURSO c ON cl.idCurso = c.idCurso";
+                INNER JOIN CURSO c ON cl.idCurso = c.idCurso
+                WHERE l.activo = 1";
         
         $resultado = $this->conexion->query($sql);
         

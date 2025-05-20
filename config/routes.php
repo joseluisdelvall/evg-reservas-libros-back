@@ -37,7 +37,6 @@
         'GET /api/crud/libros-cursos' => 'LibrosCursosController@getLibrosCursos',
         'GET /api/libros-cursos/curso/:id' => 'LibrosCursosController@getLibrosByCurso',
         'POST /api/crud/libros-cursos/add' => 'LibrosCursosController@asignarLibroACurso',
-        'DELETE /api/crud/libros-cursos' => 'LibrosCursosController@eliminarAsignacion',
         'POST /api/crud/libros-cursos/delete' => 'LibrosCursosController@eliminarAsignacion',
     ];
     

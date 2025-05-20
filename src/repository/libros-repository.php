@@ -122,7 +122,7 @@
                     FROM LIBRO l
                     INNER JOIN EDITORIAL e ON l.idEditorial = e.idEditorial
                     INNER JOIN CURSO_LIBRO cl ON l.idLibro = cl.idLibro
-                    WHERE cl.idCurso = ?";
+                    WHERE cl.idCurso = ? AND l.activo = 1";
             
             $stmt = $this->conexion->prepare($sql);
             $stmt->bind_param("i", $idCurso);
