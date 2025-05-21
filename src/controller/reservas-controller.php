@@ -121,5 +121,19 @@ class ReservasController {
         }
         return response('success', 'Libros de la reserva obtenidos correctamente', $libros);
     }
+
+    /**
+     * Elimina una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function deleteReserva($id) {
+        $resultado = $this->reservasService->deleteReserva($id);
+        if ($resultado) {
+            return response('success', 'Reserva eliminada correctamente');
+        } else {
+            return response('error', 'No se pudo eliminar la reserva', null, 500);
+        }
+    }
 }
 ?> 

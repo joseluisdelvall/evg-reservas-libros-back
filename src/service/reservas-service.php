@@ -192,5 +192,14 @@ class ReservasService {
     public function getLibrosByReservaId($idReserva) {
         return $this->reservasRepository->getLibrosByReservaId($idReserva);
     }
+
+    /**
+     * Elimina una reserva por su ID
+     * @param int $idReserva
+     * @return bool true si se eliminó correctamente
+     */
+    public function deleteReserva($idReserva) {
+        return $this->reservasRepository->deleteReserva($idReserva);
+    }
 }
 ?> 

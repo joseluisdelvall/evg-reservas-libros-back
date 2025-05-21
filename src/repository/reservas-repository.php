@@ -274,5 +274,31 @@ class ReservasRepository {
         }
         return $libros;
     }
+
+    /**
+     * Elimina una reserva y sus libros asociados por ID
+     * @param int $idReserva
+     * @return bool true si se eliminó correctamente
+     */
+    public function deleteReserva($idReserva) {
+        try {
+            // Eliminar primero los libros asociados
+            $sqlLibros = "DELETE FROM RESERVA_LIBRO WHERE idReserva = ?";
+            $stmtLibros = $this->conexion->prepare($sqlLibros);
+            $stmtLibros->bind_param("i", $idReserva);
+            $stmtLibros->execute();
+
+            // Eliminar la reserva principal
+            $sqlReserva = "DELETE FROM RESERVA WHERE idReserva = ?";
+            $stmtReserva = $this->conexion->prepare($sqlReserva);
+            $stmtReserva->bind_param("i", $idReserva);
+            $stmtReserva->execute();
+
+            return $stmtReserva->affected_rows > 0;
+        } catch (Exception $e) {
+            error_log("Error al eliminar la reserva: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?> 
