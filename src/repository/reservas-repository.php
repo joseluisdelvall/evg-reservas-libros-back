@@ -197,12 +197,25 @@ class ReservasRepository {
     }
 
     /**
-     * Obtiene todas las reservas
+     * Obtiene todas las reservas con los datos del curso y los libros
      * 
      * @return array Respuesta con el estado de la operación
      */
     public function getAllReservas() {
-        $sql = "SELECT * FROM RESERVA";
+        $sql = " SELECT DISTINCT 
+                    r.idReserva,
+                    r.nombreAlumno,
+                    r.apellidosAlumno,
+                    r.correo,
+                    r.telefono,
+                    r.fecha,
+                    r.verificado,
+                    r.totalPagado,
+                    r.idCurso,
+                    c.nombre AS nombreCurso
+                 FROM RESERVA r
+                    INNER JOIN CURSO c ON r.idCurso = c.idCurso
+                 ORDER BY r.fecha DESC";
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute();
         $resultado = $stmt->get_result();
@@ -214,21 +227,18 @@ class ReservasRepository {
         $reservas = [];
         if ($resultado->num_rows > 0) {
             while ($reservaData = $resultado->fetch_assoc()) {
-                $reservas[] = new ReservaEntity(
-                    $reservaData['idReserva'],
-                    $reservaData['nombreAlumno'],
-                    $reservaData['apellidosAlumno'],
-                    $reservaData['nombreTutorLegal'],
-                    $reservaData['apellidosTutorLegal'],
-                    $reservaData['correo'],
-                    $reservaData['dni'],
-                    $reservaData['telefono'],
-                    $reservaData['justificante'],
-                    $reservaData['fecha'],
-                    $reservaData['verificado'],
-                    $reservaData['totalPagado'],
-                    $reservaData['idCurso']
-                );
+                $reservas[] = [
+                    'id' => $reservaData['idReserva'],
+                    'nombreAlumno' => $reservaData['nombreAlumno'],
+                    'apellidosAlumno' => $reservaData['apellidosAlumno'],
+                    'correo' => $reservaData['correo'],
+                    'telefono' => $reservaData['telefono'],
+                    'fecha' => $reservaData['fecha'],
+                    'verificado' => $reservaData['verificado'],
+                    'totalPagado' => $reservaData['totalPagado'],
+                    'idCurso' => $reservaData['idCurso'],
+                    'nombreCurso' => $reservaData['nombreCurso']
+                ];
             }
             return $reservas;
         }

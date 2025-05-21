@@ -1,6 +1,7 @@
 <?php
 
 require_once '../src/service/reservas-service.php';
+require_once '../src/dto/reserva-curso-dto.php';
 require_once '../src/utils/response.php';
 
 class ReservasController {
@@ -90,7 +91,17 @@ class ReservasController {
         }
         
         $reservasDto = array_map(function($reserva) {
-            return new ReservaDto($reserva->getId(), $reserva->getNombreAlumno(), $reserva->getApellidosAlumno(), $reserva->getNombreTutorLegal(), $reserva->getApellidosTutorLegal(), $reserva->getCorreo(), $reserva->getDni(), $reserva->getTelefono(), $reserva->getJustificante(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getTotalPagado(), $reserva->getIdCurso()); //, $reserva->getJustificante(), $reserva->getFecha(), $reserva->getVerificado(), $reserva->getTotalPagado(), $reserva->getIdCurso(), $reserva->getLibros()
+            return new ReservaCursoDto(
+                $reserva['id'],
+                $reserva['nombreAlumno'],
+                $reserva['apellidosAlumno'],
+                $reserva['correo'],
+                $reserva['telefono'],
+                $reserva['fecha'],
+                $reserva['verificado'],
+                $reserva['totalPagado'],
+                $reserva['nombreCurso']
+            );
         }, $reservas);
 
         return response('success', 'Reservas obtenidas correctamente', array_map(function($dto) { 
