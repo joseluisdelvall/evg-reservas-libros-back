@@ -244,5 +244,35 @@ class ReservasRepository {
         }
         return [];
     }
+
+    /**
+     * Obtiene los libros de una reserva por su ID
+     * @param int $idReserva
+     * @return array Lista de libros
+     */
+    public function getLibrosByReservaId($idReserva) {
+        $sql = "SELECT rl.idLibro, l.ISBN, l.nombre, edt.nombre AS editorial, rl.precioPagado, e.nombre AS estado 
+                FROM RESERVA_LIBRO rl
+                INNER JOIN LIBRO l ON rl.idLibro = l.idLibro
+                INNER JOIN TM_ESTADO e ON rl.idEstado = e.idEstado
+                INNER JOIN EDITORIAL edt ON edt.idEditorial = l.idEditorial
+                WHERE rl.idReserva = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idReserva);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $libros = [];
+        while ($libroData = $resultado->fetch_assoc()) {
+            $libros[] = [
+                'id' => $libroData['idLibro'],
+                'isbn' => $libroData['ISBN'],
+                'nombre' => $libroData['nombre'],
+                'editorial' => $libroData['editorial'],
+                'precio' => $libroData['precioPagado'],
+                'estado' => $libroData['estado']
+            ];
+        }
+        return $libros;
+    }
 }
 ?> 

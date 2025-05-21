@@ -108,5 +108,18 @@ class ReservasController {
             return $dto->toArray(); 
         }, $reservasDto));
     }
+
+    /**
+     * Obtiene los libros de una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con los libros
+     */
+    public function getLibrosByReservaId($id) {
+        $libros = $this->reservasService->getLibrosByReservaId($id);
+        if (!$libros) {
+            return response('error', 'No se encontraron libros para la reserva', null, 404);
+        }
+        return response('success', 'Libros de la reserva obtenidos correctamente', $libros);
+    }
 }
 ?> 

@@ -34,6 +34,7 @@
         // Reservas
         'POST /api/reservas' => 'ReservasController@createReserva',
         'GET /api/crud/reservas' => 'ReservasController@getReservas',
+        'GET /api/crud/reservas/:id/libros' => 'ReservasController@getLibrosByReservaId',
     ];
     
 ?>

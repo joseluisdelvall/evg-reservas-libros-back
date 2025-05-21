@@ -183,5 +183,14 @@ class ReservasService {
     public function getAllReservas() {
         return $this->reservasRepository->getAllReservas();
     }
+
+    /**
+     * Obtiene los libros de una reserva por su ID
+     * @param int $idReserva
+     * @return array Lista de libros
+     */
+    public function getLibrosByReservaId($idReserva) {
+        return $this->reservasRepository->getLibrosByReservaId($idReserva);
+    }
 }
 ?> 
