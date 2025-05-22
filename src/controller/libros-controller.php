@@ -29,7 +29,7 @@
 
             $librosDto = array_map(function($libro) {
                 $editorialDto = new EditorialMinDto($libro->getEditorial()->getId(), $libro->getEditorial()->getNombre());
-                return new LibroDto($libro->getId(), $libro->getNombre(), $libro->getIsbn(), $editorialDto, $libro->getPrecio(), $libro->getEstado());
+                return new LibroDto($libro->getId(), $libro->getNombre(), $libro->getIsbn(), $editorialDto, $libro->getPrecio(), $libro->getActivo());
             }, $libros);
 
             return response('success', 'Libros obtenidos correctamente', array_map(function($dto) { 
