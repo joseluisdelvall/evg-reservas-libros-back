@@ -51,13 +51,31 @@
             global $config;
             $DOMINIO_CORREO = $config['dominio_correo'];
 
-            // Comprobar si el correo tiene el dominio correcto
-            if ( !isset($decodedToken['hd']) || $decodedToken['hd'] !== $DOMINIO_CORREO) {
+            // Comprobar si el correo tiene alguno de los dominios permitidos
+            /*if ( !isset($decodedToken['hd']) || $decodedToken['hd'] !== $DOMINIO_CORREO) {
                 return [
                     'status' => 'error',
                     'message' => 'El correo electrónico no es válido'
                 ];
                 exit;
+            }*/
+            $dominiosPermitidos = explode(';', $DOMINIO_CORREO);
+            $dominioValido = false;
+
+            if (isset($decodedToken['hd'])) {
+                foreach ($dominiosPermitidos as $dominio) {
+                    if (trim($dominio) === $decodedToken['hd']) {
+                        $dominioValido = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!$dominioValido) {
+                return [
+                    'status' => 'error',
+                    'message' => 'El correo electrónico no es válido'
+                ];
             }
 
             // Comprobar si el token ha expirado
