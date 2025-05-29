@@ -3,6 +3,8 @@
     require_once '../src/entity/editorial-entity.php';
     require_once '../src/repository/editoriales-repository.php';
     require_once '../src/dto/editorial-dto.php';
+    require_once '../src/dto/editorial-libros-pendientes-dto.php';
+    require_once '../src/dto/libro-pendiente-dto.php';
     
     class EditorialesService {
 
@@ -233,6 +235,71 @@
                 // Registrar el error en el log
                 error_log($e->getMessage());
                 // Propagar el error al controlador
+                throw $e;
+            }
+        }
+
+        /**
+         * Obtiene las editoriales que tienen libros reservados pendientes de pedir
+         * 
+         * @return array Lista de DTOs con las editoriales y cantidad de libros pendientes
+         * @throws Exception Si hay errores en la consulta
+         */
+        public function getEditorialesConLibrosPendientes() {
+            try {
+                $editoriales = $this->editorialesRepository->getEditorialesConLibrosPendientes();
+                
+                // Convertir a DTOs
+                $editorialesDto = array_map(function($editorial) {
+                    return new EditorialLibrosPendientesDto(
+                        $editorial['idEditorial'],
+                        $editorial['nombre'],
+                        $editorial['librosPendientes']
+                    );
+                }, $editoriales);
+
+                return $editorialesDto;
+            } catch (Exception $e) {
+                error_log("Error en getEditorialesConLibrosPendientes: " . $e->getMessage());
+                throw $e;
+            }
+        }
+
+        /**
+         * Obtiene los libros reservados pendientes de pedir para una editorial específica.
+         *
+         * @param int $idEditorial ID de la editorial
+         * @return array Lista de DTOs LibroPendienteDto
+         * @throws Exception Si hay errores en la consulta o el ID no es válido
+         */
+        public function getLibrosPendientesPorEditorial($idEditorial) {
+            try {
+                // Validar que el ID sea un número entero
+                if (!is_numeric($idEditorial) || $idEditorial <= 0) {
+                    throw new Exception("El ID de la editorial debe ser un número entero positivo.");
+                }
+
+                // Verificar si la editorial existe
+                $editorial = $this->editorialesRepository->getEditorial($idEditorial);
+                if (!$editorial) {
+                    throw new Exception("No se encontró la editorial con ID $idEditorial.");
+                }
+
+                $librosData = $this->editorialesRepository->getLibrosPendientesPorEditorial($idEditorial);
+
+                $librosDto = array_map(function($libro) {
+                    return new LibroPendienteDto(
+                        $libro['idLibro'],
+                        $libro['nombre'],
+                        $libro['ISBN'],
+                        $libro['precio'],
+                        $libro['unidadesPendientes']
+                    );
+                }, $librosData);
+
+                return $librosDto;
+            } catch (Exception $e) {
+                error_log("Error en getLibrosPendientesPorEditorial Service: " . $e->getMessage());
                 throw $e;
             }
         }
