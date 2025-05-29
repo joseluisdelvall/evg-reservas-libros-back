@@ -226,7 +226,7 @@ class ReservasService {
                 'verificado' => $reserva['verificado'],
                 'totalPagado' => $reserva['totalPagado'],
                 'idCurso' => $reserva['idCurso'],
-                'curso' => $reserva['nombreCurso']
+                'nombreCurso' => $reserva['nombreCurso']
             ];
         } catch (Exception $e) {
             error_log("Error al obtener la reserva: " . $e->getMessage());
