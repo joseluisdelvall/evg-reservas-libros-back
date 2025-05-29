@@ -226,10 +226,45 @@ class ReservasService {
                 'verificado' => $reserva['verificado'],
                 'totalPagado' => $reserva['totalPagado'],
                 'idCurso' => $reserva['idCurso'],
-                'nombreCurso' => $reserva['nombreCurso']
+                'curso' => $reserva['nombreCurso']
             ];
         } catch (Exception $e) {
             error_log("Error al obtener la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Cambia el estado de verificación de una reserva
+     * @param int $idReserva
+     * @return array Datos de la reserva actualizada
+     * @throws Exception si no se encuentra la reserva o hay un error
+     */
+    public function cambiarEstadoReserva($idReserva) {
+        try {
+            // Primero verificamos que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva");
+            }
+
+            // Llamar al repositorio para actualizar el estado
+            $resultado = $this->reservasRepository->updateReservaVerificado($idReserva, !$reserva['verificado']);
+            
+            if (!$resultado) {
+                throw new Exception("No se pudo actualizar el estado de la reserva");
+            }
+
+            // Obtener la reserva actualizada y devolverla en el formato correcto
+            $reservaActualizada = $this->getReservaById($idReserva);
+            if (!$reservaActualizada) {
+                throw new Exception("No se pudo obtener la reserva actualizada");
+            }
+
+            return $reservaActualizada;
+            
+        } catch (Exception $e) {
+            error_log("Error al cambiar el estado de la reserva: " . $e->getMessage());
             throw $e;
         }
     }

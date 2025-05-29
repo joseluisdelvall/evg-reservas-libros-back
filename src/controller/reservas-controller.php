@@ -166,5 +166,18 @@ class ReservasController {
         }
     }
     
+    /**
+     * Cambia el estado de verificación de una reserva
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function cambiarEstadoReserva($id) {
+        try {
+            $result = $this->reservasService->cambiarEstadoReserva($id);
+            return response('success', 'Estado de la reserva actualizado correctamente', $result);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
 }
 ?> 

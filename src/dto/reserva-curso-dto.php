@@ -26,11 +26,11 @@ class ReservaCursoDto {
         $this->nombreAlumno = $nombreAlumno;
         $this->apellidosAlumno = $apellidosAlumno;
         $this->correo = $correo;
+        $this->telefono = $telefono;
         $this->fecha = $fecha;
         $this->verificado = $verificado;
-        $this->curso = $curso;
-        $this->telefono = $telefono;
         $this->totalPagado = $totalPagado;
+        $this->curso = $curso;
     }
 
     public function toArray() {

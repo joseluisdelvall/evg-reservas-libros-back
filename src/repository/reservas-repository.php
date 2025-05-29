@@ -280,5 +280,26 @@ class ReservasRepository {
             return false;
         }
     }
+
+    /**
+     * Actualiza el estado de verificación de una reserva
+     * @param int $idReserva ID de la reserva
+     * @param bool $verificado Nuevo estado de verificación
+     * @return bool true si se actualizó correctamente
+     */
+    public function updateReservaVerificado($idReserva, $verificado) {
+        try {
+            $sql = "UPDATE RESERVA SET verificado = ? WHERE idReserva = ?";
+            $stmt = $this->conexion->prepare($sql);
+            $verificadoInt = $verificado ? 1 : 0;
+            $stmt->bind_param("ii", $verificadoInt, $idReserva);
+            $stmt->execute();
+
+            return $stmt->affected_rows > 0;
+        } catch (Exception $e) {
+            error_log("Error al actualizar el estado de la reserva: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?> 
