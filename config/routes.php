@@ -34,6 +34,7 @@
         // Reservas
         'POST /api/reservas' => 'ReservasController@createReserva',
         'GET /api/crud/reservas' => 'ReservasController@getReservas',
+        'GET /api/crud/reservas/:id' => 'ReservasController@getReservaById',
         'GET /api/crud/reservas/:id/libros' => 'ReservasController@getLibrosByReservaId',
         'DELETE /api/crud/reservas/:id' => 'ReservasController@deleteReserva',
     ];

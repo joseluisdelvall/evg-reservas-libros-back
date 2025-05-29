@@ -135,5 +135,36 @@ class ReservasController {
             return response('error', 'No se pudo eliminar la reserva', null, 500);
         }
     }
+
+    /**
+     * Obtiene una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con la reserva
+     */
+    public function getReservaById($id) {
+        try {
+            $reserva = $this->reservasService->getReservaById($id);
+            if (!$reserva) {
+                return response('error', 'No se encontró la reserva', null, 404);
+            }
+
+            $reservaDto = new ReservaCursoDto(
+                $reserva['id'],
+                $reserva['nombreAlumno'],
+                $reserva['apellidosAlumno'],
+                $reserva['correo'],
+                $reserva['telefono'],
+                $reserva['fecha'],
+                $reserva['verificado'],
+                $reserva['totalPagado'],
+                $reserva['nombreCurso']
+            );
+
+            return response('success', 'Reserva obtenida correctamente', $reservaDto->toArray());
+        } catch (Exception $e) {
+            return response('error', $e->getMessage());
+        }
+    }
+    
 }
 ?> 

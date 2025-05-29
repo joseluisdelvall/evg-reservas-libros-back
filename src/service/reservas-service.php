@@ -201,5 +201,37 @@ class ReservasService {
     public function deleteReserva($idReserva) {
         return $this->reservasRepository->deleteReserva($idReserva);
     }
+
+    /**
+     * Obtiene una reserva por su ID
+     * @param int $idReserva
+     * @return array|null Datos de la reserva o null si no existe
+     */
+    public function getReservaById($idReserva) {
+        try {
+            $reserva = $this->reservasRepository->getReservaById($idReserva);
+            
+            if (!$reserva) {
+                return null;
+            }
+
+            // Devolver en el mismo formato que getAllReservas
+            return [
+                'id' => $reserva['idReserva'],
+                'nombreAlumno' => $reserva['nombreAlumno'],
+                'apellidosAlumno' => $reserva['apellidosAlumno'],
+                'correo' => $reserva['correo'],
+                'telefono' => $reserva['telefono'],
+                'fecha' => $reserva['fecha'],
+                'verificado' => $reserva['verificado'],
+                'totalPagado' => $reserva['totalPagado'],
+                'idCurso' => $reserva['idCurso'],
+                'nombreCurso' => $reserva['nombreCurso']
+            ];
+        } catch (Exception $e) {
+            error_log("Error al obtener la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }
 }
 ?> 
