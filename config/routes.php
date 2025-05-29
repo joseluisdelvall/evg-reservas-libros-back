@@ -42,6 +42,7 @@
         // PEDIDOS DE LIBROS
         'GET /api/pedidos/editoriales-con-libros-pendientes' => 'EditorialesController@getEditorialesConLibrosPendientes',
         'GET /api/pedidos/editoriales/:id/libros-pendientes' => 'EditorialesController@getLibrosPendientesPorEditorial',
+        'POST /api/pedidos/add' => 'PedidosController@addPedido',
     ];
     
 ?>

@@ -1,0 +1,19 @@
+<?php
+require_once '../src/service/pedidos-service.php';
+require_once '../src/utils/response.php';
+
+class PedidosController {
+    private $pedidosService;
+    public function __construct() {
+        $this->pedidosService = new PedidosService();
+    }
+    public function addPedido() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $pedido = $this->pedidosService->addPedido($data);
+            return response('success', 'Pedido creado correctamente', $pedido->toArray());
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+} 
