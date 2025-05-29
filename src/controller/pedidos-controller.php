@@ -16,4 +16,20 @@ class PedidosController {
             return response('error', $e->getMessage(), null, 500);
         }
     }
+    public function getEditorialesConPedidos() {
+        try {
+            $editoriales = $this->pedidosService->getEditorialesConPedidos();
+            return response('success', 'Editoriales con pedidos obtenidas correctamente', $editoriales);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+    public function getPedidosByEditorial($idEditorial) {
+        try {
+            $pedidos = $this->pedidosService->getPedidosByEditorial($idEditorial);
+            return response('success', 'Pedidos de la editorial obtenidos correctamente', $pedidos);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
 } 
