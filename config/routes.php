@@ -38,6 +38,10 @@
         'GET /api/libros-cursos/curso/:id' => 'LibrosCursosController@getLibrosByCurso',
         'POST /api/crud/libros-cursos/add' => 'LibrosCursosController@asignarLibroACurso',
         'POST /api/crud/libros-cursos/delete' => 'LibrosCursosController@eliminarAsignacion',
+
+        // PEDIDOS DE LIBROS
+        'GET /api/pedidos/editoriales-con-libros-pendientes' => 'EditorialesController@getEditorialesConLibrosPendientes',
+        'GET /api/pedidos/editoriales/:id/libros-pendientes' => 'EditorialesController@getLibrosPendientesPorEditorial',
     ];
     
 ?>
