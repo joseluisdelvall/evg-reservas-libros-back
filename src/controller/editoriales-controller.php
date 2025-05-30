@@ -102,9 +102,6 @@
                 if (count($data['telefonos']) > 3) {
                     return response('error', 'Una editorial no puede tener más de 3 teléfonos.', null, 400);
                 }
-                if (count($data['telefonos']) < 1) {
-                    return response('error', 'La editorial debe tener al menos un teléfono.', null, 400);
-                }
                 
                 // Verificar correos
                 if (!isset($data['correos'])) {
@@ -117,6 +114,11 @@
                     return response('error', 'Una editorial no puede tener más de 3 correos.', null, 400);
                 }
                 
+                // Nueva validación: al menos un teléfono o un correo no vacío
+                if (count(array_filter($data['telefonos'])) < 1 && count(array_filter($data['correos'])) < 1) {
+                    return response('error', 'Debe proporcionar al menos un teléfono o un correo.', null, 400);
+                }
+
                 $result = $this->editorialesService->addEditorial($data);
                 return response('success', 'Editorial agregada correctamente.', $result->toArray());
             } catch (Exception $e) {

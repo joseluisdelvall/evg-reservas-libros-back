@@ -70,10 +70,7 @@
                 if (count($telefonos) > 3) {
                     throw new Exception("Una editorial no puede tener más de 3 teléfonos.");
                 }
-                if (count($telefonos) < 1) {
-                    throw new Exception("La editorial debe tener al menos un teléfono.");
-                }
-                
+
                 // Validar correos
                 $correos = isset($data['correos']) ? $data['correos'] : [];
                 if (!is_array($correos)) {
@@ -82,7 +79,12 @@
                 if (count($correos) > 3) {
                     throw new Exception("Una editorial no puede tener más de 3 correos.");
                 }
-                
+
+                // Validar que haya al menos un teléfono o un correo no vacío
+                if (count(array_filter($telefonos)) < 1 && count(array_filter($correos)) < 1) {
+                    throw new Exception("Debe proporcionar al menos un teléfono o un correo.");
+                }
+
                 // Validar formato de correos si existen
                 foreach ($correos as $correo) {
                     if (!empty($correo) && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
