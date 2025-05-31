@@ -1,22 +1,16 @@
 <?php
 
 class LibroCursoEntity {
-    private $id;
     private $idLibro;
     private $idCurso;
     private $libroNombre;
     private $cursoNombre;
 
-    public function __construct($id = null, $idLibro = null, $idCurso = null, $libroNombre = null, $cursoNombre = null) {
-        $this->id = $id;
+    public function __construct($idLibro = null, $idCurso = null, $libroNombre = null, $cursoNombre = null) {
         $this->idLibro = $idLibro;
         $this->idCurso = $idCurso;
         $this->libroNombre = $libroNombre;
         $this->cursoNombre = $cursoNombre;
-    }
-
-    public function getId() {
-        return $this->id;
     }
 
     public function getIdLibro() {
@@ -37,7 +31,6 @@ class LibroCursoEntity {
 
     public function toArray() {
         return [
-            'id' => $this->id,
             'idLibro' => $this->idLibro,
             'idCurso' => $this->idCurso,
             'libroNombre' => $this->libroNombre,
