@@ -188,23 +188,55 @@ class PedidosRepository {
                 throw new Exception('Las unidades recibidas (' . $nuevasUnidadesRecibidas . ') no pueden ser mayores que las unidades pedidas (' . $unidadesTotales . ') para el libro ' . $libro['idLibro'] . '.');
             }
             
-            // Actualizar unidades recibidas
-            $sqlUpdate = "UPDATE LIBRO_PEDIDO SET unidadesRecibidas = ? WHERE idPedido = ? AND idLibro = ?";
-            $stmtUpdate = $this->conexion->prepare($sqlUpdate);
-            $stmtUpdate->bind_param('iii', $nuevasUnidadesRecibidas, $idPedido, $libro['idLibro']);
-            
-            if (!$stmtUpdate->execute()) {
-                throw new Exception('Error al actualizar unidades recibidas: ' . $stmtUpdate->error);
-            }
-            
-            // Si se completaron todas las unidades, actualizar stock del libro
-            if ($nuevasUnidadesRecibidas == $unidadesTotales) {
+            // Solo proceder si hay cantidad recibida mayor que 0
+            if ((int)$libro['cantidadRecibida'] > 0) {
+                // Actualizar unidades recibidas
+                $sqlUpdate = "UPDATE LIBRO_PEDIDO SET unidadesRecibidas = ? WHERE idPedido = ? AND idLibro = ?";
+                $stmtUpdate = $this->conexion->prepare($sqlUpdate);
+                $stmtUpdate->bind_param('iii', $nuevasUnidadesRecibidas, $idPedido, $libro['idLibro']);
+                
+                if (!$stmtUpdate->execute()) {
+                    throw new Exception('Error al actualizar unidades recibidas: ' . $stmtUpdate->error);
+                }
+                
+                // Actualizar stock del libro
                 $sqlUpdateStock = "UPDATE LIBRO SET stock = stock + ? WHERE idLibro = ?";
                 $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
                 $stmtUpdateStock->bind_param('ii', $libro['cantidadRecibida'], $libro['idLibro']);
                 
                 if (!$stmtUpdateStock->execute()) {
                     throw new Exception('Error al actualizar stock del libro: ' . $stmtUpdateStock->error);
+                }
+                
+                // Actualizar estado de reservas de idEstado = 3 (Pedido) a idEstado = 4 (Recibido)
+                // Obtener las reservas con estado 3 ordenadas por fecha de reserva y luego por ID
+                $sqlSelectReservas = "SELECT rl.idReserva, rl.idLibro 
+                                     FROM RESERVA_LIBRO rl 
+                                     INNER JOIN RESERVA r ON rl.idReserva = r.idReserva 
+                                     WHERE rl.idLibro = ? AND rl.idEstado = 3 
+                                     ORDER BY r.fecha ASC, rl.idReserva ASC 
+                                     LIMIT ?";
+                $stmtSelectReservas = $this->conexion->prepare($sqlSelectReservas);
+                $stmtSelectReservas->bind_param('ii', $libro['idLibro'], $libro['cantidadRecibida']);
+                $stmtSelectReservas->execute();
+                $resultReservas = $stmtSelectReservas->get_result();
+                
+                $idsReservasActualizar = [];
+                while ($rowReserva = $resultReservas->fetch_assoc()) {
+                    $idsReservasActualizar[] = $rowReserva['idReserva'];
+                }
+                
+                // Actualizar el estado de las reservas seleccionadas a 4 (Recibido)
+                if (!empty($idsReservasActualizar)) {
+                    $in = implode(',', array_fill(0, count($idsReservasActualizar), '?'));
+                    $sqlUpdateReservas = "UPDATE RESERVA_LIBRO SET idEstado = 4 WHERE idLibro = ? AND idReserva IN ($in)";
+                    $stmtUpdateReservas = $this->conexion->prepare($sqlUpdateReservas);
+                    $params = array_merge([$libro['idLibro']], $idsReservasActualizar);
+                    $stmtUpdateReservas->bind_param(str_repeat('i', count($params)), ...$params);
+                    
+                    if (!$stmtUpdateReservas->execute()) {
+                        throw new Exception('Error al actualizar estado de reservas: ' . $stmtUpdateReservas->error);
+                    }
                 }
             }
         }
