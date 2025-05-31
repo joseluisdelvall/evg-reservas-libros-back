@@ -2,6 +2,7 @@
 
     require_once '../src/entity/libro-entity.php';
     require_once '../src/entity/editorial-entity.php';
+    require_once '../src/entity/etapa-entity.php';
 
     class LibrosRepository {
 
@@ -14,9 +15,10 @@
 
         public function getLibros() {
             // Obtener todos los libros
-            $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo 
+            $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo, lb.idEtapa, et.nombre AS nombreEtapa
                     FROM LIBRO AS lb 
-                    INNER JOIN EDITORIAL AS ed ON lb.idEditorial = ed.idEditorial";
+                    INNER JOIN EDITORIAL AS ed ON lb.idEditorial = ed.idEditorial
+                    INNER JOIN ETAPA AS et ON lb.idEtapa = et.idEtapa";
             $resultado = $this->conexion->query($sql);
         
             if (!$resultado) {
@@ -33,6 +35,13 @@
                         $libro['idEditorial'],
                         $libro['editorialNombre']
                     );
+
+                    // Crear la entidad Etapa
+                    $etapa = new EtapaEntity(
+                        $libro['idEtapa'],
+                        $libro['nombreEtapa']
+                    );
+
                     // Crear la entidad Libro con la entidad Editorial
                     $libros[] = new LibroEntity(
                         $libro['idLibro'],
@@ -41,7 +50,8 @@
                         $editorial,
                         $libro['precio'],
                         $libro['stock'],
-                        $libro['activo']
+                        $libro['activo'],
+                        $etapa
                     );
                 }
                 return $libros;
@@ -60,9 +70,10 @@
         public function getLibro($id) {
             try {
                 // Proteger contra SQL injection con prepared statement
-                $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo 
+                $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo, lb.idEtapa, et.nombre AS nombreEtapa
                         FROM LIBRO AS lb 
                         INNER JOIN EDITORIAL AS ed ON lb.idEditorial = ed.idEditorial 
+                        INNER JOIN ETAPA AS et ON lb.idEtapa = et.idEtapa
                         WHERE idLibro = ?";
                 
                 $stmt = $this->conexion->prepare($sql);
@@ -87,6 +98,12 @@
                         $libroData['idEditorial'],
                         $libroData['editorialNombre']
                     );
+
+                    // Crear la entidad Etapa
+                    $etapa = new EtapaEntity(
+                        $libroData['idEtapa'],
+                        $libroData['nombreEtapa']
+                    );
                     
                     // Crear la entidad Libro igual que en getLibros()
                     return new LibroEntity(
@@ -96,7 +113,8 @@
                         $editorial,
                         $libroData['precio'],
                         $libroData['stock'],
-                        $libroData['activo']
+                        $libroData['activo'],
+                        $etapa
                     );
                 } else {
                     // No se encontró el libro con ese ID
@@ -118,9 +136,10 @@
          */
         public function getLibrosByCurso($idCurso) {
             $sql = "SELECT l.idLibro, l.nombre AS libroNombre, l.ISBN, l.precio, l.stock, 
-                        l.idEditorial, e.nombre AS editorialNombre, l.activo 
+                        l.idEditorial, e.nombre AS editorialNombre, l.activo, l.idEtapa, et.nombre AS nombreEtapa
                     FROM LIBRO l
                     INNER JOIN EDITORIAL e ON l.idEditorial = e.idEditorial
+                    INNER JOIN ETAPA et ON l.idEtapa = et.idEtapa
                     INNER JOIN CURSO_LIBRO cl ON l.idLibro = cl.idLibro
                     WHERE cl.idCurso = ? AND l.activo = 1";
             
@@ -142,6 +161,11 @@
                         $libro['idEditorial'],
                         $libro['editorialNombre']
                     );
+
+                    $etapa = new EtapaEntity(
+                        $libro['idEtapa'],
+                        $libro['nombreEtapa']
+                    );
                     
                     $libros[] = new LibroEntity(
                         $libro['idLibro'],
@@ -150,7 +174,8 @@
                         $editorial,
                         $libro['precio'],
                         $libro['stock'],
-                        $libro['activo']
+                        $libro['activo'],
+                        $etapa
                     );
                 }
             }
