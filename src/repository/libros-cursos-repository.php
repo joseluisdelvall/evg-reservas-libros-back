@@ -33,7 +33,6 @@ class LibrosCursosRepository {
         if ($resultado->num_rows > 0) {
             while ($row = $resultado->fetch_assoc()) {
                 $asignaciones[] = new LibroCursoEntity(
-                    null, // No hay ID separado, usamos null
                     $row['idLibro'],
                     $row['idCurso'],
                     $row['libroNombre'],

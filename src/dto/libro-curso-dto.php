@@ -1,14 +1,12 @@
 <?php
 
 class LibroCursoDto {
-    private $id;
     private $idLibro;
     private $idCurso;
     private $libroNombre;
     private $cursoNombre;
 
-    public function __construct($id, $idLibro, $idCurso, $libroNombre, $cursoNombre) {
-        $this->id = $id;
+    public function __construct($idLibro, $idCurso, $libroNombre, $cursoNombre) {
         $this->idLibro = $idLibro;
         $this->idCurso = $idCurso;
         $this->libroNombre = $libroNombre;
@@ -17,7 +15,6 @@ class LibroCursoDto {
 
     public function toArray() {
         return [
-            'id' => $this->id,
             'idLibro' => $this->idLibro,
             'idCurso' => $this->idCurso,
             'libroNombre' => $this->libroNombre,

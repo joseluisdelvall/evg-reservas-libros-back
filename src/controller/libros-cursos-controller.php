@@ -27,7 +27,6 @@ class LibrosCursosController {
             
             $asignacionesDto = array_map(function($asignacion) {
                 return new LibroCursoDto(
-                    null, // No hay ID único, usamos null
                     $asignacion->getIdLibro(),
                     $asignacion->getIdCurso(),
                     $asignacion->getLibroNombre(),
@@ -62,7 +61,6 @@ class LibrosCursosController {
             
             $asignacionesDto = array_map(function($asignacion) {
                 return new LibroCursoDto(
-                    null, // No hay ID único, usamos null
                     $asignacion->getIdLibro(),
                     $asignacion->getIdCurso(),
                     $asignacion->getLibroNombre(),
@@ -97,7 +95,6 @@ class LibrosCursosController {
             $asignacion = $this->librosCursosService->asignarLibroACurso($data);
             
             $asignacionDto = new LibroCursoDto(
-                null, // No hay ID único, usamos null
                 $asignacion->getIdLibro(),
                 $asignacion->getIdCurso(),
                 $asignacion->getLibroNombre(),

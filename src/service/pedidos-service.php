@@ -19,4 +19,10 @@ class PedidosService {
         }
         return $this->pedidosRepository->addPedido($data['idEditorial'], $data['libros']);
     }
+    public function getEditorialesConPedidos() {
+        return $this->pedidosRepository->getEditorialesConPedidos();
+    }
+    public function getPedidosByEditorial($idEditorial) {
+        return $this->pedidosRepository->getPedidosByEditorial($idEditorial);
+    }
 } 

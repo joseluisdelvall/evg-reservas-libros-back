@@ -49,4 +49,37 @@ class PedidosRepository {
         }
         return new PedidoEntity($idPedido, $fecha, $idEditorial, $libros);
     }
+
+    public function getEditorialesConPedidos() {
+        $sql = "SELECT e.idEditorial, e.nombre, COUNT(p.idPedido) as numPedidos FROM EDITORIAL e INNER JOIN PEDIDO p ON e.idEditorial = p.idEditorial GROUP BY e.idEditorial, e.nombre";
+        $result = $this->conexion->query($sql);
+        $editoriales = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $editoriales[] = [
+                    'idEditorial' => $row['idEditorial'],
+                    'nombre' => $row['nombre'],
+                    'numPedidos' => (int)$row['numPedidos']
+                ];
+            }
+        }
+        return $editoriales;
+    }
+
+    public function getPedidosByEditorial($idEditorial) {
+        $sql = "SELECT p.idPedido, p.fecha, COUNT(lp.idLibro) as numLibros FROM PEDIDO p INNER JOIN LIBRO_PEDIDO lp ON p.idPedido = lp.idPedido WHERE p.idEditorial = ? GROUP BY p.idPedido, p.fecha ORDER BY p.fecha DESC, p.idPedido DESC";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param('i', $idEditorial);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $pedidos = [];
+        while ($row = $result->fetch_assoc()) {
+            $pedidos[] = [
+                'idPedido' => $row['idPedido'],
+                'fecha' => $row['fecha'],
+                'numLibros' => (int)$row['numLibros']
+            ];
+        }
+        return $pedidos;
+    }
 } 

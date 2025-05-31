@@ -3,6 +3,7 @@
     require_once '../src/service/libros-service.php';
     require_once '../src/dto/libro-dto.php';
     require_once '../src/dto/editorial-min-dto.php';
+    require_once '../src/dto/etapa-dto.php';
     require_once '../src/utils/response.php';
 
     class LibrosController {
@@ -29,7 +30,8 @@
 
             $librosDto = array_map(function($libro) {
                 $editorialDto = new EditorialMinDto($libro->getEditorial()->getId(), $libro->getEditorial()->getNombre());
-                return new LibroDto($libro->getId(), $libro->getNombre(), $libro->getIsbn(), $editorialDto, $libro->getPrecio(), $libro->getEstado());
+                $etapaDto = new EtapaDto($libro->getEtapa()->getId(), $libro->getEtapa()->getNombre());
+                return new LibroDto($libro->getId(), $libro->getNombre(), $libro->getIsbn(), $editorialDto, $libro->getPrecio(), $libro->getEstado(), $etapaDto);
             }, $libros);
 
             return response('success', 'Libros obtenidos correctamente', array_map(function($dto) { 
@@ -58,6 +60,11 @@
                     $libro->getEditorial()->getId(), 
                     $libro->getEditorial()->getNombre()
                 );
+
+                $etapaDto = new EtapaDto(
+                    $libro->getEtapa()->getId(),
+                    $libro->getEtapa()->getNombre()
+                );
                 
                 // Crear el DTO del libro
                 $libroDto = new LibroDto(
@@ -66,7 +73,8 @@
                     $libro->getIsbn(),
                     $editorialDto,
                     $libro->getPrecio(),
-                    $libro->getEstado()
+                    $libro->getEstado(),
+                    $etapaDto
                 );
                 
                 // Devolver el libro encontrado como DTO
@@ -103,14 +111,20 @@
                         $libro->getEditorial()->getId(),
                         $libro->getEditorial()->getNombre()
                     );
-                    
+
+                    $etapaDto = new EtapaDto(
+                        $libro->getEtapa()->getId(),
+                        $libro->getEtapa()->getNombre()
+                    );
+
                     return new LibroDto(
                         $libro->getId(),
                         $libro->getNombre(),
                         $libro->getIsbn(),
                         $editorialDto,
                         $libro->getPrecio(),
-                        $libro->getEstado()
+                        $libro->getEstado(),
+                        $etapaDto
                     );
                 }, $libros);
                 
