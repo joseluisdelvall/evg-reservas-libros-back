@@ -177,12 +177,12 @@ class ReservasRepository {
     }
 
     /**
-     * Obtiene todas las reservas con los datos del curso y los libros
+     * Obtiene todas las reservas, con los datos del curso, que no están anuladas
      * 
      * @return array Respuesta con el estado de la operación
      */
     public function getAllReservas() {
-        $sql = " SELECT DISTINCT 
+        $sql = "SELECT DISTINCT 
                     r.idReserva,
                     r.nombreAlumno,
                     r.apellidosAlumno,
@@ -195,6 +195,9 @@ class ReservasRepository {
                     c.nombre AS nombreCurso
                  FROM RESERVA r
                     INNER JOIN CURSO c ON r.idCurso = c.idCurso
+                    INNER JOIN RESERVA_LIBRO rl ON r.idReserva = rl.idReserva
+                 WHERE rl.idEstado != 6
+                 GROUP BY r.idReserva
                  ORDER BY r.fecha DESC";
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute();
