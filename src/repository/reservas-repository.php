@@ -285,21 +285,39 @@ class ReservasRepository {
     }
 
     /**
-     * Actualiza el estado de verificación de una reserva
+     * Actualiza el estado de verificación de una reserva y sus libros asociados
      * @param int $idReserva ID de la reserva
      * @param bool $verificado Nuevo estado de verificación
      * @return bool true si se actualizó correctamente
      */
     public function updateReservaVerificado($idReserva, $verificado) {
         try {
+            // Comenzar una transacción
+            $this->conexion->begin_transaction();
+
+            // Actualizar el estado de verificación de la reserva
             $sql = "UPDATE RESERVA SET verificado = ? WHERE idReserva = ?";
             $stmt = $this->conexion->prepare($sql);
             $verificadoInt = $verificado ? 1 : 0;
             $stmt->bind_param("ii", $verificadoInt, $idReserva);
             $stmt->execute();
 
+            // Actualizar el estado de los libros asociados
+            // Si la reserva se verifica, los libros pasan a estado "Verificado" (ID 2)
+            // Si la reserva se desverifica, los libros vuelven a estado "Sin Verificar" (ID 1)
+            $nuevoEstadoLibros = $verificado ? 2 : 1;
+            $sqlLibros = "UPDATE RESERVA_LIBRO SET idEstado = ? WHERE idReserva = ?";
+            $stmtLibros = $this->conexion->prepare($sqlLibros);
+            $stmtLibros->bind_param("ii", $nuevoEstadoLibros, $idReserva);
+            $stmtLibros->execute();
+
+            // Confirmar la transacción
+            $this->conexion->commit();
+
             return $stmt->affected_rows > 0;
         } catch (Exception $e) {
+            // Revertir la transacción en caso de error
+            $this->conexion->rollback();
             error_log("Error al actualizar el estado de la reserva: " . $e->getMessage());
             return false;
         }
