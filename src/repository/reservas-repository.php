@@ -301,5 +301,39 @@ class ReservasRepository {
             return false;
         }
     }
+
+    /**
+     * Anula una reserva y sus libros asociados
+     * @param int $idReserva ID de la reserva
+     * @return bool true si se anuló correctamente
+     */
+    public function anularReserva($idReserva) {
+        try {
+            // Comenzar una transacción
+            $this->conexion->begin_transaction();
+
+            // Actualizar el estado de los libros a "Anulado" (ID 6)
+            $sqlLibros = "UPDATE RESERVA_LIBRO SET idEstado = 6 WHERE idReserva = ?";
+            $stmtLibros = $this->conexion->prepare($sqlLibros);
+            $stmtLibros->bind_param("i", $idReserva);
+            $stmtLibros->execute();
+
+            // Actualizar el estado de verificación de la reserva a false
+            $sqlReserva = "UPDATE RESERVA SET verificado = 0 WHERE idReserva = ?";
+            $stmtReserva = $this->conexion->prepare($sqlReserva);
+            $stmtReserva->bind_param("i", $idReserva);
+            $stmtReserva->execute();
+
+            // Confirmar la transacción
+            $this->conexion->commit();
+            
+            return true;
+        } catch (Exception $e) {
+            // Revertir la transacción en caso de error
+            $this->conexion->rollback();
+            error_log("Error al anular la reserva: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?> 

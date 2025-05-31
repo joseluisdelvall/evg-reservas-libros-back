@@ -179,5 +179,19 @@ class ReservasController {
             return response('error', $e->getMessage(), null, 500);
         }
     }
+
+    /**
+     * Anula una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function anularReservaById($id) {
+        try {
+            $result = $this->reservasService->anularReserva($id);
+            return response('success', 'Reserva anulada correctamente', $result);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
 }
 ?> 

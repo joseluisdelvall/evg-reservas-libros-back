@@ -268,5 +268,40 @@ class ReservasService {
             throw $e;
         }
     }
+
+    /**
+     * Anula una reserva y sus libros asociados
+     * @param int $idReserva
+     * @return array Datos de la reserva actualizada
+     * @throws Exception si no se encuentra la reserva o hay un error
+     */
+    public function anularReserva($idReserva) {
+        try {
+            // Primero verificamos que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva");
+            }
+
+            // Llamar al repositorio para anular la reserva
+            $resultado = $this->reservasRepository->anularReserva($idReserva);
+            
+            if (!$resultado) {
+                throw new Exception("No se pudo anular la reserva");
+            }
+
+            // Obtener la reserva actualizada y devolverla en el formato correcto
+            $reservaActualizada = $this->getReservaById($idReserva);
+            if (!$reservaActualizada) {
+                throw new Exception("No se pudo obtener la reserva actualizada");
+            }
+
+            return $reservaActualizada;
+            
+        } catch (Exception $e) {
+            error_log("Error al anular la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }
 }
 ?> 

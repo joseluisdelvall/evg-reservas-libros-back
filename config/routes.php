@@ -38,6 +38,7 @@
         'GET /api/crud/reservas/:id/libros' => 'ReservasController@getLibrosByReservaId',
         'DELETE /api/crud/reservas/:id' => 'ReservasController@deleteReserva',
         'PUT /api/crud/reservas/:id/estado' => 'ReservasController@cambiarEstadoReserva',
+        'PUT /api/crud/reservas/:id/anular' => 'ReservasController@anularReservaById'
     ];
     
 ?>
