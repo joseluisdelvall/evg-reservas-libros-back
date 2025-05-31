@@ -3,7 +3,7 @@ class EtapaDto {
     private $id;
     private $nombre;
 
-    public function __construct($id, $nombre) {
+    public function __construct($id = null, $nombre = null) {
         $this->id = $id;
         $this->nombre = $nombre;
     }

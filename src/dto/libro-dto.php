@@ -85,7 +85,7 @@
                     'editorial' => $this->editorial->toArray(),
                     'estado' => (boolean)$this->estado,
                     'precio' => (float)$this->precio,
-                    'etapa' => $this->etapa->toArray(),
+                    'etapa' => $this->etapa->toArray()
                 ];
             }
     }

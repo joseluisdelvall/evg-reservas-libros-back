@@ -191,13 +191,14 @@
          */
         public function addLibro($libro) {
             try {
-                $sql = "INSERT INTO LIBRO (nombre, ISBN, idEditorial, precio, stock, activo) VALUES (";
+                $sql = "INSERT INTO LIBRO (nombre, ISBN, idEditorial, precio, stock, activo, idEtapa) VALUES (";
                 $sql .= "'" . $libro->getNombre() . "', ";
                 $sql .= "'" . $libro->getIsbn() . "', ";
                 $sql .= "'" . $libro->getEditorial()->getId() . "', ";
                 $sql .= "'" . $libro->getPrecio() . "', ";
                 $sql .= "'" . $libro->getStock() . "', ";
-                $sql .= "'" . $libro->getEstado() . "')";
+                $sql .= "'" . $libro->getEstado() . "', ";
+                $sql .= "'" . $libro->getEtapa()->getId() . "')";
         
                 $resultado = $this->conexion->query($sql);
         
@@ -209,9 +210,10 @@
                     $id = $this->conexion->insert_id;
 
                     // Recuperar el registro completo con la información de la editorial
-                    $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo 
+                    $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo, lb.idEtapa, et.nombre AS nombreEtapa
                             FROM LIBRO AS lb 
                             INNER JOIN EDITORIAL AS ed ON lb.idEditorial = ed.idEditorial 
+                            INNER JOIN ETAPA AS et ON lb.idEtapa = et.idEtapa
                             WHERE idLibro = " . $id;
                     $resultado = $this->conexion->query($sql);
 
@@ -221,6 +223,12 @@
                             $libroData['idEditorial'],
                             $libroData['editorialNombre']
                         );
+
+                        $etapa = new EtapaEntity(
+                            $libroData['idEtapa'],
+                            $libroData['nombreEtapa']
+                        );
+
                         return new LibroEntity(
                             $libroData['idLibro'],
                             $libroData['libroNombre'],
@@ -228,7 +236,8 @@
                             $editorial,
                             $libroData['precio'],
                             $libroData['stock'],
-                            $libroData['activo']
+                            $libroData['activo'],
+                            $etapa
                         );
                     } else {
                         throw new Exception("No se pudo recuperar el registro recién insertado.");
@@ -266,7 +275,8 @@
                         ISBN = ?, 
                         idEditorial = ?, 
                         precio = ?,
-                        activo = ? 
+                        activo = ?,
+                        idEtapa = ?
                         WHERE idLibro = ?";
                 
                 $stmt = $this->conexion->prepare($sql);
@@ -277,19 +287,22 @@
                 // Obtenemos los datos del objeto LibroEntity
                 $nombre = $libro->getNombre();
                 $isbn = $libro->getIsbn();
-                $idEditorial = $libro->getEditorial()->getId();
-                $precio = $libro->getPrecio();
-                $estado = $libro->getEstado();
-                
+                $idEditorial = (int) $libro->getEditorial()->getId(); // Cast to integer
+                $precio = (float) $libro->getPrecio(); // Cast to float for 'd' type
+                $estado = (int) $libro->getEstado(); // Cast to integer
+                $idEtapaValue = (int) $libro->getEtapa()->getId(); // Cast to integer
+                $idLibroForWhere = (int) $id; // This is the ID for the WHERE clause, cast to integer
+
                 // Enlazamos los parámetros
                 $stmt->bind_param(
-                    "ssidii", 
+                    "ssidiii", // Corrected: s,s,i,d,i,i,i for 7 parameters
                     $nombre, 
                     $isbn, 
                     $idEditorial, 
                     $precio,
                     $estado,
-                    $id
+                    $idEtapaValue, // Use the casted integer value for idEtapa
+                    $idLibroForWhere // Added idLibro for the WHERE clause
                 );
                 
                 // Ejecutamos la consulta

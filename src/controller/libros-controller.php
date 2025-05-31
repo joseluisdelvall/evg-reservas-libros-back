@@ -60,6 +60,11 @@
                     $libro->getEditorial()->getId(), 
                     $libro->getEditorial()->getNombre()
                 );
+
+                $etapaDto = new EtapaDto(
+                    $libro->getEtapa()->getId(),
+                    $libro->getEtapa()->getNombre()
+                );
                 
                 // Crear el DTO del libro
                 $libroDto = new LibroDto(
@@ -68,7 +73,8 @@
                     $libro->getIsbn(),
                     $editorialDto,
                     $libro->getPrecio(),
-                    $libro->getEstado()
+                    $libro->getEstado(),
+                    $etapaDto
                 );
                 
                 // Devolver el libro encontrado como DTO
@@ -105,14 +111,20 @@
                         $libro->getEditorial()->getId(),
                         $libro->getEditorial()->getNombre()
                     );
-                    
+
+                    $etapaDto = new EtapaDto(
+                        $libro->getEtapa()->getId(),
+                        $libro->getEtapa()->getNombre()
+                    );
+
                     return new LibroDto(
                         $libro->getId(),
                         $libro->getNombre(),
                         $libro->getIsbn(),
                         $editorialDto,
                         $libro->getPrecio(),
-                        $libro->getEstado()
+                        $libro->getEstado(),
+                        $etapaDto
                     );
                 }, $libros);
                 

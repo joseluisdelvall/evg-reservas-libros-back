@@ -77,6 +77,8 @@
 
                 $editorial = new EditorialEntity($data['editorial']['idEditorial']);
 
+                $etapa = new EtapaEntity($data['etapa']['id']);
+
                 // Convertir el DTO a una entidad
                 $libroEntity = new LibroEntity(
                     null, // ID se generará automáticamente
@@ -85,11 +87,12 @@
                     $editorial,
                     $data['precio'],
                     $data['stock'] ?? 0,
-                    1 // Estado activo por defecto
+                    1, // Estado activo por defecto
+                    $etapa
                 );
         
                 // Llamar al repositorio para agregar el libro
-                $libroEntity = $this->librosRepository->addLibro($libroEntity);
+                $this->librosRepository->addLibro($libroEntity);
 
                 return new LibroDto(
                     $libroEntity->getId(),
@@ -97,7 +100,8 @@
                     $libroEntity->getIsbn(),
                     $libroEntity->getEditorial(),
                     $libroEntity->getPrecio(),
-                    $libroEntity->getEstado()
+                    $libroEntity->getEstado(),
+                    $libroEntity->getEtapa()
                 );
             } catch (Exception $e) {
                 // Registrar el error en el log
@@ -118,6 +122,10 @@
                     $data['editorial']['idEditorial']
                 );
 
+                $etapa = new EtapaEntity(
+                    $data['etapa']['id']
+                );
+
                 $libroEntity = $this->getLibro($id);
 
                 if (!$libroEntity) {
@@ -128,9 +136,10 @@
                 $libroEntity->setIsbn($data['isbn']);
                 $libroEntity->setEditorial($editorial);
                 $libroEntity->setPrecio($data['precio']);
+                $libroEntity->setEtapa($etapa);
                 
                 // Llamar al repositorio para actualizar el libro
-                $libroEntity = $this->librosRepository->updateLibro($id, $libroEntity);
+                $this->librosRepository->updateLibro($id, $libroEntity);
 
                 return new LibroDto(
                     $libroEntity->getId(),
@@ -138,7 +147,8 @@
                     $libroEntity->getIsbn(),
                     $libroEntity->getEditorial(),
                     $libroEntity->getPrecio(),
-                    $libroEntity->getEstado()
+                    $libroEntity->getEstado(),
+                    $libroEntity->getEtapa()
                 );
 
             } catch (Exception $e) {
@@ -172,7 +182,8 @@
                     $libroEntity->getIsbn(),
                     $libroEntity->getEditorial(),
                     $libroEntity->getPrecio(),
-                    $libroEntity->getEstado()
+                    $libroEntity->getEstado(),
+                    $libroEntity->getEtapa()
                 );
 
             } catch (Exception $e) {
