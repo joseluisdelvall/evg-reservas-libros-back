@@ -49,6 +49,10 @@
         'PUT /api/pedidos/unidades-recibidas' => 'PedidosController@updateUnidadesRecibidas',
 
         'GET /api/etapas' => 'EtapasController@getEtapas',
+
+        // ENTREGAS DE LIBROS
+        'GET /api/reserva/:id/libros-para-entregar' => 'ReservasController@getLibrosParaEntregar', // Recogemos el idReserva y devolvemos todos los libros que tengan idEstado = 4 de esa reserva
+        'POST /api/reserva/:id/entregar-libros' => 'ReservasController@entregarLibros', // deberemos recoger el idReserva y en el body un array con el id de los libros que queremos entregar
     ];
     
 ?>
