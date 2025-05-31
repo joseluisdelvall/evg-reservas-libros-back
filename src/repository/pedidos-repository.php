@@ -74,12 +74,141 @@ class PedidosRepository {
         $result = $stmt->get_result();
         $pedidos = [];
         while ($row = $result->fetch_assoc()) {
+            // Calcular el estado del pedido basado en las unidades recibidas
+            $sqlEstado = "SELECT 
+                            SUM(unidades) as totalUnidades,
+                            SUM(unidadesRecibidas) as totalRecibidas,
+                            COUNT(CASE WHEN unidadesRecibidas > 0 THEN 1 END) as librosConRecibidos,
+                            COUNT(*) as totalLibros
+                          FROM LIBRO_PEDIDO 
+                          WHERE idPedido = ?";
+            $stmtEstado = $this->conexion->prepare($sqlEstado);
+            $stmtEstado->bind_param('i', $row['idPedido']);
+            $stmtEstado->execute();
+            $resultEstado = $stmtEstado->get_result();
+            $estadoData = $resultEstado->fetch_assoc();
+            
+            $totalUnidades = (int)$estadoData['totalUnidades'];
+            $totalRecibidas = (int)$estadoData['totalRecibidas'];
+            $librosConRecibidos = (int)$estadoData['librosConRecibidos'];
+            
+            // Determinar el estado
+            $estado = 'pendiente'; // Por defecto
+            if ($totalRecibidas == $totalUnidades && $totalUnidades > 0) {
+                $estado = 'completado';
+            } elseif ($librosConRecibidos > 0) {
+                $estado = 'medioPendiente';
+            }
+            
             $pedidos[] = [
                 'idPedido' => $row['idPedido'],
                 'fecha' => $row['fecha'],
-                'numLibros' => (int)$row['numLibros']
+                'numLibros' => (int)$row['numLibros'],
+                'estado' => $estado
             ];
         }
         return $pedidos;
     }
-} 
+
+    public function getPedido($idPedido) {
+        // Obtener información del pedido
+        $sql = "SELECT p.idPedido, p.fecha, p.idEditorial FROM PEDIDO p WHERE p.idPedido = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param('i', $idPedido);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            return null;
+        }
+        
+        $pedidoData = $result->fetch_assoc();
+        
+        // Obtener los libros del pedido con sus datos
+        $sqlLibros = "SELECT lp.idLibro, lp.unidades as cantidad, lp.unidadesRecibidas, l.nombre, l.ISBN, l.precio 
+                      FROM LIBRO_PEDIDO lp 
+                      INNER JOIN LIBRO l ON lp.idLibro = l.idLibro 
+                      WHERE lp.idPedido = ?";
+        $stmtLibros = $this->conexion->prepare($sqlLibros);
+        $stmtLibros->bind_param('i', $idPedido);
+        $stmtLibros->execute();
+        $resultLibros = $stmtLibros->get_result();
+        
+        $libros = [];
+        while ($row = $resultLibros->fetch_assoc()) {
+            $libros[] = [
+                'idLibro' => (int)$row['idLibro'],
+                'cantidad' => (int)$row['cantidad'],
+                'unidadesRecibidas' => (int)$row['unidadesRecibidas'],
+                'nombre' => $row['nombre'],
+                'ISBN' => $row['ISBN'],
+                'precio' => (float)$row['precio']
+            ];
+        }
+        
+        return new PedidoEntity(
+            (int)$pedidoData['idPedido'],
+            $pedidoData['fecha'],
+            (int)$pedidoData['idEditorial'],
+            $libros
+        );
+    }
+
+    public function updateUnidadesRecibidas($idEditorial, $idPedido, $librosRecibidos) {
+        // Validar que el pedido pertenece a la editorial
+        $sqlValidate = "SELECT p.idPedido FROM PEDIDO p WHERE p.idPedido = ? AND p.idEditorial = ?";
+        $stmtValidate = $this->conexion->prepare($sqlValidate);
+        $stmtValidate->bind_param('ii', $idPedido, $idEditorial);
+        $stmtValidate->execute();
+        $result = $stmtValidate->get_result();
+        
+        if ($result->num_rows === 0) {
+            throw new Exception('El pedido no pertenece a la editorial especificada.');
+        }
+        
+        foreach ($librosRecibidos as $libro) {
+            // Obtener unidades actuales y unidades recibidas actuales
+            $sqlCheck = "SELECT unidades, unidadesRecibidas FROM LIBRO_PEDIDO WHERE idPedido = ? AND idLibro = ?";
+            $stmtCheck = $this->conexion->prepare($sqlCheck);
+            $stmtCheck->bind_param('ii', $idPedido, $libro['idLibro']);
+            $stmtCheck->execute();
+            $resultCheck = $stmtCheck->get_result();
+            
+            if ($resultCheck->num_rows === 0) {
+                throw new Exception('El libro ' . $libro['idLibro'] . ' no está en este pedido.');
+            }
+            
+            $row = $resultCheck->fetch_assoc();
+            $unidadesTotales = (int)$row['unidades'];
+            $unidadesRecibidas = (int)$row['unidadesRecibidas'];
+            $nuevasUnidadesRecibidas = $unidadesRecibidas + (int)$libro['cantidadRecibida'];
+            
+            // Validar que no exceda las unidades pedidas
+            if ($nuevasUnidadesRecibidas > $unidadesTotales) {
+                throw new Exception('Las unidades recibidas (' . $nuevasUnidadesRecibidas . ') no pueden ser mayores que las unidades pedidas (' . $unidadesTotales . ') para el libro ' . $libro['idLibro'] . '.');
+            }
+            
+            // Actualizar unidades recibidas
+            $sqlUpdate = "UPDATE LIBRO_PEDIDO SET unidadesRecibidas = ? WHERE idPedido = ? AND idLibro = ?";
+            $stmtUpdate = $this->conexion->prepare($sqlUpdate);
+            $stmtUpdate->bind_param('iii', $nuevasUnidadesRecibidas, $idPedido, $libro['idLibro']);
+            
+            if (!$stmtUpdate->execute()) {
+                throw new Exception('Error al actualizar unidades recibidas: ' . $stmtUpdate->error);
+            }
+            
+            // Si se completaron todas las unidades, actualizar stock del libro
+            if ($nuevasUnidadesRecibidas == $unidadesTotales) {
+                $sqlUpdateStock = "UPDATE LIBRO SET stock = stock + ? WHERE idLibro = ?";
+                $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
+                $stmtUpdateStock->bind_param('ii', $libro['cantidadRecibida'], $libro['idLibro']);
+                
+                if (!$stmtUpdateStock->execute()) {
+                    throw new Exception('Error al actualizar stock del libro: ' . $stmtUpdateStock->error);
+                }
+            }
+        }
+        
+        return true;
+    }
+}

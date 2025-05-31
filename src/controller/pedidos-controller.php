@@ -32,4 +32,21 @@ class PedidosController {
             return response('error', $e->getMessage(), null, 500);
         }
     }
-} 
+    public function getPedido($idPedido) {
+        try {
+            $pedido = $this->pedidosService->getPedido($idPedido);
+            return response('success', 'Pedido obtenido correctamente', $pedido->toArray());
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+    public function updateUnidadesRecibidas() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $this->pedidosService->updateUnidadesRecibidas($data);
+            return response('success', 'Unidades recibidas actualizadas correctamente', null);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+}
