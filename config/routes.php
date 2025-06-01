@@ -53,8 +53,7 @@
         'GET /api/libros/etapa/:id' => 'LibrosController@getLibrosByEtapa',
 
         // ENTREGAS DE LIBROS
-        'GET /api/reservas' => 'ReservasController@getReservas', // Recogemos todas las reservas
-        'GET /api/reserva/:id/libros-para-entregar' => 'ReservasController@getLibrosParaEntregar', // Recogemos el idReserva y devolvemos todos los libros que tengan idEstado = 4 de esa reserva
+        'GET /api/reservas/entregas' => 'ReservasController@getReservas', // Recogemos todas las reservas
         'POST /api/reserva/:id/entregar-libros' => 'ReservasController@entregarLibros', // deberemos recoger el idReserva y en el body un array con el id de los libros que queremos entregar
     ];
     
