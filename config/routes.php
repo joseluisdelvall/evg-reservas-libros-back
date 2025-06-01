@@ -46,7 +46,9 @@
         'GET /api/pedidos/editoriales-con-pedidos' => 'PedidosController@getEditorialesConPedidos',
         'GET /api/pedidos/editoriales/:id/pedidos' => 'PedidosController@getPedidosByEditorial',
 
+        // Etapas
         'GET /api/etapas' => 'EtapasController@getEtapas',
+        'GET /api/libros/etapa/:id' => 'LibrosController@getLibrosByEtapa',
     ];
     
 ?>
