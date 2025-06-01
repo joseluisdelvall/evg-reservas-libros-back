@@ -210,6 +210,9 @@ class ReservasRepository {
                 FROM RESERVA r
                 INNER JOIN CURSO c ON r.idCurso = c.idCurso
                 INNER JOIN ETAPA e ON c.idEtapa = e.idEtapa
+                WHERE EXISTS (
+                    SELECT 1 FROM RESERVA_LIBRO rl WHERE rl.idReserva = r.idReserva AND rl.idEstado = 4
+                )
                 ORDER BY r.fecha DESC, r.idReserva DESC";
         
         $result = $this->conexion->query($sql);
@@ -217,14 +220,14 @@ class ReservasRepository {
         
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                // Obtener los libros de cada reserva
+                // Obtener solo los libros con idEstado = 4 (Recibido) de cada reserva
                 $sqlLibros = "SELECT rl.idLibro, rl.fechaRecogida, rl.precioPagado, rl.idEstado,
                                      l.nombre, l.ISBN, l.precio,
                                      tm.nombre as nombreEstado, tm.descripcion as descripcionEstado
                               FROM RESERVA_LIBRO rl
                               INNER JOIN LIBRO l ON rl.idLibro = l.idLibro
                               INNER JOIN TM_ESTADO tm ON rl.idEstado = tm.idEstado
-                              WHERE rl.idReserva = ?";
+                              WHERE rl.idReserva = ? AND rl.idEstado = 4";
                 
                 $stmtLibros = $this->conexion->prepare($sqlLibros);
                 $stmtLibros->bind_param('i', $row['idReserva']);
@@ -246,26 +249,29 @@ class ReservasRepository {
                     ];
                 }
                 
-                $reservas[] = [
-                    'idReserva' => (int)$row['idReserva'],
-                    'nombreAlumno' => $row['nombreAlumno'],
-                    'apellidosAlumno' => $row['apellidosAlumno'],
-                    'nombreTutorLegal' => $row['nombreTutorLegal'],
-                    'apellidosTutorLegal' => $row['apellidosTutorLegal'],
-                    'correo' => $row['correo'],
-                    'dni' => $row['dni'],
-                    'telefono' => $row['telefono'],
-                    'justificante' => $row['justificante'],
-                    'fecha' => $row['fecha'],
-                    'verificado' => (bool)$row['verificado'],
-                    'totalPagado' => (float)$row['totalPagado'],
-                    'curso' => [
-                        'idCurso' => (int)$row['idCurso'],
-                        'nombreCurso' => $row['nombreCurso'],
-                        'nombreEtapa' => $row['nombreEtapa']
-                    ],
-                    'libros' => $libros
-                ];
+                // Solo agregar la reserva si tiene libros con estado 4
+                if (!empty($libros)) {
+                    $reservas[] = [
+                        'idReserva' => (int)$row['idReserva'],
+                        'nombreAlumno' => $row['nombreAlumno'],
+                        'apellidosAlumno' => $row['apellidosAlumno'],
+                        'nombreTutorLegal' => $row['nombreTutorLegal'],
+                        'apellidosTutorLegal' => $row['apellidosTutorLegal'],
+                        'correo' => $row['correo'],
+                        'dni' => $row['dni'],
+                        'telefono' => $row['telefono'],
+                        'justificante' => $row['justificante'],
+                        'fecha' => $row['fecha'],
+                        'verificado' => (bool)$row['verificado'],
+                        'totalPagado' => (float)$row['totalPagado'],
+                        'curso' => [
+                            'idCurso' => (int)$row['idCurso'],
+                            'nombreCurso' => $row['nombreCurso'],
+                            'nombreEtapa' => $row['nombreEtapa']
+                        ],
+                        'libros' => $libros
+                    ];
+                }
             }
         }
         
