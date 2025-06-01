@@ -322,6 +322,54 @@
                 throw $e;
             }
         }
+
+        /**
+         * Obtiene los libros de una etapa específica
+         * 
+         * @param int $idEtapa ID de la etapa
+         * @return array Lista de libros de la etapa
+         */
+        public function getLibrosByEtapa($idEtapa) {
+            $sql = "SELECT idLibro, lb.nombre AS libroNombre, ISBN, precio, stock, lb.idEditorial, ed.nombre AS editorialNombre, lb.activo, lb.idEtapa, et.nombre AS nombreEtapa
+                    FROM LIBRO AS lb 
+                    INNER JOIN EDITORIAL AS ed ON lb.idEditorial = ed.idEditorial
+                    INNER JOIN ETAPA AS et ON lb.idEtapa = et.idEtapa
+                    WHERE lb.idEtapa = ? AND lb.activo = 1";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param("i", $idEtapa);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+
+            if (!$resultado) {
+                error_log("SQL Error: " . $this->conexion->error);
+                return [];
+            }
+
+            $libros = [];
+            if ($resultado->num_rows > 0) {
+                while ($libro = $resultado->fetch_assoc()) {
+                    $editorial = new EditorialEntity(
+                        $libro['idEditorial'],
+                        $libro['editorialNombre']
+                    );
+                    $etapa = new EtapaEntity(
+                        $libro['idEtapa'],
+                        $libro['nombreEtapa']
+                    );
+                    $libros[] = new LibroEntity(
+                        $libro['idLibro'],
+                        $libro['libroNombre'],
+                        $libro['ISBN'],
+                        $editorial,
+                        $libro['precio'],
+                        $libro['stock'],
+                        $libro['activo'],
+                        $etapa
+                    );
+                }
+            }
+            return $libros;
+        }
     }
     
 ?>

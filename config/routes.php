@@ -48,7 +48,9 @@
         'GET /api/pedidos/:id' => 'PedidosController@getPedido',
         'PUT /api/pedidos/unidades-recibidas' => 'PedidosController@updateUnidadesRecibidas',
 
+        // Etapas
         'GET /api/etapas' => 'EtapasController@getEtapas',
+        'GET /api/libros/etapa/:id' => 'LibrosController@getLibrosByEtapa',
     ];
     
 ?>
