@@ -355,8 +355,7 @@ class ReservasRepository {
             return false;
         }
     }
-    
-    /**
+      /**
      * Actualiza los datos de una reserva (nombre, apellidos, correo y teléfono)
      * @param int $idReserva ID de la reserva
      * @param array $datos Datos a actualizar (nombreAlumno, apellidosAlumno, correo, telefono)
@@ -389,6 +388,31 @@ class ReservasRepository {
         } catch (Exception $e) {
             error_log("Error al actualizar los datos de la reserva: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Obtiene el justificante de una reserva por su ID
+     * @param int $idReserva ID de la reserva
+     * @return array|null Nombre y ruta del justificante o null si no existe
+     */
+    public function getJustificanteByReservaId($idReserva) {
+        try {
+            $sql = "SELECT justificante FROM RESERVA WHERE idReserva = ?";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param("i", $idReserva);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            
+            if ($resultado->num_rows > 0) {
+                $row = $resultado->fetch_assoc();
+                return $row['justificante'];
+            }
+            
+            return null;
+        } catch (Exception $e) {
+            error_log("Error al obtener el justificante: " . $e->getMessage());
+            return null;
         }
     }
 }

@@ -301,8 +301,7 @@ class ReservasService {
             error_log("Error al anular la reserva: " . $e->getMessage());
             throw $e;
         }
-    }
-      /**
+    }    /**
      * Actualiza los datos de una reserva (solo nombre, apellidos, correo y teléfono)
      * @param int $idReserva ID de la reserva
      * @param array $datos Datos a actualizar
@@ -367,6 +366,79 @@ class ReservasService {
         } catch (Exception $e) {
             error_log("Error al actualizar la reserva: " . $e->getMessage());
             throw $e;
+        }
+    }
+    
+    /**
+     * Obtiene el justificante de una reserva por su ID
+     * @param int $idReserva ID de la reserva
+     * @return array Datos del justificante en formato base64
+     * @throws Exception si hay algún error o no se encuentra el justificante
+     */
+    public function getJustificanteByReservaId($idReserva) {
+        try {
+            // Verificar que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva con ID: " . $idReserva);
+            }
+            
+            // Obtener el nombre del archivo de justificante
+            $nombreJustificante = $this->reservasRepository->getJustificanteByReservaId($idReserva);
+            
+            if (!$nombreJustificante) {
+                throw new Exception("La reserva no tiene un justificante asociado");
+            }
+            
+            // Ruta completa del archivo
+            $rutaJustificante = __DIR__ . '/../../justificantes/' . $nombreJustificante;
+            
+            // Verificar que el archivo existe
+            if (!file_exists($rutaJustificante)) {
+                throw new Exception("No se encontró el archivo de justificante en el servidor");
+            }
+            
+            // Obtener la extensión del archivo para determinar el tipo MIME
+            $extension = pathinfo($nombreJustificante, PATHINFO_EXTENSION);
+            $tipoMime = $this->getMimeType($extension);
+            
+            // Leer el contenido del archivo y codificarlo en base64
+            $contenidoArchivo = file_get_contents($rutaJustificante);
+            $base64 = base64_encode($contenidoArchivo);
+            
+            // Devolver la información del justificante
+            return [
+                'nombre' => $nombreJustificante,
+                'tipo' => $tipoMime,
+                'base64' => $base64
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error al obtener el justificante: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
+     * Determina el tipo MIME basado en la extensión del archivo
+     * @param string $extension Extensión del archivo
+     * @return string Tipo MIME correspondiente
+     */
+    private function getMimeType($extension) {
+        $extension = strtolower($extension);
+        
+        switch ($extension) {
+            case 'pdf':
+                return 'application/pdf';
+            case 'jpg':
+            case 'jpeg':
+                return 'image/jpeg';
+            case 'png':
+                return 'image/png';
+            case 'gif':
+                return 'image/gif';
+            default:
+                return 'application/octet-stream'; // Tipo genérico si no se reconoce la extensión
         }
     }
 }

@@ -191,8 +191,7 @@ class ReservasController {
             return response('error', $e->getMessage(), null, 500);
         }
     }
-    
-    /**
+      /**
      * Actualiza los datos básicos de una reserva: nombreAlumno, apellidosAlumno, correo y telefono
      * @param int $id ID de la reserva
      * @return array Respuesta con el estado de la operación
@@ -222,6 +221,23 @@ class ReservasController {
             
         } catch (Exception $e) {
             return response('error', $e->getMessage(), null, 500);
+        }
+    }
+    
+    /**
+     * Obtiene el justificante de una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el justificante en formato base64
+     */
+    public function getJustificanteByReservaId($id) {
+        try {
+            $justificante = $this->reservasService->getJustificanteByReservaId($id);
+            
+            // El frontend espera solo la cadena base64, sin el formato JSON completo
+            return response('success', 'Justificante obtenido correctamente', $justificante['base64']);
+            
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 404);
         }
     }
 }

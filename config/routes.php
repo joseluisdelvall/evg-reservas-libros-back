@@ -43,6 +43,7 @@
         'PUT /api/crud/reservas/:id/estado' => 'ReservasController@cambiarEstadoReserva',
         'PUT /api/crud/reservas/:id/anular' => 'ReservasController@anularReservaById',
         'PUT /api/crud/reservas/:id' => 'ReservasController@updateReservaById',
+        'GET /api/reservas/:id/justificante' => 'ReservasController@getJustificanteByReservaId',
     ];
     
 ?>
