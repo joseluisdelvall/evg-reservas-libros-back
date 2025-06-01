@@ -89,6 +89,15 @@ class ReservasService {
     }
     
     /**
+     * Obtiene todas las reservas
+     * 
+     * @return array Lista de reservas
+     */
+    public function getReservas() {
+        return $this->reservasRepository->getReservas();
+    }
+    
+    /**
      * Valida los datos del formulario
      * 
      * @param array $formData Datos del formulario
@@ -174,4 +183,4 @@ class ReservasService {
         }
     }
 }
-?> 
+?>

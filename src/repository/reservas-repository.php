@@ -195,5 +195,81 @@ class ReservasRepository {
         
         return null;
     }
+
+    /**
+     * Obtiene todas las reservas con información de los libros y el curso
+     * 
+     * @return array Lista de reservas con detalles de libros y curso
+     */
+    public function getReservas() {
+        // Obtener todas las reservas con información del curso
+        $sql = "SELECT r.idReserva, r.nombreAlumno, r.apellidosAlumno, r.nombreTutorLegal, 
+                       r.apellidosTutorLegal, r.correo, r.dni, r.telefono, r.justificante, 
+                       r.fecha, r.verificado, r.totalPagado, r.idCurso,
+                       c.nombre as nombreCurso, e.nombre as nombreEtapa
+                FROM RESERVA r
+                INNER JOIN CURSO c ON r.idCurso = c.idCurso
+                INNER JOIN ETAPA e ON c.idEtapa = e.idEtapa
+                ORDER BY r.fecha DESC, r.idReserva DESC";
+        
+        $result = $this->conexion->query($sql);
+        $reservas = [];
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                // Obtener los libros de cada reserva
+                $sqlLibros = "SELECT rl.idLibro, rl.fechaRecogida, rl.precioPagado, rl.idEstado,
+                                     l.nombre, l.ISBN, l.precio,
+                                     tm.nombre as nombreEstado, tm.descripcion as descripcionEstado
+                              FROM RESERVA_LIBRO rl
+                              INNER JOIN LIBRO l ON rl.idLibro = l.idLibro
+                              INNER JOIN TM_ESTADO tm ON rl.idEstado = tm.idEstado
+                              WHERE rl.idReserva = ?";
+                
+                $stmtLibros = $this->conexion->prepare($sqlLibros);
+                $stmtLibros->bind_param('i', $row['idReserva']);
+                $stmtLibros->execute();
+                $resultLibros = $stmtLibros->get_result();
+                
+                $libros = [];
+                while ($rowLibro = $resultLibros->fetch_assoc()) {
+                    $libros[] = [
+                        'idLibro' => (int)$rowLibro['idLibro'],
+                        'nombre' => $rowLibro['nombre'],
+                        'ISBN' => $rowLibro['ISBN'],
+                        'precio' => (float)$rowLibro['precio'],
+                        'fechaRecogida' => $rowLibro['fechaRecogida'],
+                        'precioPagado' => (float)$rowLibro['precioPagado'],
+                        'idEstado' => (int)$rowLibro['idEstado'],
+                        'nombreEstado' => $rowLibro['nombreEstado'],
+                        'descripcionEstado' => $rowLibro['descripcionEstado']
+                    ];
+                }
+                
+                $reservas[] = [
+                    'idReserva' => (int)$row['idReserva'],
+                    'nombreAlumno' => $row['nombreAlumno'],
+                    'apellidosAlumno' => $row['apellidosAlumno'],
+                    'nombreTutorLegal' => $row['nombreTutorLegal'],
+                    'apellidosTutorLegal' => $row['apellidosTutorLegal'],
+                    'correo' => $row['correo'],
+                    'dni' => $row['dni'],
+                    'telefono' => $row['telefono'],
+                    'justificante' => $row['justificante'],
+                    'fecha' => $row['fecha'],
+                    'verificado' => (bool)$row['verificado'],
+                    'totalPagado' => (float)$row['totalPagado'],
+                    'curso' => [
+                        'idCurso' => (int)$row['idCurso'],
+                        'nombreCurso' => $row['nombreCurso'],
+                        'nombreEtapa' => $row['nombreEtapa']
+                    ],
+                    'libros' => $libros
+                ];
+            }
+        }
+        
+        return $reservas;
+    }
 }
-?> 
+?>

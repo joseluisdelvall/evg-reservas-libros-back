@@ -76,5 +76,19 @@ class ReservasController {
             return false;
         }
     }
+
+    /**
+     * Obtiene la lista de reservas
+     * 
+     * @return array Lista de reservas
+     */
+    public function getReservas() {
+        try {
+            $reservas = $this->reservasService->getReservas();
+            return response('success', 'Reservas obtenidas correctamente', $reservas);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
 }
-?> 
+?>
