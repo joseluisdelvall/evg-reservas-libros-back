@@ -183,6 +183,38 @@
             }
         }
 
+        /**
+         * Actualiza el estado de un libro en una reserva específica a "Anulado"
+         * 
+         * @param int $idLibro ID del libro
+         * @param int $idReserva ID de la reserva
+         * @return bool true si se actualizó correctamente
+         * @throws Exception Si hay errores en la operación
+         */
+        public function updateEstadoLibroReserva($idLibro, $idReserva) {
+            try {
+                // Validar que los IDs sean números enteros positivos
+                if (!is_numeric($idLibro) || $idLibro <= 0 || !is_numeric($idReserva) || $idReserva <= 0) {
+                    throw new Exception("Los IDs deben ser números enteros positivos.");
+                }
+
+                // Verificar que el libro existe
+                $libroEntity = $this->librosRepository->getLibro($idLibro);
+                if (!$libroEntity) {
+                    throw new Exception("No se ha encontrado el libro con ID: " . $idLibro);
+                }
+
+                // Actualizar el estado del libro en la reserva
+                return $this->librosRepository->updateEstadoLibroReserva($idLibro, $idReserva);
+
+            } catch (Exception $e) {
+                // Registrar el error en el log
+                error_log($e->getMessage());
+                // Propagar el error al controlador
+                throw $e;
+            }
+        }
+
     }
 
 ?>

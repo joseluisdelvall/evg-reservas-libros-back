@@ -13,10 +13,13 @@
 
         // Libros por curso
         'GET /api/libros/curso/:id' => 'LibrosController@getLibrosByCurso',
-        
         'PUT /api/crud/libros/:id' => 'LibrosController@updateLibro',
         'PUT /api/crud/libros/:id/estado' => 'LibrosController@cambiarEstadoLibro',
         
+        // Cambio de estado a "Anulado" de un libro en X reserva
+        'PUT /api/crud/libros/:idLibro/anular/:idReserva' => 'LibrosController@updateEstadoLibroReserva',
+
+        // Editoriales
         'GET /api/crud/editoriales' => 'EditorialesController@getEditoriales',
         'GET /api/crud/editoriales/:id' => 'EditorialesController@getEditorial',
         'POST /api/crud/editoriales/add' => 'EditorialesController@addEditorial',
