@@ -29,7 +29,7 @@ class ReservasController {
             $reservaDto = $this->reservasService->createReserva($data);
             
             // Enviar correo de confirmación
-            $this->sendConfirmationEmail($reservaDto);
+            // $this->sendConfirmationEmail($reservaDto);
             
             // Devolver respuesta exitosa
             return response('success', 'Reserva creada correctamente', $reservaDto->toArray());
