@@ -327,8 +327,7 @@ class ReservasRepository {
      * Anula una reserva y sus libros asociados
      * @param int $idReserva ID de la reserva
      * @return bool true si se anuló correctamente
-     */
-    public function anularReserva($idReserva) {
+     */    public function anularReserva($idReserva) {
         try {
             // Comenzar una transacción
             $this->conexion->begin_transaction();
@@ -353,6 +352,42 @@ class ReservasRepository {
             // Revertir la transacción en caso de error
             $this->conexion->rollback();
             error_log("Error al anular la reserva: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Actualiza los datos de una reserva (nombre, apellidos, correo y teléfono)
+     * @param int $idReserva ID de la reserva
+     * @param array $datos Datos a actualizar (nombreAlumno, apellidosAlumno, correo, telefono)
+     * @return bool true si se actualizó correctamente
+     */
+    public function updateReservaData($idReserva, $datos) {
+        try {
+            // Preparar la consulta SQL para actualizar solo los campos permitidos
+            $sql = "UPDATE RESERVA 
+                    SET nombreAlumno = ?, 
+                        apellidosAlumno = ?, 
+                        correo = ?, 
+                        telefono = ? 
+                    WHERE idReserva = ?";
+                    
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param(
+                "ssssi",
+                $datos['nombreAlumno'],
+                $datos['apellidosAlumno'],
+                $datos['correo'],
+                $datos['telefono'],
+                $idReserva
+            );
+            
+            $stmt->execute();
+            
+            return $stmt->affected_rows > 0;
+            
+        } catch (Exception $e) {
+            error_log("Error al actualizar los datos de la reserva: " . $e->getMessage());
             return false;
         }
     }

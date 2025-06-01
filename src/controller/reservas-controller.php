@@ -178,9 +178,7 @@ class ReservasController {
         } catch (Exception $e) {
             return response('error', $e->getMessage(), null, 500);
         }
-    }
-
-    /**
+    }    /**
      * Anula una reserva por su ID
      * @param int $id ID de la reserva
      * @return array Respuesta con el estado de la operación
@@ -189,6 +187,39 @@ class ReservasController {
         try {
             $result = $this->reservasService->anularReserva($id);
             return response('success', 'Reserva anulada correctamente', $result);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+    
+    /**
+     * Actualiza los datos básicos de una reserva: nombreAlumno, apellidosAlumno, correo y telefono
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function updateReservaById($id) {
+        try {
+            // Obtener los datos enviados en el cuerpo de la solicitud
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            // Verificar que se recibieron datos
+            if (empty($data)) {
+                return response('error', 'No se recibieron datos para actualizar', null, 400);
+            }
+            
+            // Verificar que solo se incluyan los campos permitidos
+            $camposPermitidos = ['nombreAlumno', 'apellidosAlumno', 'correo', 'telefono'];
+            foreach (array_keys($data) as $campo) {
+                if (!in_array($campo, $camposPermitidos)) {
+                    return response('error', "Campo no permitido: {$campo}. Solo se pueden actualizar: nombreAlumno, apellidosAlumno, correo y telefono", null, 400);
+                }
+            }
+            
+            // Llamar al servicio para actualizar los datos
+            $reservaActualizada = $this->reservasService->updateReservaById($id, $data);
+            
+            return response('success', 'Datos de la reserva actualizados correctamente', $reservaActualizada);
+            
         } catch (Exception $e) {
             return response('error', $e->getMessage(), null, 500);
         }

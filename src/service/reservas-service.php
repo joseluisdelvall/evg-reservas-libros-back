@@ -274,8 +274,7 @@ class ReservasService {
      * @param int $idReserva
      * @return array Datos de la reserva actualizada
      * @throws Exception si no se encuentra la reserva o hay un error
-     */
-    public function anularReserva($idReserva) {
+     */    public function anularReserva($idReserva) {
         try {
             // Primero verificamos que la reserva exista
             $reserva = $this->getReservaById($idReserva);
@@ -300,6 +299,73 @@ class ReservasService {
             
         } catch (Exception $e) {
             error_log("Error al anular la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }
+      /**
+     * Actualiza los datos de una reserva (solo nombre, apellidos, correo y teléfono)
+     * @param int $idReserva ID de la reserva
+     * @param array $datos Datos a actualizar
+     * @return array Datos de la reserva actualizada
+     * @throws Exception si hay algún error o la reserva no existe
+     */
+    public function updateReservaById($idReserva, $datos) {
+        try {
+            // Verificar que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva con ID: " . $idReserva);
+            }
+            
+            // Preparar datos para actualizar
+            $datosActualizados = [];
+            
+            // Solo incluir los campos que se quieren actualizar
+            if (isset($datos['nombreAlumno'])) {
+                $datosActualizados['nombreAlumno'] = $datos['nombreAlumno'];
+            } else {
+                $datosActualizados['nombreAlumno'] = $reserva['nombreAlumno'];
+            }
+            
+            if (isset($datos['apellidosAlumno'])) {
+                $datosActualizados['apellidosAlumno'] = $datos['apellidosAlumno'];
+            } else {
+                $datosActualizados['apellidosAlumno'] = $reserva['apellidosAlumno'];
+            }
+            
+            if (isset($datos['correo'])) {
+                // Validar formato de correo si se va a actualizar
+                if (!filter_var($datos['correo'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception("El formato del correo electrónico no es válido");
+                }
+                $datosActualizados['correo'] = $datos['correo'];
+            } else {
+                $datosActualizados['correo'] = $reserva['correo'];
+            }
+            
+            if (isset($datos['telefono'])) {
+                $datosActualizados['telefono'] = $datos['telefono'];
+            } else {
+                $datosActualizados['telefono'] = $reserva['telefono'];
+            }
+            
+            // Llamar al repositorio para actualizar los datos
+            $resultado = $this->reservasRepository->updateReservaData($idReserva, $datosActualizados);
+            
+            if (!$resultado) {
+                throw new Exception("No se pudieron actualizar los datos de la reserva");
+            }
+            
+            // Obtener la reserva actualizada y devolverla
+            $reservaActualizada = $this->getReservaById($idReserva);
+            if (!$reservaActualizada) {
+                throw new Exception("No se pudo obtener la reserva actualizada");
+            }
+            
+            return $reservaActualizada;
+            
+        } catch (Exception $e) {
+            error_log("Error al actualizar la reserva: " . $e->getMessage());
             throw $e;
         }
     }
