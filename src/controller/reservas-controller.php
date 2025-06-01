@@ -90,5 +90,21 @@ class ReservasController {
             return response('error', $e->getMessage(), null, 500);
         }
     }
+
+    /**
+     * Entrega los libros de una reserva
+     * 
+     * @param int $idReserva ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function entregarLibros($idReserva) {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $this->reservasService->entregarLibros($idReserva, $data);
+            return response('success', 'Libros entregados correctamente', null);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
 }
 ?>

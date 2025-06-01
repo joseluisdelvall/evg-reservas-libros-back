@@ -277,5 +277,70 @@ class ReservasRepository {
         
         return $reservas;
     }
+
+    /**
+     * Actualiza el estado de los libros en una reserva a "Recogido" y establece la fecha de recogida
+     * 
+     * @param int $idReserva ID de la reserva
+     * @param array $librosEntregados Lista de IDs de los libros entregados
+     * @return bool Verdadero si la operación fue exitosa, falso en caso contrario
+     */
+    public function entregarLibros($idReserva, $librosEntregados) {
+        // Validar que la reserva existe
+        $sqlValidate = "SELECT idReserva FROM RESERVA WHERE idReserva = ?";
+        $stmtValidate = $this->conexion->prepare($sqlValidate);
+        $stmtValidate->bind_param('i', $idReserva);
+        $stmtValidate->execute();
+        $result = $stmtValidate->get_result();
+        
+        if ($result->num_rows === 0) {
+            throw new Exception('La reserva no existe.');
+        }
+        
+        foreach ($librosEntregados as $idLibro) {
+            // Verificar que el libro está en la reserva y tiene estado 4 (Recibido)
+            $sqlCheck = "SELECT idEstado FROM RESERVA_LIBRO WHERE idReserva = ? AND idLibro = ?";
+            $stmtCheck = $this->conexion->prepare($sqlCheck);
+            $stmtCheck->bind_param('ii', $idReserva, $idLibro);
+            $stmtCheck->execute();
+            $resultCheck = $stmtCheck->get_result();
+            
+            if ($resultCheck->num_rows === 0) {
+                throw new Exception('El libro ' . $idLibro . ' no está en esta reserva.');
+            }
+            
+            $row = $resultCheck->fetch_assoc();
+            $estadoActual = (int)$row['idEstado'];
+            
+            if ($estadoActual !== 4) {
+                throw new Exception('El libro ' . $idLibro . ' no está disponible para entregar. Estado actual: ' . $estadoActual);
+            }
+            
+            // Actualizar el estado a 5 (Recogido) y establecer la fecha de recogida
+            $fechaRecogida = date('Y-m-d');
+            $sqlUpdate = "UPDATE RESERVA_LIBRO SET idEstado = 5, fechaRecogida = ? WHERE idReserva = ? AND idLibro = ?";
+            $stmtUpdate = $this->conexion->prepare($sqlUpdate);
+            $stmtUpdate->bind_param('sii', $fechaRecogida, $idReserva, $idLibro);
+            
+            if (!$stmtUpdate->execute()) {
+                throw new Exception('Error al actualizar el estado del libro ' . $idLibro . ': ' . $stmtUpdate->error);
+            }
+            
+            if ($stmtUpdate->affected_rows === 0) {
+                throw new Exception('No se pudo actualizar el estado del libro ' . $idLibro);
+            }
+            
+            // Reducir el stock del libro
+            $sqlUpdateStock = "UPDATE LIBRO SET stock = stock - 1 WHERE idLibro = ? AND stock > 0";
+            $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
+            $stmtUpdateStock->bind_param('i', $idLibro);
+            
+            if (!$stmtUpdateStock->execute()) {
+                throw new Exception('Error al actualizar stock del libro ' . $idLibro . ': ' . $stmtUpdateStock->error);
+            }
+        }
+        
+        return true;
+    }
 }
 ?>
