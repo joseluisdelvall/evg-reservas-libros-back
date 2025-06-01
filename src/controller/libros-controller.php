@@ -211,6 +211,51 @@
                 return response('error', 'Error al cambiar el estado del libro: ' . $e->getMessage(), null, 500);
             }
         }
+
+        /**
+         * Obtiene los libros de una etapa específica
+         * 
+         * @param int $idEtapa ID de la etapa
+         * @return array Respuesta con el estado y los datos de los libros
+         */
+        public function getLibrosByEtapa($idEtapa) {
+            try {
+                $libros = $this->librosService->getLibrosByEtapa($idEtapa);
+
+                if (empty($libros)) {
+                    return response('error', 'No se encontraron libros para la etapa especificada');
+                }
+
+                $librosDto = array_map(function($libro) {
+                    $editorialDto = new EditorialMinDto(
+                        $libro->getEditorial()->getId(),
+                        $libro->getEditorial()->getNombre()
+                    );
+                    $etapaDto = new EtapaDto(
+                        $libro->getEtapa()->getId(),
+                        $libro->getEtapa()->getNombre()
+                    );
+                    return new LibroDto(
+                        $libro->getId(),
+                        $libro->getNombre(),
+                        $libro->getIsbn(),
+                        $editorialDto,
+                        $libro->getPrecio(),
+                        $libro->getEstado(),
+                        $etapaDto
+                    );
+                }, $libros);
+
+                $libroArray = array_map(function($dto) {
+                    return $dto->toArray();
+                }, $librosDto);
+
+                return response('success', 'Libros de la etapa obtenidos correctamente', $libroArray);
+
+            } catch (Exception $e) {
+                return response('error', $e->getMessage());
+            }
+        }
     }
 
 ?>

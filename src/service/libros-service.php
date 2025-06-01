@@ -194,6 +194,19 @@
             }
         }
 
+        /**
+         * Obtiene los libros de una etapa específica
+         * 
+         * @param int $idEtapa ID de la etapa
+         * @return array Lista de libros de la etapa
+         */
+        public function getLibrosByEtapa($idEtapa) {
+            if (!is_numeric($idEtapa)) {
+                throw new Exception("El ID de la etapa debe ser un valor numérico");
+            }
+            return $this->librosRepository->getLibrosByEtapa($idEtapa);
+        }
+
     }
 
 ?>
