@@ -22,13 +22,13 @@ jobs:
             sed -i "s/\$prod = false;/\$prod = true;/" config/config.php
             sed -i "s/'prod' => false,/'prod' => true,/" config/config.php
             sed -i "s/:NOMBRECARPETA/evg-reservas-libros-back/g" config/config.php
-            sed -i "s|'base_url_front' => .*,|'base_url_front' => 'https://11.proyect.esvirgua.com/evg-reservas-libros-front/',|" config/config.php
+            sed -i "s|'base_url_front' => .*,|'base_url_front' => 'https://11.proyectos.esvirgua.com/evg-reservas-libros-front/',|" config/config.php
           else
             echo "Configurando entorno para DEMO"
             sed -i "s/\$prod = false;/\$prod = true;/" config/config.php
             sed -i "s/'prod' => false,/'prod' => true,/" config/config.php
             sed -i "s/:NOMBRECARPETA/evg-reservas-libros-back-demo/g" config/config.php
-            sed -i "s|'base_url_front' => .*,|'base_url_front' => 'https://11.proyect.esvirgua.com/evg-reservas-libros-front-demo/',|" config/config.php
+            sed -i "s|'base_url_front' => .*,|'base_url_front' => 'https://11.proyectos.esvirgua.com/evg-reservas-libros-front-demo/',|" config/config.php
           fi
 
       - name: FTP Deploy
