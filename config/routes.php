@@ -36,6 +36,29 @@
         
         // Reservas
         'POST /api/reservas' => 'ReservasController@createReserva',
+
+        // Libros-Cursos (Asignación de libros a cursos)
+        'GET /api/crud/libros-cursos' => 'LibrosCursosController@getLibrosCursos',
+        'GET /api/libros-cursos/curso/:id' => 'LibrosCursosController@getLibrosByCurso',
+        'POST /api/crud/libros-cursos/add' => 'LibrosCursosController@asignarLibroACurso',
+        'POST /api/crud/libros-cursos/delete' => 'LibrosCursosController@eliminarAsignacion',
+
+        // PEDIDOS DE LIBROS
+        'GET /api/pedidos/editoriales-con-libros-pendientes' => 'EditorialesController@getEditorialesConLibrosPendientes',
+        'GET /api/pedidos/editoriales/:id/libros-pendientes' => 'EditorialesController@getLibrosPendientesPorEditorial',
+        'POST /api/pedidos/add' => 'PedidosController@addPedido',
+        'GET /api/pedidos/editoriales-con-pedidos' => 'PedidosController@getEditorialesConPedidos',
+        'GET /api/pedidos/editoriales/:id/pedidos' => 'PedidosController@getPedidosByEditorial',
+        'GET /api/pedidos/:id' => 'PedidosController@getPedido',
+        'PUT /api/pedidos/unidades-recibidas' => 'PedidosController@updateUnidadesRecibidas',
+
+        // Etapas
+        'GET /api/etapas' => 'EtapasController@getEtapas',
+        'GET /api/libros/etapa/:id' => 'LibrosController@getLibrosByEtapa',
+
+        // ENTREGAS DE LIBROS
+        'GET /api/reservas/entregas' => 'ReservasController@getReservasEntrega', // Recogemos todas las reservas
+        'POST /api/reserva/:id/entregar-libros' => 'ReservasController@entregarLibros', // deberemos recoger el idReserva y en el body un array con el id de los libros que queremos entregar
         'GET /api/crud/reservas' => 'ReservasController@getReservas',
         'GET /api/crud/reservas/:id' => 'ReservasController@getReservaById',
         'GET /api/crud/reservas/:id/libros' => 'ReservasController@getLibrosByReservaId',

@@ -238,6 +238,103 @@
             }
         }
         
+        /**
+         * Obtiene las editoriales que tienen libros reservados pendientes de pedir
+         * 
+         * @return array Lista de arrays con idEditorial, nombre y cantidad de libros pendientes
+         */
+        public function getEditorialesConLibrosPendientes() {
+            try {
+                $sql = "SELECT 
+                            e.idEditorial,
+                            e.nombre,
+                            COUNT(rl.idLibro) as librosPendientes
+                        FROM EDITORIAL e
+                        INNER JOIN LIBRO l ON e.idEditorial = l.idEditorial
+                        INNER JOIN RESERVA_LIBRO rl ON l.idLibro = rl.idLibro
+                        WHERE rl.idEstado = 2
+                        GROUP BY e.idEditorial, e.nombre
+                        ORDER BY e.nombre";
+                
+                $resultado = $this->conexion->query($sql);
+                
+                if (!$resultado) {
+                    throw new Exception("Error al ejecutar la consulta: " . $this->conexion->error);
+                }
+
+                $editoriales = [];
+                
+                if ($resultado->num_rows > 0) {
+                    while ($fila = $resultado->fetch_assoc()) {
+                        $editoriales[] = [
+                            'idEditorial' => $fila['idEditorial'],
+                            'nombre' => $fila['nombre'],
+                            'librosPendientes' => (int)$fila['librosPendientes']
+                        ];
+                    }
+                }
+
+                return $editoriales;
+            } catch (Exception $e) {
+                error_log("Error en getEditorialesConLibrosPendientes: " . $e->getMessage());
+                throw $e;
+            }
+        }
+        
+        /**
+         * Obtiene los libros reservados pendientes de pedir para una editorial específica.
+         * 
+         * @param int $idEditorial ID de la editorial
+         * @return array Lista de libros pendientes de pedir
+         * @throws Exception Si hay un error en la consulta
+         */
+        public function getLibrosPendientesPorEditorial($idEditorial) {
+            try {
+                $sql = "SELECT 
+                            l.idLibro,
+                            l.nombre,
+                            l.ISBN,
+                            l.precio,
+                            COUNT(rl.idLibro) as unidadesPendientes
+                        FROM LIBRO l
+                        INNER JOIN RESERVA_LIBRO rl ON l.idLibro = rl.idLibro
+                        WHERE l.idEditorial = ? AND rl.idEstado = 2
+                        GROUP BY l.idLibro, l.nombre, l.ISBN, l.precio
+                        ORDER BY l.nombre";
+                
+                $stmt = $this->conexion->prepare($sql);
+                if (!$stmt) {
+                    throw new Exception("Error al preparar la consulta: " . $this->conexion->error);
+                }
+                
+                $stmt->bind_param("i", $idEditorial);
+                $stmt->execute();
+                $resultado = $stmt->get_result();
+                
+                if (!$resultado) {
+                    throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+                }
+
+                $libros = [];
+                if ($resultado->num_rows > 0) {
+                    while ($fila = $resultado->fetch_assoc()) {
+                        $libros[] = [
+                            'idLibro' => $fila['idLibro'],
+                            'nombre' => $fila['nombre'],
+                            'ISBN' => $fila['ISBN'],
+                            'precio' => (float)$fila['precio'],
+                            'unidadesPendientes' => (int)$fila['unidadesPendientes']
+                        ];
+                    }
+                }
+                $stmt->close();
+                return $libros;
+            } catch (Exception $e) {
+                error_log("Error en getLibrosPendientesPorEditorial: " . $e->getMessage());
+                throw $e;
+            }
+        }
+        
     }
     
 ?>

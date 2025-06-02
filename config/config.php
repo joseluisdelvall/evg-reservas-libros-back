@@ -17,7 +17,7 @@
             'base_url_front' => 'https://11.proyect.esvirgua.com/evg-reservas-libros-front-demo/',
             'google_client_id' => '660176374148-klpm52u3brlqsmpjvqci3ruk5qk1ofnl.apps.googleusercontent.com',
             'id_aplicacion' => '1',
-            'dominio_correo' => 'alumnado.fundacionloyola.net',
+            'dominio_correo' => 'alumnado.fundacionloyola.net;fundacionloyola.es',
         ];
     } else {
         return [

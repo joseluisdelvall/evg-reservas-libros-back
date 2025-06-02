@@ -415,5 +415,152 @@ class ReservasRepository {
             return null;
         }
     }
+
+    /**
+     * Obtiene todas las reservas con información de los libros y el curso
+     * 
+     * @return array Lista de reservas con detalles de libros y curso
+     */
+    public function getReservas() {
+        // Obtener todas las reservas con información del curso
+        $sql = "SELECT r.idReserva, r.nombreAlumno, r.apellidosAlumno, r.nombreTutorLegal, 
+                       r.apellidosTutorLegal, r.correo, r.dni, r.telefono, r.justificante, 
+                       r.fecha, r.verificado, r.totalPagado, r.idCurso,
+                       c.nombre as nombreCurso, e.nombre as nombreEtapa
+                FROM RESERVA r
+                INNER JOIN CURSO c ON r.idCurso = c.idCurso
+                INNER JOIN ETAPA e ON c.idEtapa = e.idEtapa
+                WHERE EXISTS (
+                    SELECT 1 FROM RESERVA_LIBRO rl WHERE rl.idReserva = r.idReserva AND rl.idEstado = 4
+                )
+                ORDER BY r.fecha DESC, r.idReserva DESC";
+        
+        $result = $this->conexion->query($sql);
+        $reservas = [];
+        
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                // Obtener solo los libros con idEstado = 4 (Recibido) de cada reserva
+                $sqlLibros = "SELECT rl.idLibro, rl.fechaRecogida, rl.precioPagado, rl.idEstado,
+                                     l.nombre, l.ISBN, l.precio,
+                                     tm.nombre as nombreEstado, tm.descripcion as descripcionEstado
+                              FROM RESERVA_LIBRO rl
+                              INNER JOIN LIBRO l ON rl.idLibro = l.idLibro
+                              INNER JOIN TM_ESTADO tm ON rl.idEstado = tm.idEstado
+                              WHERE rl.idReserva = ? AND rl.idEstado = 4";
+                
+                $stmtLibros = $this->conexion->prepare($sqlLibros);
+                $stmtLibros->bind_param('i', $row['idReserva']);
+                $stmtLibros->execute();
+                $resultLibros = $stmtLibros->get_result();
+                
+                $libros = [];
+                while ($rowLibro = $resultLibros->fetch_assoc()) {
+                    $libros[] = [
+                        'idLibro' => (int)$rowLibro['idLibro'],
+                        'nombre' => $rowLibro['nombre'],
+                        'ISBN' => $rowLibro['ISBN'],
+                        'precio' => (float)$rowLibro['precio'],
+                        'fechaRecogida' => $rowLibro['fechaRecogida'],
+                        'precioPagado' => (float)$rowLibro['precioPagado'],
+                        'idEstado' => (int)$rowLibro['idEstado'],
+                        'nombreEstado' => $rowLibro['nombreEstado'],
+                        'descripcionEstado' => $rowLibro['descripcionEstado']
+                    ];
+                }
+                
+                // Solo agregar la reserva si tiene libros con estado 4
+                if (!empty($libros)) {
+                    $reservas[] = [
+                        'idReserva' => (int)$row['idReserva'],
+                        'nombreAlumno' => $row['nombreAlumno'],
+                        'apellidosAlumno' => $row['apellidosAlumno'],
+                        'nombreTutorLegal' => $row['nombreTutorLegal'],
+                        'apellidosTutorLegal' => $row['apellidosTutorLegal'],
+                        'correo' => $row['correo'],
+                        'dni' => $row['dni'],
+                        'telefono' => $row['telefono'],
+                        'justificante' => $row['justificante'],
+                        'fecha' => $row['fecha'],
+                        'verificado' => (bool)$row['verificado'],
+                        'totalPagado' => (float)$row['totalPagado'],
+                        'curso' => [
+                            'idCurso' => (int)$row['idCurso'],
+                            'nombreCurso' => $row['nombreCurso'],
+                            'nombreEtapa' => $row['nombreEtapa']
+                        ],
+                        'libros' => $libros
+                    ];
+                }
+            }
+        }
+        
+        return $reservas;
+    }
+
+    /**
+     * Actualiza el estado de los libros en una reserva a "Recogido" y establece la fecha de recogida
+     * 
+     * @param int $idReserva ID de la reserva
+     * @param array $librosEntregados Lista de IDs de los libros entregados
+     * @return bool Verdadero si la operación fue exitosa, falso en caso contrario
+     */
+    public function entregarLibros($idReserva, $librosEntregados) {
+        // Validar que la reserva existe
+        $sqlValidate = "SELECT idReserva FROM RESERVA WHERE idReserva = ?";
+        $stmtValidate = $this->conexion->prepare($sqlValidate);
+        $stmtValidate->bind_param('i', $idReserva);
+        $stmtValidate->execute();
+        $result = $stmtValidate->get_result();
+        
+        if ($result->num_rows === 0) {
+            throw new Exception('La reserva no existe.');
+        }
+        
+        foreach ($librosEntregados as $idLibro) {
+            // Verificar que el libro está en la reserva y tiene estado 4 (Recibido)
+            $sqlCheck = "SELECT idEstado FROM RESERVA_LIBRO WHERE idReserva = ? AND idLibro = ?";
+            $stmtCheck = $this->conexion->prepare($sqlCheck);
+            $stmtCheck->bind_param('ii', $idReserva, $idLibro);
+            $stmtCheck->execute();
+            $resultCheck = $stmtCheck->get_result();
+            
+            if ($resultCheck->num_rows === 0) {
+                throw new Exception('El libro ' . $idLibro . ' no está en esta reserva.');
+            }
+            
+            $row = $resultCheck->fetch_assoc();
+            $estadoActual = (int)$row['idEstado'];
+            
+            if ($estadoActual !== 4) {
+                throw new Exception('El libro ' . $idLibro . ' no está disponible para entregar. Estado actual: ' . $estadoActual);
+            }
+            
+            // Actualizar el estado a 5 (Recogido) y establecer la fecha de recogida
+            $fechaRecogida = date('Y-m-d');
+            $sqlUpdate = "UPDATE RESERVA_LIBRO SET idEstado = 5, fechaRecogida = ? WHERE idReserva = ? AND idLibro = ?";
+            $stmtUpdate = $this->conexion->prepare($sqlUpdate);
+            $stmtUpdate->bind_param('sii', $fechaRecogida, $idReserva, $idLibro);
+            
+            if (!$stmtUpdate->execute()) {
+                throw new Exception('Error al actualizar el estado del libro ' . $idLibro . ': ' . $stmtUpdate->error);
+            }
+            
+            if ($stmtUpdate->affected_rows === 0) {
+                throw new Exception('No se pudo actualizar el estado del libro ' . $idLibro);
+            }
+            
+            // Reducir el stock del libro
+            $sqlUpdateStock = "UPDATE LIBRO SET stock = stock - 1 WHERE idLibro = ? AND stock > 0";
+            $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
+            $stmtUpdateStock->bind_param('i', $idLibro);
+            
+            if (!$stmtUpdateStock->execute()) {
+                throw new Exception('Error al actualizar stock del libro ' . $idLibro . ': ' . $stmtUpdateStock->error);
+            }
+        }
+        
+        return true;
+    }
 }
-?> 
+?>

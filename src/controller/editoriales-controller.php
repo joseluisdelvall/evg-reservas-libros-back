@@ -178,6 +178,58 @@
         }
     }
         
+        /**
+         * Obtiene las editoriales que tienen libros reservados pendientes de pedir
+         * 
+         * @return array Respuesta con el estado y los datos de las editoriales con libros pendientes
+         */
+        public function getEditorialesConLibrosPendientes() {
+            try {
+                $editoriales = $this->editorialesService->getEditorialesConLibrosPendientes();
+
+                if(empty($editoriales)) {
+                    return response('success', 'No se encontraron editoriales con libros pendientes de pedir.', []);            
+                }
+
+                // Convertir cada DTO a array antes de enviar la respuesta
+                $editorialesArray = array_map(function($dto) {
+                    return $dto->toArray();
+                }, $editoriales);
+
+                return response('success', 'Editoriales con libros pendientes obtenidas correctamente.', $editorialesArray);
+            } catch (Exception $e) {
+                return response('error', $e->getMessage(), null, 500);
+            }
+        }
+        
+        /**
+         * Obtiene los libros reservados pendientes de pedir para una editorial específica.
+         *
+         * @param int $idEditorial ID de la editorial
+         * @return array Respuesta con el estado y la lista de libros pendientes
+         */
+        public function getLibrosPendientesPorEditorial($idEditorial) {
+            try {
+                $librosPendientes = $this->editorialesService->getLibrosPendientesPorEditorial($idEditorial);
+
+                if (empty($librosPendientes)) {
+                    return response('success', 'No se encontraron libros pendientes de pedir para esta editorial.', []);
+                }
+
+                $librosArray = array_map(function($dto) {
+                    return $dto->toArray();
+                }, $librosPendientes);
+
+                return response('success', 'Libros pendientes de pedir obtenidos correctamente.', $librosArray);
+            } catch (Exception $e) {
+                // Manejar excepciones específicas como "No se encontró la editorial"
+                if (strpos($e->getMessage(), "No se encontró la editorial") !== false) {
+                    return response('error', $e->getMessage(), null, 404);
+                }
+                return response('error', $e->getMessage(), null, 500);
+            }
+        }
+        
     }
 
 ?>

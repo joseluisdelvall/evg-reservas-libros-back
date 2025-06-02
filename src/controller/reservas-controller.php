@@ -30,7 +30,7 @@ class ReservasController {
             $reservaDto = $this->reservasService->createReserva($data);
             
             // Enviar correo de confirmación
-            $this->sendConfirmationEmail($reservaDto);
+            // $this->sendConfirmationEmail($reservaDto);
             
             // Devolver respuesta exitosa
             return response('success', 'Reserva creada correctamente', $reservaDto->toArray());
@@ -75,6 +75,36 @@ class ReservasController {
         } catch (Exception $e) {
             error_log("Error al enviar el correo de confirmación: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Obtiene la lista de reservas
+     * 
+     * @return array Lista de reservas
+     */
+    public function getReservasEntrega() {
+        try {
+            $reservas = $this->reservasService->getReservas();
+            return response('success', 'Reservas obtenidas correctamente', $reservas);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+
+    /**
+     * Entrega los libros de una reserva
+     * 
+     * @param int $idReserva ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function entregarLibros($idReserva) {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $this->reservasService->entregarLibros($idReserva, $data);
+            return response('success', 'Libros entregados correctamente', null);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
         }
     }
 
@@ -241,4 +271,4 @@ class ReservasController {
         }
     }
 }
-?> 
+?>

@@ -90,6 +90,15 @@ class ReservasService {
     }
     
     /**
+     * Obtiene todas las reservas
+     * 
+     * @return array Lista de reservas
+     */
+    public function getReservas() {
+        return $this->reservasRepository->getReservas();
+    }
+    
+    /**
      * Valida los datos del formulario
      * 
      * @param array $formData Datos del formulario
@@ -173,6 +182,33 @@ class ReservasService {
             error_log("Error al procesar el archivo: " . $e->getMessage());
             throw new Exception("Error al procesar el justificante: " . $e->getMessage());
         }
+    }
+    
+    /**
+     * Entrega los libros de una reserva
+     * 
+     * @param int $idReserva ID de la reserva
+     * @param array $data Datos de los libros a entregar
+     * @return bool Resultado de la operación
+     * @throws Exception Si hay un error en los datos o en la operación
+     */
+    public function entregarLibros($idReserva, $data) {
+        if (empty($idReserva) || !is_numeric($idReserva)) {
+            throw new Exception('ID de reserva inválido.');
+        }
+        
+        if (empty($data['libros']) || !is_array($data['libros'])) {
+            throw new Exception('Datos de libros incompletos o inválidos.');
+        }
+        
+        // Validar que todos los IDs de libros sean numéricos
+        foreach ($data['libros'] as $idLibro) {
+            if (!is_numeric($idLibro)) {
+                throw new Exception('ID de libro inválido: ' . $idLibro);
+            }
+        }
+        
+        return $this->reservasRepository->entregarLibros($idReserva, $data['libros']);
     }
 
     /**
@@ -442,4 +478,4 @@ class ReservasService {
         }
     }
 }
-?> 
+?>
