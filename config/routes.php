@@ -36,6 +36,14 @@
         
         // Reservas
         'POST /api/reservas' => 'ReservasController@createReserva',
+        'GET /api/crud/reservas' => 'ReservasController@getReservas',
+        'GET /api/crud/reservas/:id' => 'ReservasController@getReservaById',
+        'GET /api/crud/reservas/:id/libros' => 'ReservasController@getLibrosByReservaId',
+        'DELETE /api/crud/reservas/:id' => 'ReservasController@deleteReserva',
+        'PUT /api/crud/reservas/:id/estado' => 'ReservasController@cambiarEstadoReserva',
+        'PUT /api/crud/reservas/:id/anular' => 'ReservasController@anularReservaById',
+        'PUT /api/crud/reservas/:id' => 'ReservasController@updateReservaById',
+        'GET /api/reservas/:id/justificante' => 'ReservasController@getJustificanteByReservaId',
 
         // Libros-Cursos (Asignación de libros a cursos)
         'GET /api/crud/libros-cursos' => 'LibrosCursosController@getLibrosCursos',
@@ -59,14 +67,6 @@
         // ENTREGAS DE LIBROS
         'GET /api/reservas/entregas' => 'ReservasController@getReservasEntrega', // Recogemos todas las reservas
         'POST /api/reserva/:id/entregar-libros' => 'ReservasController@entregarLibros', // deberemos recoger el idReserva y en el body un array con el id de los libros que queremos entregar
-        'GET /api/crud/reservas' => 'ReservasController@getReservas',
-        'GET /api/crud/reservas/:id' => 'ReservasController@getReservaById',
-        'GET /api/crud/reservas/:id/libros' => 'ReservasController@getLibrosByReservaId',
-        'DELETE /api/crud/reservas/:id' => 'ReservasController@deleteReserva',
-        'PUT /api/crud/reservas/:id/estado' => 'ReservasController@cambiarEstadoReserva',
-        'PUT /api/crud/reservas/:id/anular' => 'ReservasController@anularReservaById',
-        'PUT /api/crud/reservas/:id' => 'ReservasController@updateReservaById',
-        'GET /api/reservas/:id/justificante' => 'ReservasController@getJustificanteByReservaId',
     ];
     
 ?>

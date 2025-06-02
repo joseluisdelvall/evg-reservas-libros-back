@@ -16,7 +16,7 @@ class ReservasService {
      * Crea una nueva reserva a partir de los datos del formulario
      * 
      * @param array $formData Datos del formulario
-     * @return ReservaMinDto|null DTO con los datos de la reserva creada
+     * @return ReservaDto|null DTO con los datos de la reserva creada
      */
     public function createReserva($formData) {
         try {
@@ -72,7 +72,7 @@ class ReservasService {
             }
             
             // Convertir a DTO para la respuesta con el formato esperado
-            return new ReservaMinDto(
+            return new ReservaDto(
                 $reservaCreada->getId(),
                 $reservaCreada->getNombreAlumno(),
                 $reservaCreada->getApellidosAlumno(),
