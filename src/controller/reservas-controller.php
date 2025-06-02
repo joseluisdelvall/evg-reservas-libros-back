@@ -1,6 +1,7 @@
 <?php
 
 require_once '../src/service/reservas-service.php';
+require_once '../src/dto/reserva-curso-dto.php';
 require_once '../src/utils/response.php';
 
 class ReservasController {
@@ -82,7 +83,7 @@ class ReservasController {
      * 
      * @return array Lista de reservas
      */
-    public function getReservas() {
+    public function getReservasEntrega() {
         try {
             $reservas = $this->reservasService->getReservas();
             return response('success', 'Reservas obtenidas correctamente', $reservas);
@@ -104,6 +105,169 @@ class ReservasController {
             return response('success', 'Libros entregados correctamente', null);
         } catch (Exception $e) {
             return response('error', $e->getMessage(), null, 500);
+        }
+    }
+
+    /**
+     * Obtiene todas las reservas
+     * 
+     * @return array Respuesta con el estado de la operación
+     */
+    public function getReservas() {
+        $reservas = $this->reservasService->getAllReservas();
+
+        if(!$reservas) {
+            return response('error', 'No se han encontrado reservas', null, 404);
+        }
+        
+        $reservasDto = array_map(function($reserva) {
+            return new ReservaCursoDto(
+                $reserva['id'],
+                $reserva['nombreAlumno'],
+                $reserva['apellidosAlumno'],
+                $reserva['correo'],
+                $reserva['telefono'],
+                $reserva['fecha'],
+                $reserva['verificado'],
+                $reserva['totalPagado'],
+                $reserva['nombreCurso']
+            );
+        }, $reservas);
+
+        return response('success', 'Reservas obtenidas correctamente', array_map(function($dto) { 
+            return $dto->toArray(); 
+        }, $reservasDto));
+    }
+
+    /**
+     * Obtiene los libros de una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con los libros
+     */
+    public function getLibrosByReservaId($id) {
+        $libros = $this->reservasService->getLibrosByReservaId($id);
+        if (!$libros) {
+            return response('error', 'No se encontraron libros para la reserva', null, 404);
+        }
+        return response('success', 'Libros de la reserva obtenidos correctamente', $libros);
+    }
+
+    /**
+     * Elimina una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function deleteReserva($id) {
+        $resultado = $this->reservasService->deleteReserva($id);
+        if ($resultado) {
+            return response('success', 'Reserva eliminada correctamente');
+        } else {
+            return response('error', 'No se pudo eliminar la reserva', null, 500);
+        }
+    }
+
+    /**
+     * Obtiene una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con la reserva
+     */
+    public function getReservaById($id) {
+        try {
+            $reserva = $this->reservasService->getReservaById($id);
+            if (!$reserva) {
+                return response('error', 'No se encontró la reserva', null, 404);
+            }
+
+            $reservaDto = new ReservaCursoDto(
+                $reserva['id'],
+                $reserva['nombreAlumno'],
+                $reserva['apellidosAlumno'],
+                $reserva['correo'],
+                $reserva['telefono'],
+                $reserva['fecha'],
+                $reserva['verificado'],
+                $reserva['totalPagado'],
+                $reserva['nombreCurso']
+            );
+
+            return response('success', 'Reserva obtenida correctamente', $reservaDto->toArray());
+        } catch (Exception $e) {
+            return response('error', $e->getMessage());
+        }
+    }
+    
+    /**
+     * Cambia el estado de verificación de una reserva
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function cambiarEstadoReserva($id) {
+        try {
+            $result = $this->reservasService->cambiarEstadoReserva($id);
+            return response('success', 'Estado de la reserva actualizado correctamente', $result);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }    /**
+     * Anula una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function anularReservaById($id) {
+        try {
+            $result = $this->reservasService->anularReserva($id);
+            return response('success', 'Reserva anulada correctamente', $result);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+      /**
+     * Actualiza los datos básicos de una reserva: nombreAlumno, apellidosAlumno, correo y telefono
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el estado de la operación
+     */
+    public function updateReservaById($id) {
+        try {
+            // Obtener los datos enviados en el cuerpo de la solicitud
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            // Verificar que se recibieron datos
+            if (empty($data)) {
+                return response('error', 'No se recibieron datos para actualizar', null, 400);
+            }
+            
+            // Verificar que solo se incluyan los campos permitidos
+            $camposPermitidos = ['nombreAlumno', 'apellidosAlumno', 'correo', 'telefono'];
+            foreach (array_keys($data) as $campo) {
+                if (!in_array($campo, $camposPermitidos)) {
+                    return response('error', "Campo no permitido: {$campo}. Solo se pueden actualizar: nombreAlumno, apellidosAlumno, correo y telefono", null, 400);
+                }
+            }
+            
+            // Llamar al servicio para actualizar los datos
+            $reservaActualizada = $this->reservasService->updateReservaById($id, $data);
+            
+            return response('success', 'Datos de la reserva actualizados correctamente', $reservaActualizada);
+            
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
+        }
+    }
+    
+    /**
+     * Obtiene el justificante de una reserva por su ID
+     * @param int $id ID de la reserva
+     * @return array Respuesta con el justificante en formato base64
+     */
+    public function getJustificanteByReservaId($id) {
+        try {
+            $justificante = $this->reservasService->getJustificanteByReservaId($id);
+            
+            // El frontend espera solo la cadena base64, sin el formato JSON completo
+            return response('success', 'Justificante obtenido correctamente', $justificante['base64']);
+            
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 404);
         }
     }
 }

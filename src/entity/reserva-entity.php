@@ -14,6 +14,7 @@ class ReservaEntity {
     private $verificado;
     private $totalPagado;
     private $idCurso;
+    private $nombreCurso;
     private $libros; // Array de IDs de libros
 
     public function __construct(
@@ -30,7 +31,8 @@ class ReservaEntity {
         $verificado = false,
         $totalPagado = 0,
         $idCurso = null,
-        $libros = []
+        $libros = [],
+        $nombreCurso = null
     ) {
         $this->id = $id;
         $this->nombreAlumno = $nombreAlumno;
@@ -46,6 +48,7 @@ class ReservaEntity {
         $this->totalPagado = $totalPagado;
         $this->idCurso = $idCurso;
         $this->libros = $libros;
+        $this->nombreCurso = $nombreCurso;
     }
 
     public function getId() {
@@ -98,6 +101,10 @@ class ReservaEntity {
 
     public function getIdCurso() {
         return $this->idCurso;
+    }
+
+    public function getNombreCurso() {
+        return $this->nombreCurso;
     }
 
     public function getLibros() {

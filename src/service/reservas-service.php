@@ -2,6 +2,7 @@
 
 require_once '../src/repository/reservas-repository.php';
 require_once '../src/entity/reserva-entity.php';
+require_once '../src/dto/reserva-min-dto.php';
 require_once '../src/dto/reserva-dto.php';
 
 class ReservasService {
@@ -208,6 +209,273 @@ class ReservasService {
         }
         
         return $this->reservasRepository->entregarLibros($idReserva, $data['libros']);
+    }
+
+    /**
+     * Obtiene todas las reservas
+     * 
+     * @return array Respuesta con el estado de la operación
+     */
+    public function getAllReservas() {
+        return $this->reservasRepository->getAllReservas();
+    }
+
+    /**
+     * Obtiene los libros de una reserva por su ID
+     * @param int $idReserva
+     * @return array Lista de libros
+     */
+    public function getLibrosByReservaId($idReserva) {
+        return $this->reservasRepository->getLibrosByReservaId($idReserva);
+    }
+
+    /**
+     * Elimina una reserva por su ID
+     * @param int $idReserva
+     * @return bool true si se eliminó correctamente
+     */
+    public function deleteReserva($idReserva) {
+        return $this->reservasRepository->deleteReserva($idReserva);
+    }
+
+    /**
+     * Obtiene una reserva por su ID
+     * @param int $idReserva
+     * @return array|null Datos de la reserva o null si no existe
+     */
+    public function getReservaById($idReserva) {
+        try {
+            $reserva = $this->reservasRepository->getReservaById($idReserva);
+            
+            if (!$reserva) {
+                return null;
+            }
+
+            // Devolver en el mismo formato que getAllReservas
+            return [
+                'id' => $reserva['idReserva'],
+                'nombreAlumno' => $reserva['nombreAlumno'],
+                'apellidosAlumno' => $reserva['apellidosAlumno'],
+                'correo' => $reserva['correo'],
+                'telefono' => $reserva['telefono'],
+                'fecha' => $reserva['fecha'],
+                'verificado' => $reserva['verificado'],
+                'totalPagado' => $reserva['totalPagado'],
+                'idCurso' => $reserva['idCurso'],
+                'nombreCurso' => $reserva['nombreCurso']
+            ];
+        } catch (Exception $e) {
+            error_log("Error al obtener la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Cambia el estado de verificación de una reserva
+     * @param int $idReserva
+     * @return array Datos de la reserva actualizada
+     * @throws Exception si no se encuentra la reserva o hay un error
+     */
+    public function cambiarEstadoReserva($idReserva) {
+        try {
+            // Primero verificamos que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva");
+            }
+
+            // Llamar al repositorio para actualizar el estado
+            $resultado = $this->reservasRepository->updateReservaVerificado($idReserva, !$reserva['verificado']);
+            
+            if (!$resultado) {
+                throw new Exception("No se pudo actualizar el estado de la reserva");
+            }
+
+            // Obtener la reserva actualizada y devolverla en el formato correcto
+            $reservaActualizada = $this->getReservaById($idReserva);
+            if (!$reservaActualizada) {
+                throw new Exception("No se pudo obtener la reserva actualizada");
+            }
+
+            return $reservaActualizada;
+            
+        } catch (Exception $e) {
+            error_log("Error al cambiar el estado de la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Anula una reserva y sus libros asociados
+     * @param int $idReserva
+     * @return array Datos de la reserva actualizada
+     * @throws Exception si no se encuentra la reserva o hay un error
+     */    public function anularReserva($idReserva) {
+        try {
+            // Primero verificamos que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva");
+            }
+
+            // Llamar al repositorio para anular la reserva
+            $resultado = $this->reservasRepository->anularReserva($idReserva);
+            
+            if (!$resultado) {
+                throw new Exception("No se pudo anular la reserva");
+            }
+
+            // Obtener la reserva actualizada y devolverla en el formato correcto
+            $reservaActualizada = $this->getReservaById($idReserva);
+            if (!$reservaActualizada) {
+                throw new Exception("No se pudo obtener la reserva actualizada");
+            }
+
+            return $reservaActualizada;
+            
+        } catch (Exception $e) {
+            error_log("Error al anular la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }    /**
+     * Actualiza los datos de una reserva (solo nombre, apellidos, correo y teléfono)
+     * @param int $idReserva ID de la reserva
+     * @param array $datos Datos a actualizar
+     * @return array Datos de la reserva actualizada
+     * @throws Exception si hay algún error o la reserva no existe
+     */
+    public function updateReservaById($idReserva, $datos) {
+        try {
+            // Verificar que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva con ID: " . $idReserva);
+            }
+            
+            // Preparar datos para actualizar
+            $datosActualizados = [];
+            
+            // Solo incluir los campos que se quieren actualizar
+            if (isset($datos['nombreAlumno'])) {
+                $datosActualizados['nombreAlumno'] = $datos['nombreAlumno'];
+            } else {
+                $datosActualizados['nombreAlumno'] = $reserva['nombreAlumno'];
+            }
+            
+            if (isset($datos['apellidosAlumno'])) {
+                $datosActualizados['apellidosAlumno'] = $datos['apellidosAlumno'];
+            } else {
+                $datosActualizados['apellidosAlumno'] = $reserva['apellidosAlumno'];
+            }
+            
+            if (isset($datos['correo'])) {
+                // Validar formato de correo si se va a actualizar
+                if (!filter_var($datos['correo'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception("El formato del correo electrónico no es válido");
+                }
+                $datosActualizados['correo'] = $datos['correo'];
+            } else {
+                $datosActualizados['correo'] = $reserva['correo'];
+            }
+            
+            if (isset($datos['telefono'])) {
+                $datosActualizados['telefono'] = $datos['telefono'];
+            } else {
+                $datosActualizados['telefono'] = $reserva['telefono'];
+            }
+            
+            // Llamar al repositorio para actualizar los datos
+            $resultado = $this->reservasRepository->updateReservaData($idReserva, $datosActualizados);
+            
+            if (!$resultado) {
+                throw new Exception("No se pudieron actualizar los datos de la reserva");
+            }
+            
+            // Obtener la reserva actualizada y devolverla
+            $reservaActualizada = $this->getReservaById($idReserva);
+            if (!$reservaActualizada) {
+                throw new Exception("No se pudo obtener la reserva actualizada");
+            }
+            
+            return $reservaActualizada;
+            
+        } catch (Exception $e) {
+            error_log("Error al actualizar la reserva: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
+     * Obtiene el justificante de una reserva por su ID
+     * @param int $idReserva ID de la reserva
+     * @return array Datos del justificante en formato base64
+     * @throws Exception si hay algún error o no se encuentra el justificante
+     */
+    public function getJustificanteByReservaId($idReserva) {
+        try {
+            // Verificar que la reserva exista
+            $reserva = $this->getReservaById($idReserva);
+            if (!$reserva) {
+                throw new Exception("No se encontró la reserva con ID: " . $idReserva);
+            }
+            
+            // Obtener el nombre del archivo de justificante
+            $nombreJustificante = $this->reservasRepository->getJustificanteByReservaId($idReserva);
+            
+            if (!$nombreJustificante) {
+                throw new Exception("La reserva no tiene un justificante asociado");
+            }
+            
+            // Ruta completa del archivo
+            $rutaJustificante = __DIR__ . '/../../justificantes/' . $nombreJustificante;
+            
+            // Verificar que el archivo existe
+            if (!file_exists($rutaJustificante)) {
+                throw new Exception("No se encontró el archivo de justificante en el servidor");
+            }
+            
+            // Obtener la extensión del archivo para determinar el tipo MIME
+            $extension = pathinfo($nombreJustificante, PATHINFO_EXTENSION);
+            $tipoMime = $this->getMimeType($extension);
+            
+            // Leer el contenido del archivo y codificarlo en base64
+            $contenidoArchivo = file_get_contents($rutaJustificante);
+            $base64 = base64_encode($contenidoArchivo);
+            
+            // Devolver la información del justificante
+            return [
+                'nombre' => $nombreJustificante,
+                'tipo' => $tipoMime,
+                'base64' => $base64
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error al obtener el justificante: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
+     * Determina el tipo MIME basado en la extensión del archivo
+     * @param string $extension Extensión del archivo
+     * @return string Tipo MIME correspondiente
+     */
+    private function getMimeType($extension) {
+        $extension = strtolower($extension);
+        
+        switch ($extension) {
+            case 'pdf':
+                return 'application/pdf';
+            case 'jpg':
+            case 'jpeg':
+                return 'image/jpeg';
+            case 'png':
+                return 'image/png';
+            case 'gif':
+                return 'image/gif';
+            default:
+                return 'application/octet-stream'; // Tipo genérico si no se reconoce la extensión
+        }
     }
 }
 ?>

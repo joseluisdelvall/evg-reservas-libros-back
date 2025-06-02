@@ -36,6 +36,11 @@
             ];
         }
 
+        /**
+         * Actualiza el período de reservas
+         * 
+         * @return array Respuesta con el estado y los datos del período
+         */
         public function updatePeriodoReservas() {
             try {
                 $data = json_decode(file_get_contents('php://input'), true);
@@ -45,6 +50,10 @@
                 }
                 
                 $result = $this->periodoReservasService->updatePeriodoReservas($data);
+
+                if(!$result) {
+                    return response('error', 'No se ha podido actualizar el período', null, 400);
+                }
                 
                 return response('success', 'Período actualizado correctamente', $result);
             } catch (Exception $e) {

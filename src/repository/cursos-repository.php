@@ -35,6 +35,25 @@
             return $cursos;
         }
 
+        public function getCursoById($id) {
+            $sql = "SELECT * FROM CURSO WHERE idCurso = ?";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+
+            if (!$resultado) {
+                return null;
+            }
+
+            $row = $resultado->fetch_assoc();
+            return new CursoEntity(
+                $row['idCurso'],
+                $row['nombre'],
+                $row['idEtapa']
+            );
+
+        }
     }
     
 ?>

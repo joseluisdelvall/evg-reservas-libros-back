@@ -20,6 +20,17 @@
             return $this->cursosRepository->getCursos();
 
         }
+
+        /**
+         * Obtiene un curso por su ID
+         * 
+         * @param int $id ID del curso
+         * @return array Curso
+         */
+        public function getCursoById($id) {
+            return $this->cursosRepository->getCursoById($id);
+        }
+
     }
 
 ?>

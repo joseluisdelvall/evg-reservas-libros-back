@@ -308,17 +308,55 @@
                 // Ejecutamos la consulta
                 $stmt->execute();
                 
-                if ($stmt->error) {
-                    throw new Exception("Error al actualizar el libro: " . $stmt->error);
+                if ($stmt->affected_rows > 0) {
+                    return $this->getLibro($id);
                 }
                 
-                // Recuperamos el libro actualizado
-                return $this->getLibro($id);
+                return null;
                 
             } catch (Exception $e) {
-                // Registrar el error en el log
-                error_log("Error en LibrosRepository::updateLibro: " . $e->getMessage());
-                // Propagar la excepción
+                error_log("Error en updateLibro: " . $e->getMessage());
+                throw $e;
+            }
+        }
+
+        /**
+         * Actualiza el estado de un libro en una reserva específica a "Anulado"
+         * 
+         * @param int $idLibro ID del libro
+         * @param int $idReserva ID de la reserva
+         * @return bool true si se actualizó correctamente
+         * @throws Exception Si hay errores en la operación
+         */
+        public function updateEstadoLibroReserva($idLibro, $idReserva) {
+            try {
+                // Comenzar una transacción
+                $this->conexion->begin_transaction();
+
+                // Actualizar el estado del libro en la reserva a "Anulado" (ID 6)
+                $sql = "UPDATE RESERVA_LIBRO SET idEstado = 6 WHERE idLibro = ? AND idReserva = ?";
+                $stmt = $this->conexion->prepare($sql);
+                
+                if (!$stmt) {
+                    throw new Exception("Error al preparar la consulta: " . $this->conexion->error);
+                }
+                
+                $stmt->bind_param("ii", $idLibro, $idReserva);
+                $stmt->execute();
+                
+                if ($stmt->affected_rows <= 0) {
+                    throw new Exception("No se encontró el libro en la reserva especificada");
+                }
+
+                // Confirmar la transacción
+                $this->conexion->commit();
+                
+                return true;
+                
+            } catch (Exception $e) {
+                // Revertir la transacción en caso de error
+                $this->conexion->rollback();
+                error_log("Error en updateEstadoLibroReserva: " . $e->getMessage());
                 throw $e;
             }
         }
