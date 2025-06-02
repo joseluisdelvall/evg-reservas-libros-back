@@ -45,6 +45,30 @@
             return response('success', 'Cursos obtenidos correctamente.', $cursosArray);
         }
 
+        /**
+         * Obtiene un curso por su ID
+         * 
+         * @param int $id ID del curso
+         * @return array Curso
+         */
+        public function getCursoById($id) {
+            $curso = $this->cursosService->getCursoById($id);
+
+            if(!$curso) {
+                return [
+                    'status' => 'error',
+                    'message' => 'No se ha encontrado el curso'
+                ];
+            }
+
+            $cursoDto = new CursoDto(
+                $curso->getId(),
+                $curso->getNombre(),
+                $curso->getEtapa()
+            );
+
+            return response('success', 'Curso obtenido correctamente.', $cursoDto->toArray());
+        }
     }
 
 ?>

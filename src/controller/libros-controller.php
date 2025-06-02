@@ -256,6 +256,32 @@
                 return response('error', $e->getMessage());
             }
         }
+
+        /**
+         * Actualiza el estado de un libro en una reserva específica a "Anulado"
+         * 
+         * @param array $params Array con los parámetros idLibro e idReserva
+         * @return array Respuesta con el estado y el mensaje de la operación
+         */
+        public function updateEstadoLibroReserva($params) {
+            try {
+                // Validar que se recibieron los parámetros necesarios
+                if (!isset($params['idLibro']) || !isset($params['idReserva'])) {
+                    return response('error', 'Faltan parámetros requeridos: idLibro e idReserva', null, 400);
+                }
+
+                // Actualizar el estado del libro en la reserva
+                $result = $this->librosService->updateEstadoLibroReserva($params['idLibro'], $params['idReserva']);
+
+                return response('success', 'Estado del libro en la reserva actualizado correctamente', $result);
+            } catch (Exception $e) {
+                // Registrar el error
+                error_log("Error en updateEstadoLibroReserva: " . $e->getMessage());
+                
+                // Devolver mensaje de error
+                return response('error', 'Error al actualizar el estado del libro en la reserva: ' . $e->getMessage(), null, 500);
+            }
+        }
     }
 
 ?>
