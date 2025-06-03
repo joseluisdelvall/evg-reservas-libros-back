@@ -42,30 +42,34 @@
         }
 
         /**
-         * Envía un correo electrónico utilizando los datos proporcionados en el modelo de correo.
+         * Envía un correo electrónico utilizando una plantilla HTML.
          *
          * Este método limpia los destinatarios y archivos adjuntos previos, agrega el nuevo destinatario,
          * renderiza la plantilla HTML con los datos proporcionados, y envía el correo electrónico.
          *
-         * @param EmailModel $emailModel Objeto que contiene la información del destinatario, asunto, plantilla y datos para el correo.
+         * @param string $emailDestino Email del destinatario
+         * @param string $asunto Asunto del correo
+         * @param string $plantilla Nombre de la plantilla (sin extensión .html)
+         * @param array $datos Array asociativo con los datos para reemplazar en la plantilla
+         * @param string $nombreDestino Nombre del destinatario (opcional)
          * @return bool Retorna true si el correo se envía correctamente.
          * @throws Exception Si ocurre un error durante el envío del correo, lanza una excepción con el mensaje de error correspondiente.
          */
-        public function sendEmail($emailModel) {
+        public function sendEmail($emailDestino, $asunto, $plantilla, $datos, $nombreDestino = '') {
             try {
                 // Limpiar destinatarios previos
                 $this->mail->clearAddresses();
                 $this->mail->clearAttachments();
                 
                 // Destinatario
-                $this->mail->addAddress($emailModel->getEmailDestino());
+                $this->mail->addAddress($emailDestino, $nombreDestino);
                 
                 // Renderizar la plantilla con los datos
-                $html = $this->renderPlantilla('../plantillas-emails/' . $emailModel->getPlantilla() . '.html', $emailModel->getDatos());
+                $html = $this->renderPlantilla($plantilla, $datos);
                 
                 // Contenido del correo
                 $this->mail->isHTML(true);
-                $this->mail->Subject = $emailModel->getAsunto();
+                $this->mail->Subject = $asunto;
                 $this->mail->Body    = $html;
                 $this->mail->AltBody = strip_tags($html);
                 
@@ -86,8 +90,39 @@
             
             $html = file_get_contents($ruta);
             
+            // Procesar condiciones del tutor
+            if (isset($datos['tieneTutor']) && $datos['tieneTutor']) {
+                // Mostrar sección del tutor
+                $html = preg_replace('/\{\{#tieneTutor\}\}(.*?)\{\{\/tieneTutor\}\}/s', '$1', $html);
+            } else {
+                // Ocultar sección del tutor
+                $html = preg_replace('/\{\{#tieneTutor\}\}(.*?)\{\{\/tieneTutor\}\}/s', '', $html);
+            }
+            
+            // Procesar lista de libros
+            if (isset($datos['libros']) && is_array($datos['libros'])) {
+                $librosHtml = '';
+                foreach ($datos['libros'] as $libro) {
+                    $precioFormateado = number_format($libro['precio'], 2, ',', '.');
+                    $librosHtml .= '
+                    <div class="libro-item">
+                        <div>
+                            <div class="libro-nombre">' . htmlspecialchars($libro['nombre']) . '</div>
+                            <div><small>Estado: ' . htmlspecialchars($libro['estado']) . '</small></div>
+                        </div>
+                        <div class="libro-precio">' . $precioFormateado . '€</div>
+                    </div>';
+                }
+                
+                // Reemplazar el bloque de libros
+                $html = preg_replace('/\{\{#each libros\}\}(.*?)\{\{\/each\}\}/s', $librosHtml, $html);
+            }
+            
+            // Reemplazar variables simples (excluyendo libros que ya se procesó)
             foreach ($datos as $clave => $valor) {
-                $html = str_replace('{{' . $clave . '}}', $valor, $html);
+                if ($clave !== 'libros' && !is_array($valor)) {
+                    $html = str_replace('{{' . $clave . '}}', $valor, $html);
+                }
             }
             
             return $html;
