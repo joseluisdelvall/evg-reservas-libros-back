@@ -40,6 +40,59 @@
                 throw new Exception("Error configurando SMTP: {$this->mail->ErrorInfo}");
             }
         }
+
+        /**
+         * Envía un correo electrónico utilizando los datos proporcionados en el modelo de correo.
+         *
+         * Este método limpia los destinatarios y archivos adjuntos previos, agrega el nuevo destinatario,
+         * renderiza la plantilla HTML con los datos proporcionados, y envía el correo electrónico.
+         *
+         * @param EmailModel $emailModel Objeto que contiene la información del destinatario, asunto, plantilla y datos para el correo.
+         * @return bool Retorna true si el correo se envía correctamente.
+         * @throws Exception Si ocurre un error durante el envío del correo, lanza una excepción con el mensaje de error correspondiente.
+         */
+        public function sendEmail($emailModel) {
+            try {
+                // Limpiar destinatarios previos
+                $this->mail->clearAddresses();
+                $this->mail->clearAttachments();
+                
+                // Destinatario
+                $this->mail->addAddress($emailModel->getEmailDestino());
+                
+                // Renderizar la plantilla con los datos
+                $html = $this->renderPlantilla($emailModel->getPlantilla(), $emailModel->getDatos());
+                
+                // Contenido del correo
+                $this->mail->isHTML(true);
+                $this->mail->Subject = $emailModel->getAsunto();
+                $this->mail->Body    = $html;
+                $this->mail->AltBody = strip_tags($html);
+                
+                $this->mail->send();
+                return true;
+                
+            } catch (Exception $e) {
+                throw new Exception("Error enviando correo: {$this->mail->ErrorInfo}");
+            }
+        }
+
+        private function renderPlantilla($nombrePlantilla, $datos) {
+            $ruta = __DIR__ . '/../plantillas-emails/' . $nombrePlantilla . '.html';
+            
+            if (!file_exists($ruta)) {
+                throw new Exception("Plantilla de email no encontrada: " . $nombrePlantilla);
+            }
+            
+            $html = file_get_contents($ruta);
+            
+            foreach ($datos as $clave => $valor) {
+                $html = str_replace('{{' . $clave . '}}', $valor, $html);
+            }
+            
+            return $html;
+        }
+
         
         public function sendTestEmail($toEmail, $toName = '') {
             try {
