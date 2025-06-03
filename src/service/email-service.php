@@ -1,7 +1,6 @@
 <?php
-    
-    require_once '../config/emailconfig.php';
-    require_once '../vendor/autoload.php'; // Asegúrate de tener PHPMailer instalado via Composer
+      require_once __DIR__ . '/../../config/emailconfig.php';
+    require_once __DIR__ . '/../../vendor/autoload.php'; // Asegúrate de tener PHPMailer instalado via Composer
 
     use PHPMailer\PHPMailer\PHPMailer;
     use PHPMailer\PHPMailer\SMTP;
