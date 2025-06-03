@@ -177,6 +177,73 @@ class ReservasRepository {
     }
 
     /**
+     * Obtiene el detalle de una reserva por su ID
+     * 
+     * @param int $idReserva ID de la reserva
+     * @return ReservaEntity|null Datos de la reserva o null si no existe
+     */
+    public function getReservaByIdCreate($idReserva) {
+        $sql = "SELECT r.*, c.nombre AS nombreCurso 
+                FROM RESERVA r
+                INNER JOIN CURSO c ON r.idCurso = c.idCurso 
+                WHERE r.idReserva = ?";
+        
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idReserva);
+        $stmt->execute();
+        
+        $resultado = $stmt->get_result();
+        
+        if ($resultado->num_rows > 0) {
+            $reservaData = $resultado->fetch_assoc();
+            
+            // Obtener los libros de la reserva
+            $sqlLibros = "SELECT rl.idLibro, l.nombre, rl.precioPagado, e.nombre AS estado 
+                        FROM RESERVA_LIBRO rl
+                        INNER JOIN LIBRO l ON rl.idLibro = l.idLibro
+                        INNER JOIN TM_ESTADO e ON rl.idEstado = e.idEstado
+                        WHERE rl.idReserva = ?";
+            
+            $stmtLibros = $this->conexion->prepare($sqlLibros);
+            $stmtLibros->bind_param("i", $idReserva);
+            $stmtLibros->execute();
+            
+            $resultadoLibros = $stmtLibros->get_result();
+            $libros = [];
+            
+            while ($libroData = $resultadoLibros->fetch_assoc()) {
+                $libros[] = [
+                    'id' => $libroData['idLibro'],
+                    'nombre' => $libroData['nombre'],
+                    'precio' => $libroData['precioPagado'],
+                    'estado' => $libroData['estado']
+                ];
+            }
+            
+            // Crear la entidad Reserva
+            return new ReservaEntity(
+                $reservaData['idReserva'],
+                $reservaData['nombreAlumno'],
+                $reservaData['apellidosAlumno'],
+                $reservaData['nombreTutorLegal'],
+                $reservaData['apellidosTutorLegal'],
+                $reservaData['correo'],
+                $reservaData['dni'],
+                $reservaData['telefono'],
+                $reservaData['justificante'],
+                $reservaData['fecha'],
+                $reservaData['verificado'],
+                $reservaData['totalPagado'],
+                $reservaData['idCurso'],
+                $libros,
+                $reservaData['nombreCurso']
+            );
+        }
+        
+        return null;
+    }
+
+    /**
      * Obtiene todas las reservas, con los datos del curso, que no están anuladas
      * 
      * @return array Respuesta con el estado de la operación

@@ -3,12 +3,16 @@
 require_once '../src/service/reservas-service.php';
 require_once '../src/dto/reserva-curso-dto.php';
 require_once '../src/utils/response.php';
+require_once '../src/service/email-service.php';
+require_once '../src/entity/email-model.php';
 
 class ReservasController {
     private $reservasService;
+    private $emailService;
     
     public function __construct() {
         $this->reservasService = new ReservasService();
+        $this->emailService = new EmailService();
     }
     
     /**
@@ -30,13 +34,30 @@ class ReservasController {
             $reservaDto = $this->reservasService->createReserva($data);
             
             // Enviar correo de confirmación
-            // $this->sendConfirmationEmail($reservaDto);
+            try {
+                $mailData = new EmailModel(
+                    $reservaDto->getCorreo(),
+                    'Confirmación de Reserva - EVG Reservas de Libros',
+                    'reserva-confirmacion',
+                    [
+                        'nombreAlumno' => $reservaDto->getNombreAlumno(),
+                        'apellidosAlumno' => $reservaDto->getApellidosAlumno(),
+                        'fecha' => $reservaDto->getFecha(),
+                        'estado' => 'Pendiente de verificación'
+                    ]
+                );
+
+                $this->emailService->sendEmail($mailData);
+            } catch (Exception $emailException) {
+                // Log the email error but don't fail the reservation
+                error_log("Error sending confirmation email: " . $emailException->getMessage());
+            }
             
             // Devolver respuesta exitosa
             return response('success', 'Reserva creada correctamente', $reservaDto->toArray());
             
         } catch (Exception $e) {
-            return response('error', $e->getMessage());
+            return response('error', $e->getMessage(), null, 500);
         }
     }
     

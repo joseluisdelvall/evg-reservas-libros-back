@@ -61,7 +61,7 @@
                 $this->mail->addAddress($emailModel->getEmailDestino());
                 
                 // Renderizar la plantilla con los datos
-                $html = $this->renderPlantilla($emailModel->getPlantilla(), $emailModel->getDatos());
+                $html = $this->renderPlantilla('../plantillas-emails/' . $emailModel->getPlantilla() . '.html', $emailModel->getDatos());
                 
                 // Contenido del correo
                 $this->mail->isHTML(true);
