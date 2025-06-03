@@ -9,8 +9,9 @@
             private $precio;
             private $estado;
             private $etapa;
+            private $stock;
 
-            public function __construct($id = null, $nombre = null, $isbn = null, $editorial = null, $precio = null, $estado = null, $etapa = null) {
+            public function __construct($id = null, $nombre = null, $isbn = null, $editorial = null, $precio = null, $estado = null, $etapa = null, $stock = null) {
                 $this->id = $id;
                 $this->nombre = $nombre;
                 $this->isbn = $isbn;
@@ -18,6 +19,7 @@
                 $this->precio = $precio;
                 $this->estado = $estado;
                 $this->etapa = $etapa;
+                $this->stock = $stock;
             }
     
             public function getId() {
@@ -47,6 +49,10 @@
             public function getEtapa() {
                 return $this->etapa;
             }
+
+            public function getStock() {
+                return $this->stock;
+            }
     
             public function setId($id) {
                 $this->id = $id;
@@ -75,6 +81,10 @@
             public function setEtapa($etapa) {
                 $this->etapa = $etapa;
             }
+
+            public function setStock($stock) {
+                $this->stock = $stock;
+            }
     
             // EN TODOS LOS DTOs se debe hacer un toArray(), para que se pueda enviar al cliente
             public function toArray() {
@@ -85,7 +95,8 @@
                     'editorial' => $this->editorial->toArray(),
                     'estado' => (boolean)$this->estado,
                     'precio' => (float)$this->precio,
-                    'etapa' => $this->etapa->toArray()
+                    'etapa' => $this->etapa->toArray(),
+                    'stock' => (int)$this->stock
                 ];
             }
     }
