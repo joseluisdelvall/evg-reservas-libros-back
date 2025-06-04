@@ -1,6 +1,7 @@
 <?php
 
 require_once '../src/entity/reserva-entity.php';
+require_once '../src/service/email-service.php';
 
 class ReservasRepository {
     private $conexion;
@@ -622,13 +623,93 @@ class ReservasRepository {
             $sqlUpdateStock = "UPDATE LIBRO SET stock = stock - 1 WHERE idLibro = ? AND stock > 0";
             $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
             $stmtUpdateStock->bind_param('i', $idLibro);
-            
-            if (!$stmtUpdateStock->execute()) {
+              if (!$stmtUpdateStock->execute()) {
                 throw new Exception('Error al actualizar stock del libro ' . $idLibro . ': ' . $stmtUpdateStock->error);
             }
         }
+          // Enviar email de confirmación de entrega después de procesar todos los libros
+        $this->enviarEmailConfirmacionEntrega($idReserva, $librosEntregados);
         
         return true;
+    }
+    
+    /**
+     * Envía un email de confirmación de entrega al usuario cuando recoge sus libros
+     * @param int $idReserva ID de la reserva
+     * @param array $librosEntregados Lista de IDs de libros entregados
+     */
+    private function enviarEmailConfirmacionEntrega($idReserva, $librosEntregados) {
+        try {
+            if (empty($librosEntregados)) {
+                return;
+            }
+            
+            $emailService = new EmailService();
+            
+            // Obtener información de la reserva y el usuario
+            $sql = "SELECT r.nombreAlumno, r.apellidosAlumno, r.correo 
+                    FROM RESERVA r 
+                    WHERE r.idReserva = ?";
+            
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param('i', $idReserva);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 0) {
+                error_log("No se encontró la reserva {$idReserva} para enviar email de confirmación");
+                return;
+            }
+            
+            $reservaData = $result->fetch_assoc();
+            
+            // Obtener información de los libros entregados
+            $in = implode(',', array_fill(0, count($librosEntregados), '?'));
+            $sqlLibros = "SELECT l.nombre as nombreLibro
+                          FROM LIBRO l 
+                          WHERE l.idLibro IN ($in)";
+            
+            $stmtLibros = $this->conexion->prepare($sqlLibros);
+            $stmtLibros->bind_param(str_repeat('i', count($librosEntregados)), ...$librosEntregados);
+            $stmtLibros->execute();
+            $resultLibros = $stmtLibros->get_result();
+            
+            // Construir la lista de libros para el email
+            $nombresLibros = [];
+            while ($row = $resultLibros->fetch_assoc()) {
+                $nombresLibros[] = $row['nombreLibro'];
+            }
+            
+            // Si solo hay un libro, usamos el nombre del libro
+            // Si hay varios, creamos una lista
+            $nombreLibro = count($nombresLibros) === 1 
+                ? $nombresLibros[0] 
+                : implode(', ', $nombresLibros);
+            
+            $fechaActual = date('d/m/Y');
+            
+            // Preparar datos para el email según la plantilla confirmacion-entrega.html
+            $datosEmail = [
+                'nombreAlumno' => $reservaData['nombreAlumno'],
+                'apellidosAlumno' => $reservaData['apellidosAlumno'],
+                'nombreLibro' => $nombreLibro,
+                'estadoLibro' => 'Entregado',
+                'fecha' => $fechaActual
+            ];
+            
+            // Enviar email usando el servicio existente
+            $emailService->sendEmail(
+                $reservaData['correo'],
+                'Confirmación de entrega de libro',
+                'confirmacionEntrega',
+                $datosEmail,
+                $reservaData['nombreAlumno'] . ' ' . $reservaData['apellidosAlumno']
+            );
+            
+        } catch (Exception $emailException) {
+            // Log del error pero no fallar toda la operación de entrega
+            error_log("Error enviando email de confirmación de entrega para reserva {$idReserva}: " . $emailException->getMessage());
+        }
     }
 }
 ?>
