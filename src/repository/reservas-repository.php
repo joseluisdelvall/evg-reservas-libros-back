@@ -286,6 +286,9 @@ class ReservasRepository {
 
     /**
      * Actualiza el estado de verificación de una reserva y sus libros asociados
+     * teniendo en cuenta que si hay stock de algún libro, se actualiza el estado 
+     * de la reserva a 4 [Recibido].
+     * 
      * @param int $idReserva ID de la reserva
      * @param bool $verificado Nuevo estado de verificación
      * @return bool true si se actualizó correctamente
@@ -302,19 +305,57 @@ class ReservasRepository {
             $stmt->bind_param("ii", $verificadoInt, $idReserva);
             $stmt->execute();
 
-            // Actualizar el estado de los libros asociados
-            // Si la reserva se verifica, los libros pasan a estado "Verificado" (ID 2)
-            // Si la reserva se desverifica, los libros vuelven a estado "Sin Verificar" (ID 1)
-            $nuevoEstadoLibros = $verificado ? 2 : 1;
-            $sqlLibros = "UPDATE RESERVA_LIBRO SET idEstado = ? WHERE idReserva = ?";
-            $stmtLibros = $this->conexion->prepare($sqlLibros);
-            $stmtLibros->bind_param("ii", $nuevoEstadoLibros, $idReserva);
-            $stmtLibros->execute();
+            if ($verificado) {
+                // Obtener los libros de la reserva con su stock actual
+                $sqlLibros = "SELECT rl.idLibro, l.stock 
+                             FROM RESERVA_LIBRO rl 
+                             INNER JOIN LIBRO l ON rl.idLibro = l.idLibro 
+                             WHERE rl.idReserva = ?";
+                $stmtLibros = $this->conexion->prepare($sqlLibros);
+                $stmtLibros->bind_param("i", $idReserva);
+                $stmtLibros->execute();
+                $resultLibros = $stmtLibros->get_result();
+
+                // Si hay stock de algún libro, se actualiza el estado de la reserva a 4 [Recibido].
+                // Si no hay stock de ningún libro, se actualiza el estado de la reserva a 2 [Pedido].
+                while ($libro = $resultLibros->fetch_assoc()) {
+                    $nuevoEstado = $libro['stock'] > 0 ? 4 : 2; // 4 = Recibido, 2 = Pendiente
+                    
+                    // Actualizar el estado del libro en la reserva
+                    $sqlUpdateEstado = "UPDATE RESERVA_LIBRO SET idEstado = ? WHERE idReserva = ? AND idLibro = ?";
+                    $stmtUpdateEstado = $this->conexion->prepare($sqlUpdateEstado);
+                    $stmtUpdateEstado->bind_param("iii", $nuevoEstado, $idReserva, $libro['idLibro']);
+                    $stmtUpdateEstado->execute();
+
+                    // Si el libro pasa a estado Recibido, reducir el stock
+                    if ($nuevoEstado === 4) {
+                        $sqlUpdateStock = "UPDATE LIBRO SET stock = stock - 1 WHERE idLibro = ?";
+                        $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
+                        $stmtUpdateStock->bind_param("i", $libro['idLibro']);
+                        $stmtUpdateStock->execute();
+                    }
+                }
+            } else {
+                // Si se desverifica la reserva, todos los libros vuelven a estado "Sin Verificar" (ID 1)
+                $sqlLibros = "UPDATE RESERVA_LIBRO SET idEstado = 1 WHERE idReserva = ?";
+                $stmtLibros = $this->conexion->prepare($sqlLibros);
+                $stmtLibros->bind_param("i", $idReserva);
+                $stmtLibros->execute();
+
+                // Restaurar el stock de los libros que estaban en estado Recibido
+                $sqlRestoreStock = "UPDATE LIBRO l 
+                                   INNER JOIN RESERVA_LIBRO rl ON l.idLibro = rl.idLibro 
+                                   SET l.stock = l.stock + 1 
+                                   WHERE rl.idReserva = ? AND rl.idEstado = 4";
+                $stmtRestoreStock = $this->conexion->prepare($sqlRestoreStock);
+                $stmtRestoreStock->bind_param("i", $idReserva);
+                $stmtRestoreStock->execute();
+            }
 
             // Confirmar la transacción
             $this->conexion->commit();
 
-            return $stmt->affected_rows > 0;
+            return true;
         } catch (Exception $e) {
             // Revertir la transacción en caso de error
             $this->conexion->rollback();
