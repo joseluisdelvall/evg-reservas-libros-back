@@ -60,7 +60,7 @@ class ReservasController {
                 $this->emailService->sendEmail(
                     $reservaDto->getCorreo(),
                     'Confirmación de Reserva - EVG Reservas de Libros',
-                    'reserva-confirmacion',
+                    'reservaConfirmada',
                     $datosEmail,
                     $reservaDto->getNombreAlumno() . ' ' . $reservaDto->getApellidosAlumno()
                 );

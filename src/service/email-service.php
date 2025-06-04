@@ -13,11 +13,11 @@
          * Envía un correo electrónico utilizando una plantilla HTML a través del endpoint GAS.
          */
         public function sendEmail($emailDestino, $asunto, $plantilla, $datos, $nombreDestino = '') {
-            // El parámetro $plantilla queda para compatibilidad, pero el endpoint decide qué plantilla usar (o lo puedes enviar en $datos si lo necesitas)
             return $this->callGASEndpoint([
                 "emailDestino" => $emailDestino,
                 "asunto" => $asunto,
                 "nombreDestino" => $nombreDestino,
+                "plantilla" => $plantilla,   // <-- AÑADIDO AQUÍ
                 "datos" => $datos
             ]);
         }
