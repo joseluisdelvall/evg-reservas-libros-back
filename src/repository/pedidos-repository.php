@@ -288,7 +288,7 @@ class PedidosRepository {
                     $emailService->sendEmail(
                         $row['correo'],
                         '¡Su libro ya está disponible para recoger!',
-                        'recibido-confirmacion',
+                        'libroRecibido',
                         $datosEmail,
                         $row['nombreAlumno'] . ' ' . $row['apellidosAlumno']
                     );
