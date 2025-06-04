@@ -1,5 +1,6 @@
 <?php
 require_once '../src/entity/pedido-entity.php';
+require_once '../src/service/email-service.php';
 
 class PedidosRepository {
     private $conexion;
@@ -225,8 +226,7 @@ class PedidosRepository {
                 while ($rowReserva = $resultReservas->fetch_assoc()) {
                     $idsReservasActualizar[] = $rowReserva['idReserva'];
                 }
-                
-                // Actualizar el estado de las reservas seleccionadas a 4 (Recibido)
+                  // Actualizar el estado de las reservas seleccionadas a 4 (Recibido)
                 if (!empty($idsReservasActualizar)) {
                     $in = implode(',', array_fill(0, count($idsReservasActualizar), '?'));
                     $sqlUpdateReservas = "UPDATE RESERVA_LIBRO SET idEstado = 4 WHERE idLibro = ? AND idReserva IN ($in)";
@@ -237,10 +237,71 @@ class PedidosRepository {
                     if (!$stmtUpdateReservas->execute()) {
                         throw new Exception('Error al actualizar estado de reservas: ' . $stmtUpdateReservas->error);
                     }
+                    
+                    // Enviar notificaciones por email a los usuarios cuyas reservas cambiaron a estado "Recibido"
+                    $this->enviarNotificacionesLibroRecibido($idsReservasActualizar, $libro['idLibro']);
                 }
             }
-        }
-        
+        }        
         return true;
+    }
+    
+    /**
+     * Envía notificaciones por email a usuarios cuando sus libros están listos para recoger
+     * @param array $idsReservas Array de IDs de reservas que cambiaron a estado "Recibido"
+     * @param int $idLibro ID del libro que se recibió
+     */
+    private function enviarNotificacionesLibroRecibido($idsReservas, $idLibro) {
+        try {
+            if (empty($idsReservas)) {
+                return;
+            }
+            
+            $emailService = new EmailService();
+            
+            // Obtener información de las reservas y el libro
+            $in = implode(',', array_fill(0, count($idsReservas), '?'));
+            $sql = "SELECT r.idReserva, r.nombreAlumno, r.apellidosAlumno, r.correo, l.nombre as nombreLibro
+                    FROM RESERVA r 
+                    INNER JOIN RESERVA_LIBRO rl ON r.idReserva = rl.idReserva
+                    INNER JOIN LIBRO l ON rl.idLibro = l.idLibro
+                    WHERE r.idReserva IN ($in) AND rl.idLibro = ?";
+            
+            $stmt = $this->conexion->prepare($sql);
+            $params = array_merge($idsReservas, [$idLibro]);
+            $stmt->bind_param(str_repeat('i', count($params)), ...$params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            $fechaActual = date('d/m/Y');
+            
+            while ($row = $result->fetch_assoc()) {
+                try {
+                    // Preparar datos para el email
+                    $datosEmail = [
+                        'nombreAlumno' => $row['nombreAlumno'],
+                        'apellidosAlumno' => $row['apellidosAlumno'],
+                        'nombreLibro' => $row['nombreLibro'],
+                        'estadoLibro' => 'Recibido',
+                        'fecha' => $fechaActual
+                    ];                    // Enviar email usando el servicio existente
+                    $emailService->sendEmail(
+                        $row['correo'],
+                        '¡Su libro ya está disponible para recoger!',
+                        'libroRecibido',
+                        $datosEmail,
+                        $row['nombreAlumno'] . ' ' . $row['apellidosAlumno']
+                    );
+                    
+                } catch (Exception $emailException) {
+                    // Log del error pero no fallar toda la operación
+                    error_log("Error enviando notificación de libro recibido para reserva {$row['idReserva']}: " . $emailException->getMessage());
+                }
+            }
+            
+        } catch (Exception $e) {
+            // Log del error pero no fallar toda la operación de actualización de pedidos
+            error_log("Error en enviarNotificacionesLibroRecibido: " . $e->getMessage());
+        }
     }
 }
