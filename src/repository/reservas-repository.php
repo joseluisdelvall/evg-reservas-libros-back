@@ -384,6 +384,7 @@ class ReservasRepository {
                 $stmtLibros->execute();
                 $resultLibros = $stmtLibros->get_result();
 
+                $librosParaRecoger = [];
                 // Si hay stock de algún libro, se actualiza el estado de la reserva a 4 [Recibido].
                 // Si no hay stock de ningún libro, se actualiza el estado de la reserva a 2 [Pedido].
                 while ($libro = $resultLibros->fetch_assoc()) {
@@ -401,7 +402,11 @@ class ReservasRepository {
                         $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
                         $stmtUpdateStock->bind_param("i", $libro['idLibro']);
                         $stmtUpdateStock->execute();
+                        $librosParaRecoger[] = $libro['idLibro'];
                     }
+                }
+                if (count($librosParaRecoger) > 0) {
+                    $this->enviarNotificacionesLibroRecibido($idReserva, $librosParaRecoger);
                 }
             } else {
                 // Si se desverifica la reserva, todos los libros vuelven a estado "Sin Verificar" (ID 1)
@@ -752,5 +757,85 @@ class ReservasRepository {
             error_log("Error enviando email de confirmación de entrega para reserva {$idReserva}: " . $emailException->getMessage());
         }
     }
+
+    /**
+     * Envía notificaciones por email cuando los libros están listos para recoger
+     * @param int $idReserva ID de la reserva
+     * @param array $librosParaRecoger Array de IDs de libros que están listos para recoger
+     */
+    private function enviarNotificacionesLibroRecibido($idReserva, $librosParaRecoger) {
+        try {
+            if (empty($librosParaRecoger)) {
+                return;
+            }
+            
+            $emailService = new EmailService();
+            
+            // Primero obtener los datos de la reserva
+            $sqlReserva = "SELECT r.idReserva, r.nombreAlumno, r.apellidosAlumno, r.correo
+                          FROM RESERVA r 
+                          WHERE r.idReserva = ?";
+            
+            $stmtReserva = $this->conexion->prepare($sqlReserva);
+            $stmtReserva->bind_param('i', $idReserva);
+            $stmtReserva->execute();
+            $resultReserva = $stmtReserva->get_result();
+            
+            if ($resultReserva->num_rows === 0) {
+                throw new Exception("No se encontró la reserva con ID: " . $idReserva);
+            }
+            
+            $datosReserva = $resultReserva->fetch_assoc();
+            
+            // Luego obtener los libros
+            $inLibros = implode(',', array_fill(0, count($librosParaRecoger), '?'));
+            $sqlLibros = "SELECT l.nombre as nombreLibro
+                         FROM LIBRO l 
+                         WHERE l.idLibro IN ($inLibros)";
+            
+            $stmtLibros = $this->conexion->prepare($sqlLibros);
+            $stmtLibros->bind_param(str_repeat('i', count($librosParaRecoger)), ...$librosParaRecoger);
+            $stmtLibros->execute();
+            $resultLibros = $stmtLibros->get_result();
+            
+            // Construir la lista HTML de libros
+            $listaLibros = "<ul style='margin: 0; padding-left: 20px;'>";
+            while ($libro = $resultLibros->fetch_assoc()) {
+                $listaLibros .= "<li style='margin: 5px 0;'>" . $libro['nombreLibro'] . "</li>";
+            }
+            $listaLibros .= "</ul>";
+            
+            $fechaActual = date('d/m/Y');
+            
+            try {
+                // Preparar datos para el email
+                $datosEmail = [
+                    'nombreAlumno' => $datosReserva['nombreAlumno'],
+                    'apellidosAlumno' => $datosReserva['apellidosAlumno'],
+                    'nombreLibro' => $listaLibros,
+                    'estadoLibro' => '<span style="display: inline-block; padding: 3px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; background-color: #28a745; color: white;">Recibido</span>',
+                    'fecha' => $fechaActual
+                ];
+                
+                // Enviar email usando el servicio existente
+                $emailService->sendEmail(
+                    $datosReserva['correo'],
+                    '¡Sus libros ya están disponibles para recoger!',
+                    'libroRecibido',
+                    $datosEmail,
+                    $datosReserva['nombreAlumno'] . ' ' . $datosReserva['apellidosAlumno']
+                );
+                
+            } catch (Exception $emailException) {
+                // Log del error pero no fallar toda la operación
+                error_log("Error enviando notificación de libros recibidos para reserva {$datosReserva['idReserva']}: " . $emailException->getMessage());
+            }
+            
+        } catch (Exception $e) {
+            // Log del error pero no fallar toda la operación de actualización de pedidos
+            error_log("Error en enviarNotificacionesLibroRecibido: " . $e->getMessage());
+        }
+    }
+
 }
 ?>
