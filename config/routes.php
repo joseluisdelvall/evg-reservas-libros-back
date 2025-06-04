@@ -67,6 +67,9 @@
         // ENTREGAS DE LIBROS
         'GET /api/reservas/entregas' => 'ReservasController@getReservasEntrega', // Recogemos todas las reservas
         'POST /api/reserva/:id/entregar-libros' => 'ReservasController@entregarLibros', // deberemos recoger el idReserva y en el body un array con el id de los libros que queremos entregar
+        
+        // EMAIL
+        'POST /api/email/test' => 'EmailController@sendTestEmail', // Enviar correo de prueba
     ];
     
 ?>

@@ -3,12 +3,15 @@
 require_once '../src/service/reservas-service.php';
 require_once '../src/dto/reserva-curso-dto.php';
 require_once '../src/utils/response.php';
+require_once '../src/service/email-service.php';
 
 class ReservasController {
     private $reservasService;
+    private $emailService;
     
     public function __construct() {
         $this->reservasService = new ReservasService();
+        $this->emailService = new EmailService();
     }
     
     /**
@@ -30,13 +33,47 @@ class ReservasController {
             $reservaDto = $this->reservasService->createReserva($data);
             
             // Enviar correo de confirmación
-            // $this->sendConfirmationEmail($reservaDto);
+            try {
+                // Formatear la fecha a dd/mm/yyyy
+                $fechaFormateada = date('d/m/Y', strtotime($reservaDto->getFecha()));
+                
+                // Preparar los datos del tutor (solo si existen)
+                $datosEmail = [
+                    'nombreAlumno' => $reservaDto->getNombreAlumno(),
+                    'apellidosAlumno' => $reservaDto->getApellidosAlumno(),
+                    'correo' => $reservaDto->getCorreo(),
+                    'dni' => $reservaDto->getDni(),
+                    'telefono' => $reservaDto->getTelefono(),
+                    'fecha' => $fechaFormateada,
+                    'totalPagado' => number_format($reservaDto->getTotalPagado(), 2, ',', '.'),
+                    'estado' => 'Pendiente de verificación',
+                    'libros' => $reservaDto->getLibros(),
+                    'tieneTutor' => !empty($reservaDto->getNombreTutorLegal())
+                ];
+                
+                // Agregar datos del tutor solo si existen
+                if (!empty($reservaDto->getNombreTutorLegal())) {
+                    $datosEmail['nombreTutorLegal'] = $reservaDto->getNombreTutorLegal();
+                    $datosEmail['apellidosTutorLegal'] = $reservaDto->getApellidosTutorLegal();
+                }
+                
+                $this->emailService->sendEmail(
+                    $reservaDto->getCorreo(),
+                    'Confirmación de Reserva - EVG Reservas de Libros',
+                    'reservaConfirmada',
+                    $datosEmail,
+                    $reservaDto->getNombreAlumno() . ' ' . $reservaDto->getApellidosAlumno()
+                );
+            } catch (Exception $emailException) {
+                // Log the email error but don't fail the reservation
+                error_log("Error sending confirmation email: " . $emailException->getMessage());
+            }
             
             // Devolver respuesta exitosa
             return response('success', 'Reserva creada correctamente', $reservaDto->toArray());
             
         } catch (Exception $e) {
-            return response('error', $e->getMessage());
+            return response('error', $e->getMessage(), null, 500);
         }
     }
     

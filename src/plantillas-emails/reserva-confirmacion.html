@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Reserva</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .estado {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #ffc107;
+            color: #856404;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #666;
+            font-size: 14px;
+        }
+        .highlight {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .total-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .libro-item {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .libro-nombre {
+            font-weight: bold;
+            color: #495057;
+        }
+        .libro-precio {
+            margin-left: 20px;
+            color: #28a745;
+            font-weight: bold;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>&#x2705; Reserva Confirmada</h1>
+            <p>Sistema de Reservas de Libros EVG</p>
+        </div>
+
+        <div class="content">
+            <p>Estimado/a <span class="highlight">{{nombreAlumno}} {{apellidosAlumno}}</span>,</p>
+            
+            <p>Su reserva de libros ha sido <strong>registrada correctamente</strong> en nuestro sistema.</p>
+
+            <div class="info-box">
+                <h3>&#x1F4CB; Datos de la Reserva</h3>
+                <p><strong>Estudiante:</strong> {{nombreAlumno}} {{apellidosAlumno}}</p>
+                <p><strong>DNI:</strong> {{dni}}</p>
+                <p><strong>Correo:</strong> {{correo}}</p>
+                <p><strong>Teléfono:</strong> {{telefono}}</p>
+                {{#tieneTutor}}
+                <p><strong>Tutor Legal:</strong> {{nombreTutorLegal}} {{apellidosTutorLegal}}</p>
+                {{/tieneTutor}}
+                <p><strong>Fecha de Reserva:</strong> {{fecha}}</p>
+                <p><strong>Estado:</strong> <span class="estado">{{estado}}</span></p>
+            </div>
+
+            <div class="info-box">
+                <h3>&#x1F4DA; Libros Reservados</h3>
+                {{#each libros}}
+                <div class="libro-item">
+                    <div>
+                        <div class="libro-nombre">{{this.nombre}}</div>
+                        <div><small>Estado: {{this.estado}}</small></div>
+                    </div>
+                    <div class="libro-precio">{{this.precio}}€</div>
+                </div>
+                {{/each}}
+                
+                <div class="total-amount">
+                    &#x1F4B0; Total Pagado: {{totalPagado}}€
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>&#x2139;&#xFE0F; Información Importante</h3>
+                <ul>
+                    <li>Su reserva está pendiente de verificación por parte del centro.</li>
+                    <li>Una vez verificada, procederemos al pedido de los libros a las editoriales correspondientes.</li>
+                    <li>Le notificaremos cuando los libros estén disponibles para recoger.</li>
+                    <li>Conserve este correo como justificante de su reserva.</li>
+                    <li>Si tiene alguna consulta, póngase en contacto con el centro educativo.</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>&#x1F4DE; Contacto</h3>
+                <p>Para cualquier consulta relacionada con su reserva, puede contactar con nosotros:</p>
+                <p><strong>Centro Educativo EVG</strong><br>
+                Sistema de Reservas de Libros</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>¡Gracias por confiar en nosotros!</strong></p>
+            <p><small>Este correo ha sido generado automáticamente. No responda a este mensaje.</small></p>
+            <p><small>&copy; {{fecha}} - Centro Educativo EVG</small></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -52,7 +52,7 @@ class ReservasService {
             }
             
             // Obtener la reserva completa con sus libros
-            $reservaCreada = $this->reservasRepository->getReservaById($idReserva);
+            $reservaCreada = $this->reservasRepository->getReservaByIdCreate($idReserva);
             
             if (!$reservaCreada) {
                 throw new Exception("No se pudo recuperar la reserva creada");
@@ -76,9 +76,15 @@ class ReservasService {
                 $reservaCreada->getId(),
                 $reservaCreada->getNombreAlumno(),
                 $reservaCreada->getApellidosAlumno(),
+                $reservaCreada->getNombreTutorLegal(),
+                $reservaCreada->getApellidosTutorLegal(),
                 $reservaCreada->getCorreo(),
+                $reservaCreada->getDni(),
+                $reservaCreada->getTelefono(),
+                $reservaCreada->getJustificante(),
                 $reservaCreada->getFecha(),
                 $reservaCreada->getVerificado(),
+                $reservaCreada->getTotalPagado(),
                 $reservaCreada->getIdCurso(),
                 $librosFormateados
             );

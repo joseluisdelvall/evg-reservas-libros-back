@@ -2,6 +2,7 @@ vendor/
 .vscode/
 *.log
 config/configdb.php
+config/emailconfig.php
 justificantes/
 src/resources/sql/
 .htaccess
