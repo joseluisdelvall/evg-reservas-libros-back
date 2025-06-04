@@ -323,6 +323,14 @@
         /**
          * Actualiza el estado de un libro en una reserva específica a "Anulado"
          * 
+         * Se actualiza el stock del libro en caso de que el estado actual del 
+         * libro en la reserva a anular sea 4 [Recibido] o 5 [Recogido] y no exista una 
+         * reserva pendiente para este libro. Si existe una reserva pendiente para este libro, 
+         * se actualiza el estado de la siguiente reserva a 4 [Recibido].
+         * 
+         * En caso de que el estado actual del libro en la reserva a anular sea 3 [Pedido], 
+         * se actualiza el estado de la siguiente reserva a 3 [Pedido].
+         * 
          * @param int $idLibro ID del libro
          * @param int $idReserva ID de la reserva
          * @return bool true si se actualizó correctamente
@@ -330,35 +338,83 @@
          */
         public function updateEstadoLibroReserva($idLibro, $idReserva) {
             try {
-                // Comenzar una transacción
+                // Comenzar transacción
                 $this->conexion->begin_transaction();
 
-                // Actualizar el estado del libro en la reserva a "Anulado" (ID 6)
-                $sql = "UPDATE RESERVA_LIBRO SET idEstado = 6 WHERE idLibro = ? AND idReserva = ?";
-                $stmt = $this->conexion->prepare($sql);
+                // Obtener el ESTADO ACTUAL del LIBRO en la reserva a ANULAR
+                $sqlEstado = "SELECT idEstado FROM RESERVA_LIBRO WHERE idLibro = ? AND idReserva = ?";
+                $stmtEstado = $this->conexion->prepare($sqlEstado);
+                $stmtEstado->bind_param("ii", $idLibro, $idReserva);
+                $stmtEstado->execute();
+                $resultEstado = $stmtEstado->get_result();
                 
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . $this->conexion->error);
-                }
-                
-                $stmt->bind_param("ii", $idLibro, $idReserva);
-                $stmt->execute();
-                
-                if ($stmt->affected_rows <= 0) {
+                if ($resultEstado->num_rows === 0) {
                     throw new Exception("No se encontró el libro en la reserva especificada");
                 }
+                
+                $rowEstado = $resultEstado->fetch_assoc();
+                // Estado actual del libro en la reserva a anular
+                $estadoActualRervAnular = (int)$rowEstado['idEstado'];
 
+                // Actualizar el estado del libro en la reserva a "Anulado" [ID 6]
+                $sql = "UPDATE RESERVA_LIBRO SET idEstado = 6 WHERE idLibro = ? AND idReserva = ?";
+                $stmt = $this->conexion->prepare($sql);
+                $stmt->bind_param("ii", $idLibro, $idReserva);
+                $stmt->execute();
+
+                // En el caso de que el estado actual de la reserva a anular sea 1 [Pendiente] o 2 [Pedido], 
+                // no se actualiza el estado de la siguiente reserva.
+                if ($estadoActualRervAnular != 1 && $estadoActualRervAnular != 2) {
+                    // Buscar la SIGUIENTE RESERVA con este LIBRO en estado PENDIENTE
+                    $sqlSiguienteReserva = "SELECT rl.idReserva 
+                                      FROM RESERVA_LIBRO rl 
+                                      INNER JOIN RESERVA r ON rl.idReserva = r.idReserva 
+                                      WHERE rl.idLibro = ? AND rl.idEstado = 2 
+                                      ORDER BY r.fecha ASC, rl.idReserva ASC 
+                                      LIMIT 1";
+                    $stmtSiguienteReserva = $this->conexion->prepare($sqlSiguienteReserva);
+                    $stmtSiguienteReserva->bind_param("i", $idLibro);
+                    $stmtSiguienteReserva->execute();
+                    $resultSiguienteReserva = $stmtSiguienteReserva->get_result();
+
+                        // Si hay una reserva pendiente para este libro, se actualiza el estado de la siguiente reserva
+                    if ($resultSiguienteReserva->num_rows > 0) {
+                        $rowSiguienteReserva = $resultSiguienteReserva->fetch_assoc();
+                        
+                        // Determinar el nuevo estado del libro dela SIGUIENTE RESERVA según el estado actual
+                        if ($estadoActualRervAnular === 3) { // Si el ESTADO actual es PEDIDO
+                            $nuevoEstado = 3; // Mantener como PEDIDO
+                        } else if (in_array($estadoActualRervAnular, [4, 5])) { // Si el estado es Recibido o Recogido
+                            $nuevoEstado = 4; // Asignar como Recibido
+                        }
+                        
+                        // Actualizar el estado de la siguiente reserva
+                        $sqlActualizarSiguiente = "UPDATE RESERVA_LIBRO SET idEstado = ? 
+                                                WHERE idLibro = ? AND idReserva = ?";
+                        $stmtActualizarSiguiente = $this->conexion->prepare($sqlActualizarSiguiente);
+                        $stmtActualizarSiguiente->bind_param("iii", $nuevoEstado, $idLibro, $rowSiguienteReserva['idReserva']);
+                        $stmtActualizarSiguiente->execute();
+                    } else if (in_array($estadoActualRervAnular, [4, 5])) {
+                        // Si no hay reservas pendientes y el estado era Recibido o Recogido, aumentar el stock
+                        $sqlUpdateStock = "UPDATE LIBRO SET stock = stock + 1 WHERE idLibro = ?";
+                        $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
+                        $stmtUpdateStock->bind_param("i", $idLibro);
+                        $stmtUpdateStock->execute();
+                    }
+
+                }
                 // Confirmar la transacción
                 $this->conexion->commit();
-                
+                // Devolver true si la transacción se ha realizado correctamente
                 return true;
                 
             } catch (Exception $e) {
-                // Revertir la transacción en caso de error
+                // Revertir la transacción en caso de error                
                 $this->conexion->rollback();
                 error_log("Error en updateEstadoLibroReserva: " . $e->getMessage());
                 throw $e;
             }
+
         }
 
         /**
