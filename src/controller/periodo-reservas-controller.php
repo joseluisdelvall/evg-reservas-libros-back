@@ -2,14 +2,30 @@
     
     require_once '../src/service/periodo-reservas-service.php';
     require_once '../src/dto/periodo-reservas-dto.php';
+    require_once '../src/middleware/auth-middleware.php';
 
     class PeriodoReservasController {
 
         private $periodoReservasService;
+        private $authMiddleware;
 
         public function __construct() {
             // Inicializar el servicio
             $this->periodoReservasService = new PeriodoReservasService();
+            $this->authMiddleware = new AuthMiddleware();
+        }
+
+        /**
+         * Método privado para verificar la autenticación
+         * @return bool|void Retorna true si está autenticado o termina la ejecución si no lo está
+         */
+        private function verificarAuth() {
+            $resultado = $this->authMiddleware->verificarAutenticacion();
+            if ($resultado !== true) {
+                echo json_encode($resultado);
+                exit;
+            }
+            return true;
         }
 
         /**
@@ -42,6 +58,9 @@
          * @return array Respuesta con el estado y los datos del período
          */
         public function updatePeriodoReservas() {
+            // Verificar autenticación antes de proceder
+            $this->verificarAuth();
+
             try {
                 $data = json_decode(file_get_contents('php://input'), true);
                 

@@ -2,14 +2,30 @@
 
     require_once '../src/service/editoriales-service.php';
     require_once '../src/dto/editorial-dto.php';
+    require_once '../src/middleware/auth-middleware.php';
 
     class EditorialesController {
 
         private $editorialesService;
+        private $authMiddleware;
 
         public function __construct() {
             // Inicializar el servicio
             $this->editorialesService = new EditorialesService();
+            $this->authMiddleware = new AuthMiddleware();
+        }
+
+        /**
+         * Método privado para verificar la autenticación
+         * @return bool|void Retorna true si está autenticado o termina la ejecución si no lo está
+         */
+        private function verificarAuth() {
+            $resultado = $this->authMiddleware->verificarAutenticacion();
+            if ($resultado !== true) {
+                echo json_encode($resultado);
+                exit;
+            }
+            return true;
         }
 
         /**
@@ -86,6 +102,9 @@
          * @return array Respuesta con el estado y el mensaje de la operación
          */
         public function addEditorial() {
+            // Verificar autenticación antes de proceder
+            $this->verificarAuth();
+
             // Obtener los datos de la solicitud
             try {
                 $data = json_decode(file_get_contents('php://input'), true);
@@ -131,6 +150,9 @@
          * @return array Respuesta con el estado y el mensaje de la operación
          */
         public function updateEditorial($id) {
+            // Verificar autenticación antes de proceder
+            $this->verificarAuth();
+
             try {
                 $data = json_decode(file_get_contents('php://input'), true);
                 
@@ -170,6 +192,9 @@
      * @return array Respuesta con el estado y el mensaje de la operación
      */
     public function cambiarEstadoEditorial($id) {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         try {
             $result = $this->editorialesService->cambiarEstadoEditorial($id);
             return response('success', 'Estado de la editorial actualizado correctamente.', $result->toArray());

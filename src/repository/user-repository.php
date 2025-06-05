@@ -9,6 +9,22 @@
         
         public function __construct() {
             require_once '../conexionTmpBD/conexion.php';
+            // Incluir configuración
+            include_once '../config/configdb.php';
+
+            // Crear la conexión directamente
+            $this->conexion = new mysqli(SERVIDOR, USUARIO, PASSWORD, BBDD);
+            $this->conexion->set_charset("utf8");
+            
+            // Configurar el controlador de errores
+            $this->controlador = new mysqli_driver();
+            $this->controlador->report_mode = MYSQLI_REPORT_OFF;
+            
+            // Verificar la conexión
+            if ($this->conexion->connect_error) {
+                die("Error de conexión: " . $this->conexion->connect_error);
+            }
+
         }
 
         public function isUserRegister(string $email): ?UserEntity {

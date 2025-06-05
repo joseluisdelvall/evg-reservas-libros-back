@@ -3,13 +3,29 @@
 require_once '../src/service/libros-cursos-service.php';
 require_once '../src/dto/libro-curso-dto.php';
 require_once '../src/utils/response.php';
+require_once '../src/middleware/auth-middleware.php';
 
 class LibrosCursosController {
     
     private $librosCursosService;
+    private $authMiddleware;
     
     public function __construct() {
         $this->librosCursosService = new LibrosCursosService();
+        $this->authMiddleware = new AuthMiddleware();
+    }
+
+    /**
+     * Método privado para verificar la autenticación
+     * @return bool|void Retorna true si está autenticado o termina la ejecución si no lo está
+     */
+    private function verificarAuth() {
+        $resultado = $this->authMiddleware->verificarAutenticacion();
+        if ($resultado !== true) {
+            echo json_encode($resultado);
+            exit;
+        }
+        return true;
     }
     
     /**
@@ -85,6 +101,9 @@ class LibrosCursosController {
      * @return array Respuesta con el estado y el mensaje de la operación
      */
     public function asignarLibroACurso() {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             
@@ -115,6 +134,9 @@ class LibrosCursosController {
      * @return array Respuesta con el estado y el mensaje de la operación
      */
     public function eliminarAsignacion($params = null) {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         try {
             // En lugar de recibir un ID, ahora necesitamos recibir los IDs del libro y curso
             // Estos podrían venir como parámetros en la URL o en el cuerpo de la solicitud

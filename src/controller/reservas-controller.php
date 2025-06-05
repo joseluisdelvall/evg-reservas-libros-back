@@ -4,14 +4,30 @@ require_once '../src/service/reservas-service.php';
 require_once '../src/dto/reserva-curso-dto.php';
 require_once '../src/utils/response.php';
 require_once '../src/service/email-service.php';
+require_once '../src/middleware/auth-middleware.php';
 
 class ReservasController {
     private $reservasService;
     private $emailService;
+    private $authMiddleware;
     
     public function __construct() {
         $this->reservasService = new ReservasService();
         $this->emailService = new EmailService();
+        $this->authMiddleware = new AuthMiddleware();
+    }
+    
+    /**
+     * Método privado para verificar la autenticación
+     * @return bool|void Retorna true si está autenticado o termina la ejecución si no lo está
+     */
+    private function verificarAuth() {
+        $resultado = $this->authMiddleware->verificarAutenticacion();
+        if ($resultado !== true) {
+            echo json_encode($resultado);
+            exit;
+        }
+        return true;
     }
     
     /**
@@ -136,6 +152,9 @@ class ReservasController {
      * @return array Respuesta con el estado de la operación
      */
     public function entregarLibros($idReserva) {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             $this->reservasService->entregarLibros($idReserva, $data);
@@ -151,29 +170,15 @@ class ReservasController {
      * @return array Respuesta con el estado de la operación
      */
     public function getReservas() {
-        $reservas = $this->reservasService->getAllReservas();
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
 
-        if(!$reservas) {
-            return response('error', 'No se han encontrado reservas', null, 404);
+        try {
+            $reservas = $this->reservasService->getAllReservas();
+            return response('success', 'Reservas obtenidas correctamente', $reservas);
+        } catch (Exception $e) {
+            return response('error', $e->getMessage(), null, 500);
         }
-        
-        $reservasDto = array_map(function($reserva) {
-            return new ReservaCursoDto(
-                $reserva['id'],
-                $reserva['nombreAlumno'],
-                $reserva['apellidosAlumno'],
-                $reserva['correo'],
-                $reserva['telefono'],
-                $reserva['fecha'],
-                $reserva['verificado'],
-                $reserva['totalPagado'],
-                $reserva['nombreCurso']
-            );
-        }, $reservas);
-
-        return response('success', 'Reservas obtenidas correctamente', array_map(function($dto) { 
-            return $dto->toArray(); 
-        }, $reservasDto));
     }
 
     /**
@@ -195,6 +200,9 @@ class ReservasController {
      * @return array Respuesta con el estado de la operación
      */
     public function deleteReserva($id) {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         $resultado = $this->reservasService->deleteReserva($id);
         if ($resultado) {
             return response('success', 'Reserva eliminada correctamente');
@@ -239,18 +247,26 @@ class ReservasController {
      * @return array Respuesta con el estado de la operación
      */
     public function cambiarEstadoReserva($id) {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         try {
             $result = $this->reservasService->cambiarEstadoReserva($id);
             return response('success', 'Estado de la reserva actualizado correctamente', $result);
         } catch (Exception $e) {
             return response('error', $e->getMessage(), null, 500);
         }
-    }    /**
+    }
+    
+    /**
      * Anula una reserva por su ID
      * @param int $id ID de la reserva
      * @return array Respuesta con el estado de la operación
      */
     public function anularReservaById($id) {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         try {
             $result = $this->reservasService->anularReserva($id);
             return response('success', 'Reserva anulada correctamente', $result);
@@ -264,6 +280,9 @@ class ReservasController {
      * @return array Respuesta con el estado de la operación
      */
     public function updateReservaById($id) {
+        // Verificar autenticación antes de proceder
+        $this->verificarAuth();
+
         try {
             // Obtener los datos enviados en el cuerpo de la solicitud
             $data = json_decode(file_get_contents('php://input'), true);

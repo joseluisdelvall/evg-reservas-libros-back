@@ -5,14 +5,30 @@
     require_once '../src/dto/editorial-min-dto.php';
     require_once '../src/dto/etapa-dto.php';
     require_once '../src/utils/response.php';
+    require_once '../src/middleware/auth-middleware.php';
 
     class LibrosController {
 
         private $librosService;
+        private $authMiddleware;
 
         public function __construct() {
             // Inicializar el servicio
             $this->librosService = new LibrosService();
+            $this->authMiddleware = new AuthMiddleware();
+        }
+
+        /**
+         * Método privado para verificar la autenticación
+         * @return bool|void Retorna true si está autenticado o termina la ejecución si no lo está
+         */
+        private function verificarAuth() {
+            $resultado = $this->authMiddleware->verificarAutenticacion();
+            if ($resultado !== true) {
+                echo json_encode($resultado);
+                exit;
+            }
+            return true;
         }
 
         /**
@@ -155,6 +171,9 @@
          * @return array Respuesta con el estado y el mensaje de la operación
          */
         public function addLibro() {
+            // Verificar autenticación antes de proceder
+            $this->verificarAuth();
+
             // Obtener los datos de la solicitud
             try {
                 $data = json_decode(file_get_contents('php://input'), true);
@@ -172,6 +191,9 @@
          * @return array Respuesta con el estado y los datos del libro actualizado
          */
         public function updateLibro($id) {
+            // Verificar autenticación antes de proceder
+            $this->verificarAuth();
+
             try {
                 // Obtener los datos de la solicitud
                 $data = json_decode(file_get_contents('php://input'), true);
@@ -206,6 +228,9 @@
          * @return array Respuesta con el estado y el mensaje de la operación
          */
         public function cambiarEstadoLibro($id) {
+            // Verificar autenticación antes de proceder
+            $this->verificarAuth();
+
             try {
                 
                 // Cambiar el estado del libro
@@ -273,6 +298,9 @@
          * @return array Respuesta con el estado y el mensaje de la operación
          */
         public function updateEstadoLibroReserva($params) {
+            // Verificar autenticación antes de proceder
+            $this->verificarAuth();
+
             try {
                 // Validar que se recibieron los parámetros necesarios
                 if (!isset($params['idLibro']) || !isset($params['idReserva'])) {
