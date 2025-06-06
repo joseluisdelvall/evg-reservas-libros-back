@@ -394,7 +394,7 @@
                         $stmtActualizarSiguiente = $this->conexion->prepare($sqlActualizarSiguiente);
                         $stmtActualizarSiguiente->bind_param("iii", $nuevoEstado, $idLibro, $rowSiguienteReserva['idReserva']);
                         $stmtActualizarSiguiente->execute();
-                    } else if (in_array($estadoActualRervAnular, [4, 5])) {
+                    } else if ($estadoActualRervAnular == 5) {
                         // Si no hay reservas pendientes y el estado era Recibido o Recogido, aumentar el stock
                         $sqlUpdateStock = "UPDATE LIBRO SET stock = stock + 1 WHERE idLibro = ?";
                         $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
