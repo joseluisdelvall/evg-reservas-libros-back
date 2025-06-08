@@ -200,14 +200,7 @@ class PedidosRepository {
                     throw new Exception('Error al actualizar unidades recibidas: ' . $stmtUpdate->error);
                 }
                 
-                // Actualizar stock del libro
-                $sqlUpdateStock = "UPDATE LIBRO SET stock = stock + ? WHERE idLibro = ?";
-                $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
-                $stmtUpdateStock->bind_param('ii', $libro['cantidadRecibida'], $libro['idLibro']);
                 
-                if (!$stmtUpdateStock->execute()) {
-                    throw new Exception('Error al actualizar stock del libro: ' . $stmtUpdateStock->error);
-                }
                 
                 // Actualizar estado de reservas de idEstado = 3 (Pedido) a idEstado = 4 (Recibido)
                 // Obtener las reservas con estado 3 ordenadas por fecha de reserva y luego por ID

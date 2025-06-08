@@ -362,7 +362,7 @@
                 $stmt->bind_param("ii", $idLibro, $idReserva);
                 $stmt->execute();
 
-                // En el caso de que el estado actual de la reserva a anular sea 1 [Pendiente] o 2 [Pedido], 
+                // En el caso de que el estado actual de la reserva a anular sea 1 [Sin Verificar] o 2 [Pendiente de pedir], 
                 // no se actualiza el estado de la siguiente reserva.
                 if ($estadoActualRervAnular != 1 && $estadoActualRervAnular != 2) {
                     // Buscar la SIGUIENTE RESERVA con este LIBRO en estado PENDIENTE
@@ -394,7 +394,7 @@
                         $stmtActualizarSiguiente = $this->conexion->prepare($sqlActualizarSiguiente);
                         $stmtActualizarSiguiente->bind_param("iii", $nuevoEstado, $idLibro, $rowSiguienteReserva['idReserva']);
                         $stmtActualizarSiguiente->execute();
-                    } else if ($estadoActualRervAnular == 5) {
+                    } else if (in_array($estadoActualRervAnular, [4, 5])) {
                         // Si no hay reservas pendientes y el estado era Recibido o Recogido, aumentar el stock
                         $sqlUpdateStock = "UPDATE LIBRO SET stock = stock + 1 WHERE idLibro = ?";
                         $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
