@@ -664,14 +664,6 @@ class ReservasRepository {
             if ($stmtUpdate->affected_rows === 0) {
                 throw new Exception('No se pudo actualizar el estado del libro ' . $idLibro);
             }
-            
-            // Reducir el stock del libro
-            $sqlUpdateStock = "UPDATE LIBRO SET stock = stock - 1 WHERE idLibro = ? AND stock > 0";
-            $stmtUpdateStock = $this->conexion->prepare($sqlUpdateStock);
-            $stmtUpdateStock->bind_param('i', $idLibro);
-              if (!$stmtUpdateStock->execute()) {
-                throw new Exception('Error al actualizar stock del libro ' . $idLibro . ': ' . $stmtUpdateStock->error);
-            }
         }
           // Enviar email de confirmación de entrega después de procesar todos los libros
         $this->enviarEmailConfirmacionEntrega($idReserva, $librosEntregados);
