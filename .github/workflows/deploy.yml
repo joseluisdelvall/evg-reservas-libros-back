@@ -1,7 +1,7 @@
 # Despliegue automático de las aplicaciones al hacer commits en las ramas main y demo
 # La rama MAIN se despliega en produccion (aplicacion que se usa en el centro)
 # La rama DEMO es una rama espejo para hacer pruebas de nuevas funcionalidades
-# PRIMERO SE MERGEA EN DEMO Y LUEGO DEMO SE PASA A MAIN, NUNCA AL REVÉS (puedes cargarte la app de producción)
+# PRIMERO SE MERGEA EN DEMO Y LUEGO DEMO SE PASA A MAIN, NUNCA AL REVÉS (puedes cargarte la app de producción).
 
 name: Deploy via FTP (main & demo)
 
