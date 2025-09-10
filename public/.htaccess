@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /evg-reservas-libros-back/
+    RewriteBase /reservas-libros/evg-reservas-libros-back/
     
     # Redirigir todo a index.php
     RewriteCond %{REQUEST_FILENAME} !-f
