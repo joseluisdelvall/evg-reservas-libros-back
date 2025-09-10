@@ -12,9 +12,9 @@
 
             // Cambiar en caso de traslado, con / al final
             'prod' => true,
-            'base_name' => ':NOMBRECARPETA/',
-            'base_url' => 'https://11.proyectos.esvirgua.com/:NOMBRECARPETA/',
-            'base_url_front' => 'https://11.proyectos.esvirgua.com/evg-reservas-libros-front-demo/',
+            'base_name' => '/reservas-libros/:NOMBRECARPETA/',
+            'base_url' => 'https://aplicaciones.esvirgua.com/reservas-libros/:NOMBRECARPETA/',
+            'base_url_front' => 'https://aplicaciones.esvirgua.com/evg-reservas-libros-front-demo/',
             'google_client_id' => '660176374148-klpm52u3brlqsmpjvqci3ruk5qk1ofnl.apps.googleusercontent.com',
             'id_aplicacion' => '1',
             'dominio_correo' => 'alumnado.fundacionloyola.net;fundacionloyola.es',
