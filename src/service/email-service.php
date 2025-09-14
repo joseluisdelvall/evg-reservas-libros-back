@@ -2,7 +2,7 @@
 
     class EmailService {
         // private $endpointUrl = "https://script.google.com/macros/s/AKfycbx6sFapTH0N2KbDX0gfCIjPN2aGdyGEj_lss9h4TFhc4ht_5QjWA5Bl0drSS12INrce0A/exec"; // ENDPOINT proy******os@gmail.com
-        private $endpointUrl = "https://script.google.com/macros/s/AKfycbx55JJkU3oCwRAsM8J9RuTlH_nHX1k9_BBt3ACzN6X2eibMacs46z6D7rTThjVsNzWo/exec"; // ENDPOINT cuenta personal joseluis
+        private $endpointUrl = "https://script.google.com/macros/s/AKfycbzkXVczz9CbcLtRzTfzBr00Gdtzj5lLroKnGz13gtbshPNuEO0el2vl-KQUGIWslKBJ/exec"; // ENDPOINT cuenta Aplicaciones Guadalupe
         public function __construct($endpointUrl = null) {
             if ($endpointUrl) {
                 $this->endpointUrl = $endpointUrl;
